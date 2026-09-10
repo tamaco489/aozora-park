@@ -40,6 +40,7 @@ PR の種類ごとに 3 通り。
 | `single.md`  | 単体 Issue     | `chore/issue-N/...` などから `main`                    |
 
 リリース PR は `create-release-pr` スキル、サブ PR と単体 PR は `smart-commit` スキルが作る。
+リリース PR はリリースブランチを作った直後に出す。サブ PR が揃うのを待たない。
 
 ディレクトリに置いたテンプレートは自動適用されない。
 `gh pr create --template <ファイル名>` を使うか、GitHub MCP で本文を明示的に渡す。

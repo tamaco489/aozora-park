@@ -47,6 +47,10 @@ git branch --show-current
 
 メイン Issue に紐づくサブ Issue と、リリースブランチへの PR を集める。
 
+**リリース PR はリリースブランチを作った直後に出してよい。** サブ Issue が全件 open でも構わない。
+先に出しておくとサブ PR の集約先とリリースの全体像が 1 か所で追える。
+未完了があることは中断の理由にならず、下の確認は「未完了があると承知のうえで作るか」を尋ねるためのもの。
+
 - `issue_read` (method: `get_sub_issues`) でサブ Issue の一覧と open / closed を取る
 - `list_pull_requests` で base がリリースブランチの PR を取り、マージ済みかを見る
 
