@@ -1,4 +1,4 @@
-golang 1.26.5
+golang 1.27.1
 nodejs 24.13.0
 buf 1.72.0
 golangci-lint 2.12.2

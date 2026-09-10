@@ -96,7 +96,7 @@ git branch -r --list 'origin/release/*'
 以下のグループでコミットします。よろしいですか？
 
 [グループ 1] #12 feat: 優先パスの申込ハンドラを追加 (backend)
-  - backend/internal/handler/priority_pass.go
+  - backend/internal/prioritypass/handler/connect.go
 
 [グループ 2] #12 chore: commit rules を追加 (chore)
   - .claude/rules/github/commit-types.md
