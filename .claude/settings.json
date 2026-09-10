@@ -9,6 +9,36 @@
             "type": "command",
             "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-commit-message.py",
             "statusMessage": "コミットメッセージを検査中"
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-issue.py",
+            "statusMessage": "Issue の規約を検査中"
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-pr.py",
+            "statusMessage": "PR の規約を検査中"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__github__issue_write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-issue.py",
+            "statusMessage": "Issue の規約を検査中"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__github__create_pull_request",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-pr.py",
+            "statusMessage": "PR の規約を検査中"
           }
         ]
       }
