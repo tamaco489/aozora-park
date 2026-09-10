@@ -1,9 +1,11 @@
-# Terraform のコーディング規約
+# インフラのコーディング規約
+
+ディレクトリは `infra/`。Terraform で Google Cloud のリソースを定義する。
 
 ## ディレクトリの分け方
 
-- 環境は workspace ではなく `terraform/envs/{env}/` のディレクトリで分ける。当面は `dev` のみ
-- 部品は `terraform/modules/{name}/` に置く。`envs/{env}/main.tf` はモジュールを呼び出すだけで、リソース定義を書かない
+- 環境は workspace ではなく `infra/envs/{env}/` のディレクトリで分ける。当面は `dev` のみ
+- 部品は `infra/modules/{name}/` に置く。`envs/{env}/main.tf` はモジュールを呼び出すだけで、リソース定義を書かない
 - provider の設定 (`provider "google" {}`、`default_labels`) と backend (GCS) は環境ディレクトリにだけ書く。モジュールは `required_providers` で要件を宣言するだけにする
 
 ## モジュールのファイル構成

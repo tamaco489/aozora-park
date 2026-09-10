@@ -9,7 +9,7 @@ PR と Issue のタイトルに付けるラベルと、コミットメッセー�
 | ---------- | --------- | --------------------------------------------------------- |
 | `frontend` | `#fb10a9` | フロントエンド (`frontend/` 配下)                         |
 | `backend`  | `#4147d4` | Go の実装 (`backend/` 配下)                               |
-| `infra`    | `#b22ac3` | Terraform (`terraform/` 配下)                             |
+| `infra`    | `#b22ac3` | Terraform (`infra/` 配下)                                 |
 | `ci`       | `#efcc12` | CI ワークフロー (`.github/workflows/ci-*.yml`)            |
 | `cd`       | `#f49c51` | CD ワークフロー・デプロイ (`.github/workflows/cd-*.yml`)  |
 | `docs`     | `#1b072f` | ドキュメント (`docs/`, `README`, `CLAUDE.md`, `.claude/`) |
