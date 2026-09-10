@@ -1,2 +1,24 @@
 .claude/hooks/__pycache__
 .claude/settings.local.json
+
+# Go
+*.exe
+*.test
+*.out
+coverage.txt
+
+# Node
+node_modules/
+dist/
+
+# 環境変数・秘匿値
+.env
+.env.*
+!.env.example
+
+# エミュレータの出力
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+
+.DS_Store
