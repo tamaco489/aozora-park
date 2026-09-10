@@ -7,38 +7,30 @@ description: "git の差分を適切な粒度でグループ化し、コミッ�
 
 ## 処理ステップ概要
 
-| Step | 内容                   | 概要                                                                            |
-| ---- | ---------------------- | ------------------------------------------------------------------------------- |
-| 1    | 差分の取得             | `git status` / `git diff` で変更ファイルを把握する                              |
-| 2    | ブランチ確認           | 現在のブランチを確認し、必要に応じてユーザーに確認を取る                        |
-| 3    | グループ化             | 変更ファイルを機能・ディレクトリ・変更種別で適切にグループ化する                |
-| 4    | コミットメッセージ生成 | テンプレートに従い各グループのコミットメッセージを生成する                      |
-| 5    | コミット実行           | グループ単位で `git add` → `git commit` を順に実行する                          |
-| 6    | push                   | Bash の `git push` で現在のブランチを push する                                 |
-| 7    | PR 確認・作成 (任意)   | main ブランチ以外の場合、既存 PR を確認してから必要に応じて作成・ラベル設定する |
-| 8    | 結果報告               | コミット数・push 結果・PR URL をユーザーに報告する                              |
+| Step | 内容                   | 概要                                                             |
+| ---- | ---------------------- | ---------------------------------------------------------------- |
+| 1    | 差分の取得             | `git status` / `git diff` で変更ファイルを把握する               |
+| 2    | ブランチ確認           | 現在のブランチから PR の base とテンプレートを決める             |
+| 3    | グループ化             | 変更ファイルを機能・ディレクトリ・変更種別で適切にグループ化する |
+| 4    | コミットメッセージ生成 | 規約に従い各グループのコミットメッセージを生成する               |
+| 5    | コミット実行           | グループ単位で `git add` → `git commit` を順に実行する           |
+| 6    | push                   | Bash の `git push` で現在のブランチを push する                  |
+| 7    | PR 確認・作成 (任意)   | 既存 PR を確認し、なければテンプレートに従って作成する           |
+| 8    | 結果報告               | コミット数・push 結果・PR URL をユーザーに報告する               |
 
 ## 制約事項
 
 > [!IMPORTANT]
 >
-> - **コミットは必ず1グループずつ順番に実行する** (並列実行禁止)
+> - **コミットは必ず 1 グループずつ順番に実行する** (並列実行禁止)
 > - `.env` やシークレットを含む可能性があるファイルはコミット前にユーザーに確認する
->   [!NOTE]
-> - コミットメッセージは `.claude/rules/github/commit-types.md` と
->   `.claude/rules/github/commit-subject.md` に従う
-> - push には GitHub MCP の `push_files` ではなく Bash の `git push` を使う
-> - PR 作成は GitHub MCP (`create_pull_request`) を使う
-> - PR のタイトル・本文は `.claude/rules/github/pr-description.md` に従う
+> - **`main` へ直接コミット・push しない** (`CLAUDE.md`)
 
-## ブランチ別の動作
-
-| 現在のブランチ | 確認事項                                                          |
-| -------------- | ----------------------------------------------------------------- |
-| `main`         | main へ直接コミットしてよいか確認する (y/n)                       |
-| `main` 以外    | push 後に既存 PR を確認し、なければ PR を作成するか確認する (y/n) |
-
-どちらも **No** の場合はスキルを中断し、ユーザーに次の対応を案内する。
+- コミットメッセージは `.claude/rules/github/commit-types.md` と `.claude/rules/github/commit-subject.md` に従う
+- PR のタイトル・本文は `.claude/rules/github/pr-description.md` に従い、本文は `.github/PULL_REQUEST_TEMPLATE/` のテンプレートを埋める
+- push には GitHub MCP の `push_files` ではなく Bash の `git push` を使う
+- PR 作成は GitHub MCP (`create_pull_request`) を使う
+- **GitHub のラベルは付けない** (`.claude/rules/github/issue.md` の「ラベル」を参照)
 
 ---
 
@@ -62,12 +54,21 @@ git diff --stat HEAD
 git branch --show-current
 ```
 
-現在のブランチに応じてユーザーへ確認を取る。
+現在のブランチから、PR の base と使うテンプレートを決める。
 
-- **main の場合**: 「現在 `main` ブランチです。main へ直接コミットしてもよいですか？ (y/n)」
-- **main 以外の場合**: コミット・push 後に「PR を作成しますか？ (y/n)」と確認する (Step 6 完了後)
+| 現在のブランチ           | PR の base       | テンプレート |
+| ------------------------ | ---------------- | ------------ |
+| `release/main-issue-N/…` | `main`           | `release.md` |
+| `feature/sub-issue-N/…`  | リリースブランチ | `sub.md`     |
+| `chore/issue-N/…` など   | `main`           | `single.md`  |
+| `main`                   | —                | —            |
 
-**No** の場合: 処理を中断する。main の場合は新規ブランチ作成を案内する。
+- **`main` の場合**: 「現在 `main` ブランチです。作業ブランチを切りますか？」と確認する。直接コミットはしない
+- サブブランチの場合、base にするリリースブランチを次で探し、複数あるか見つからない場合はユーザーに確認する
+
+```bash
+git branch -r --list 'origin/release/*'
+```
 
 ### Step 3: グループ化
 
@@ -75,17 +76,17 @@ git branch --show-current
 
 **グループ化の基準:**
 
-| 優先度 | 基準                   | 例                                    |
-| ------ | ---------------------- | ------------------------------------- |
-| 1      | 論理的なまとまり       | 新機能1つ、バグ修正1つ、など目的単位  |
-| 2      | ディレクトリのまとまり | `.claude/rules/` 配下の変更をまとめる |
-| 3      | 変更種別のまとまり     | 設定ファイル群、ドキュメント群など    |
+| 優先度 | 基準                   | 例                                       |
+| ------ | ---------------------- | ---------------------------------------- |
+| 1      | 論理的なまとまり       | 新機能 1 つ、バグ修正 1 つ、など目的単位 |
+| 2      | ディレクトリのまとまり | `.claude/rules/` 配下の変更をまとめる    |
+| 3      | 変更種別のまとまり     | 設定ファイル群、ドキュメント群など       |
 
 **グループ化のルール:**
 
-- 1コミットに含めるファイルは「同じ目的・同じ文脈」のものに限る
-- 関係のないファイルを1つのコミットに混在させない
-- 1ファイルのみの変更でもそのままグループ単体でコミットしてよい
+- 1 コミットに含めるファイルは「同じ目的・同じ文脈」のものに限る
+- 関係のないファイルを 1 つのコミットに混在させない
+- 1 ファイルのみの変更でもそのままグループ単体でコミットしてよい
 
 グループ化の結果をユーザーに提示し、問題がなければ Step 4 へ進む。
 
@@ -94,18 +95,32 @@ git branch --show-current
 ```text
 以下のグループでコミットします。よろしいですか？
 
-[グループ 1] feat: AppSync Subscription ハンドラを追加
-  - backend/lambda/handler.go
+[グループ 1] #12 feat: 優先パスの申込ハンドラを追加 (backend)
+  - backend/internal/handler/priority_pass.go
 
-[グループ 2] chore: commit rules を追加
+[グループ 2] #12 chore: commit rules を追加 (chore)
   - .claude/rules/github/commit-types.md
   - .claude/rules/github/commit-subject.md
 ```
 
 ### Step 4: コミットメッセージ生成
 
-`.claude/rules/github/commit-types.md` と
-`.claude/rules/github/commit-subject.md` に従いメッセージを生成する。
+`.claude/rules/github/commit-subject.md` の形式でメッセージを生成する。
+
+```text
+#<Issue 番号> <type>: <subject> (<スコープ>)
+
+<本文>
+```
+
+- **Issue 番号と本文は必須。** 対応する Issue が無い場合は先に Issue を作る
+- 本文は「何が問題だったか → どう変えたか」の順で書く
+- type は `.claude/rules/github/commit-types.md`、スコープは `.claude/rules/github/labels.md` から選ぶ
+
+> [!NOTE]
+>
+> 規約に合わないメッセージは PreToolUse フック (`.claude/hooks/check-commit-message.py`) が拒否する。
+> 拒否されたら書き直して再実行する。
 
 ### Step 5: コミット実行
 
@@ -113,7 +128,12 @@ git branch --show-current
 
 ```bash
 git add <対象ファイル...>
-git commit -m "<type>: <subject>"
+git commit -m "$(cat <<'MSG'
+#<Issue 番号> <type>: <subject> (<スコープ>)
+
+<本文>
+MSG
+)"
 ```
 
 **注意事項:**
@@ -131,18 +151,18 @@ git commit -m "<type>: <subject>"
 git push origin <current-branch>
 ```
 
-main ブランチへの初回 push の場合は `-u` フラグを付ける。
+作業ブランチの初回 push では `-u` を付ける。
 
 > [!NOTE]
 >
-> main ブランチへの force push は絶対に行わない。
+> force push は行わない。
 
 ### Step 7: PR 確認・作成 (任意)
 
 push 完了後、GitHub MCP (`list_pull_requests`) で現在のブランチの PR が既に存在するか確認する。
 
 ```text
-既存 PR あり → PR の URL をユーザーに報告して終了（新規作成しない）
+既存 PR あり → PR の URL をユーザーに報告して終了 (新規作成しない)
 既存 PR なし → 「PR を作成しますか？ (y/n)」とユーザーに確認する
 ```
 
@@ -150,10 +170,9 @@ push 完了後、GitHub MCP (`list_pull_requests`) で現在のブランチの P
 
 **Yes** の場合は GitHub MCP (`create_pull_request`) で PR を作成する。
 
-PR のタイトル・本文は `.claude/rules/github/pr-description.md` に従う。
-
-- base ブランチは `main` に固定する
-- PR 作成後、GitHub MCP (`issue_write`) で `.claude/rules/github/labels.md` に従いラベルを設定する
+- base は Step 2 で決めたブランチにする
+- タイトルは `.claude/rules/github/pr-description.md` の 3 形式から、ブランチに対応するものを選ぶ
+- 本文は Step 2 で決めたテンプレートを読み、その見出し構成のまま埋める。埋められない項目とコメント (`<!-- -->`) は削除する
 - PR の URL をユーザーに報告する
 
 ### Step 8: 結果報告
