@@ -24,6 +24,7 @@
 | `chore/issue-20/fix-lint`       | `main`                   | 単体 Issue の番号   |
 
 - 種別は `commit-types.md` の type と同じものを使う (`feature` だけは `feat` ではなくこの綴り)
+- サブ Issue と単体 Issue の種別は、タイトルの変更種別に合わせる (`[ci] [ci] ...` なら `ci/sub-issue-<番号>/...`)
 - 単体 Issue は親子関係を持たないため `issue-<番号>` とする
 - `<内容>` は英小文字とハイフンで短く付ける
 - サブ Issue の PR は base をリリースブランチにする
