@@ -1,3 +1,3 @@
 module github.com/tamaco489/aozora-park/backend
 
-go 1.26.5
+go 1.27.1
