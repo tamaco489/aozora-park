@@ -72,6 +72,15 @@ GitHub のサブ Issue 機能で紐付ける。本文にチェックリストで
 - 作成時に紐付ける場合は `issue_write` の `parent_issue_number` を使う
 - あとから紐付ける場合は `sub_issue_write` を使う (`sub_issue_id` は Issue 番号ではなく ID)
 
+## Issue を閉じる
+
+**サブ Issue は PR がマージされても自動では閉じない。** GitHub が `Closes #N` で自動的に閉じるのは
+base が既定ブランチ (`main`) の PR だけで、サブ PR の base はリリースブランチのため対象外になる。
+
+- サブ PR をマージしたら、対応するサブ Issue を手で閉じる。完了条件の確認結果をコメントに残す
+- メイン Issue はリリースブランチを `main` へマージした時点で `Closes #N` により自動で閉じる
+- 単体 Issue も base が `main` のため自動で閉じる
+
 ## 書くこと・書かないこと
 
 - **完了条件は動作で確かめられる形にする** (「buf generate が通り、Go と TS のコードが生成される」)
