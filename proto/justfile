@@ -1,0 +1,18 @@
+default:
+    @just --list
+
+# 規約の検査
+lint:
+    buf lint
+
+# 整形
+fmt:
+    buf format -w
+
+# 整形漏れの検査
+fmt-check:
+    buf format --diff --exit-code
+
+# Go と TypeScript のコードを生成する
+generate:
+    buf generate

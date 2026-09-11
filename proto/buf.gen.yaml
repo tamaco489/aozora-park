@@ -1,0 +1,20 @@
+# xxx
+version: v2
+managed:
+  enabled: true
+  override:
+    - file_option: go_package_prefix
+      value: github.com/tamaco489/aozora-park/backend/gen
+plugins:
+  # xxx
+  - remote: buf.build/protocolbuffers/go:v1.36.12
+    out: ../backend/gen
+    opt: paths=source_relative
+  # xxx
+  - remote: buf.build/connectrpc/go:v1.21.0
+    out: ../backend/gen
+    opt: paths=source_relative
+  # xxx
+  - remote: buf.build/bufbuild/es:v2.14.1
+    out: ../frontend/src/gen
+    opt: target=ts
