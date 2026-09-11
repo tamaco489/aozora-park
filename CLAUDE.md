@@ -13,6 +13,7 @@
 | `.claude/rules/general/` | 応答・表記、作業の進め方、justfile |
 | `.claude/rules/github/`  | コミット、Issue、PR、ラベル        |
 | `.claude/rules/go/`      | Go のコーディングとテスト          |
+| `.claude/rules/proto/`   | proto と buf のコーディング        |
 | `.claude/rules/infra/`   | Terraform のコーディング           |
 
 - [docs/README.ja.md](docs/README.ja.md) — プロジェクトの構成・アーキテクチャ
