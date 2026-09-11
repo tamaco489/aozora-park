@@ -17,11 +17,14 @@ import sys
 SCOPES = [
     "frontend",
     "backend",
+    "proto",
     "infra",
     "ci",
     "cd",
     "docs",
-    "chore",
+    "claude",
+    "vscode",
+    "repo",
 ]
 
 # .claude/rules/github/commit-types.md

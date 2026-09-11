@@ -79,13 +79,13 @@ Issue 化する対象を確定する。ユーザーが指定しない場合は�
 ```text
 以下の分割でサブ Issue を作成します。よろしいですか？
 
-[サブ 1] [chore] [chore] モノレポの雛形を作成
+[サブ 1] [repo] [chore] モノレポの雛形を作成
   - ディレクトリ構成、go.mod、.gitignore
 
 [サブ 2] [backend] [feat] buf の初期化と hello world proto の追加
   - buf.yaml / buf.gen.yaml、proto の定義、生成コードのコミット
 
-[サブ 3] [chore] [chore] docker compose に Firestore エミュレータを追加
+[サブ 3] [repo] [chore] docker compose に Firestore エミュレータを追加
 ```
 
 ### Step 5: 内容の確定

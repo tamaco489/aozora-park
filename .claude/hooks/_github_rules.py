@@ -9,7 +9,7 @@ import shlex
 import subprocess
 import sys
 
-LABELS = ["frontend", "backend", "infra", "ci", "cd", "docs", "chore"]
+LABELS = ["frontend", "backend", "proto", "infra", "ci", "cd", "docs", "claude", "vscode", "repo"]
 TYPES = ["feat", "fix", "docs", "refactor", "chore", "add", "remove", "test", "ci"]
 
 LABEL = f"(?:{'|'.join(LABELS)})"

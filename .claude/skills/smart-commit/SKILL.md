@@ -98,7 +98,7 @@ git branch -r --list 'origin/release/*'
 [グループ 1] #12 feat: 優先パスの申込ハンドラを追加 (backend)
   - backend/internal/prioritypass/handler/connect.go
 
-[グループ 2] #12 chore: commit rules を追加 (chore)
+[グループ 2] #12 chore: commit rules を追加 (repo)
   - .claude/rules/github/commit-types.md
   - .claude/rules/github/commit-subject.md
 ```
