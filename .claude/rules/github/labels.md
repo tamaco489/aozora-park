@@ -5,18 +5,17 @@ PR と Issue のタイトルに付けるラベルと、コミットメッセー�
 
 ここに定義するのはタイトル用のラベルのみ。GitHub 上のラベル (`bug` など) は対象外とする。
 
-| ラベル     | 色        | 対象スコープ                                                                 |
-| ---------- | --------- | ---------------------------------------------------------------------------- |
-| `frontend` | `#fb10a9` | フロントエンド (`frontend/` 配下)                                            |
-| `backend`  | `#4147d4` | Go の実装 (`backend/` 配下)                                                  |
-| `proto`    | `#00b8d9` | Protocol Buffers と buf の設定 (`proto/` 配下)                               |
-| `infra`    | `#b22ac3` | Terraform (`infra/` 配下)                                                    |
-| `ci`       | `#efcc12` | CI ワークフロー (`.github/workflows/ci-*.yml`)                               |
-| `cd`       | `#f49c51` | CD ワークフロー・デプロイ (`.github/workflows/cd-*.yml`)                     |
-| `docs`     | `#1b072f` | ドキュメント (`docs/` 配下、`README`)                                        |
-| `claude`   | `#6f42c1` | Claude Code の設定 (`CLAUDE.md`、`.claude/` 配下)                            |
-| `vscode`   | `#007acc` | エディタ設定 (`.vscode/` 配下)                                               |
-| `repo`     | `#0e8a16` | リポジトリ直下の設定 (`.gitignore`、`.tool-versions`、`docker-compose.yaml`) |
+| ラベル     | 色        | 対象スコープ                                                |
+| ---------- | --------- | ----------------------------------------------------------- |
+| `frontend` | `#fb10a9` | フロントエンド (`frontend/` 配下)                           |
+| `backend`  | `#4147d4` | Go の実装 (`backend/` 配下)                                 |
+| `proto`    | `#00b8d9` | Protocol Buffers と buf の設定 (`proto/` 配下)              |
+| `infra`    | `#b22ac3` | Terraform (`infra/` 配下)                                   |
+| `ci`       | `#efcc12` | CI ワークフロー (`.github/workflows/ci-*.yml`)              |
+| `cd`       | `#f49c51` | CD ワークフロー・デプロイ (`.github/workflows/cd-*.yml`)    |
+| `claude`   | `#6f42c1` | Claude Code の設定 (`CLAUDE.md`、`.claude/` 配下)           |
+| `vscode`   | `#007acc` | エディタ設定 (`.vscode/` 配下)                              |
+| `repo`     | `#0e8a16` | リポジトリ全体 (`README`、`docs/` 配下、直下の設定ファイル) |
 
 ## ラベルは置き場所で選ぶ
 
@@ -25,3 +24,8 @@ PR と Issue のタイトルに付けるラベルと、コミットメッセー�
 - 変更したファイルのパスから機械的に決める。判断が要るのは複数の領域にまたがるときだけ
 - またがる場合はコミットを分ける。分けられないときは、変更の中心にある領域を選ぶ
 - **どれにも当てはまらない場合、Claude は勝手に選ばずユーザーに確認する。** 受け皿のラベルを作らないのは、そこに何でも入って分類が意味を失うため
+
+ドキュメントだけは置き場所ではなく、**何を説明しているか**で選ぶ。`docs/` に置いた backend の構成説明は `backend`、
+リポジトリ全体を説明する `README` と `docs/` 直下の文書は `repo` にする。
+
+`docs` というラベルを作らないのは、commit type の `docs` と必ず同じ語になり、`docs: ... (docs)` のように情報が重複するため。

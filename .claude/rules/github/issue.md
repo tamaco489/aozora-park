@@ -63,7 +63,7 @@
 | ------ | ------------------------------- | ---------------------------------------- |
 | メイン | `[milestone-0] 準備`            | `[Release] [milestone-0] 準備`           |
 | サブ   | `[backend] [feat] buf を初期化` | `[sub] [milestone-0] buf を初期化`       |
-| 単体   | `[docs] [docs] README を更新`   | `[docs] [issue-20] [docs] README を更新` |
+| 単体   | `[repo] [docs] README を更新`   | `[repo] [issue-20] [docs] README を更新` |
 
 ## 親子の紐付け
 

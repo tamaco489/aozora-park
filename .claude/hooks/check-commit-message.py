@@ -21,7 +21,6 @@ SCOPES = [
     "infra",
     "ci",
     "cd",
-    "docs",
     "claude",
     "vscode",
     "repo",

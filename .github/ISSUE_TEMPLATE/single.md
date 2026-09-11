@@ -1,7 +1,7 @@
 ---
 name: 単体 Issue
 about: リリースブランチを介さず main から直接進める作業
-title: "[docs] [docs] "
+title: "[repo] [docs] "
 labels: ""
 assignees: ""
 ---
