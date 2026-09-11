@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package aozorapark.health.v1;
+
+// HealthService は疎通と依存先の状態を返す
+service HealthService {
+  rpc Check(CheckRequest) returns (CheckResponse) {}
+}
+
+message CheckRequest {}
+
+message CheckResponse {
+  ServingStatus status = 1;
+}
+
+enum ServingStatus {
+  SERVING_STATUS_UNSPECIFIED = 0;
+  SERVING_STATUS_SERVING = 1;
+  SERVING_STATUS_NOT_SERVING = 2;
+}

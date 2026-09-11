@@ -25,9 +25,9 @@ fmt:
 fmt-check:
     gofmt -l .
 
-# modernize の提案を出す
+# modernize の提案を出す (gen/ は手で直せないため外す)
 modernize:
-    go run golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@latest ./...
+    go run golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@latest ./cmd/... ./internal/...
 
 # api をローカルで起動する
 run-api:

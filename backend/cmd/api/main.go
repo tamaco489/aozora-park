@@ -9,6 +9,8 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/tamaco489/aozora-park/backend/internal/health"
 )
 
 // Cloud Run は待ち受けポートを PORT で渡す
@@ -24,9 +26,13 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
+
+	// Cloud Run の起動判定は connect を介さない素の HTTP で受ける
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
+
+	mux.Handle(health.NewConnectHandler())
 
 	srv := &http.Server{
 		Addr:              ":" + port,
