@@ -28,7 +28,8 @@ description: "リリース単位のメイン Issue と、その配下のサブ I
 - **Issue の作成は Step 5 の承認を得てから行う**
 - **サブ Issue は 1 件ずつ順番に作成する** (並列実行禁止)
 - 本文の型は `.github/ISSUE_TEMPLATE/` を正とし、このファイルにテンプレートを持たない
-- GitHub のラベルは付けない (`.claude/rules/github/issue.md` の「ラベル」を参照)
+- **サブ Issue には GitHub のラベルを付ける。** 触る予定の領域すべてを選ぶ。複数で構わない (`.claude/rules/github/labels.md`)
+- **メイン Issue にはラベルを付けない。** 影響範囲はサブ Issue が揃うまで確定しないため、リリース PR を出す段階で付け直す
 - Issue の作成には GitHub MCP (`issue_write`) を使う。`gh issue create` は使わない
 
 ---
@@ -79,13 +80,13 @@ Issue 化する対象を確定する。ユーザーが指定しない場合は�
 ```text
 以下の分割でサブ Issue を作成します。よろしいですか？
 
-[サブ 1] [repo] [chore] モノレポの雛形を作成
+[サブ 1] [sub] [chore] モノレポの雛形を作成
   - ディレクトリ構成、go.mod、.gitignore
 
-[サブ 2] [backend] [feat] buf の初期化と hello world proto の追加
+[サブ 2] [sub] [feat] buf の初期化と hello world proto の追加
   - buf.yaml / buf.gen.yaml、proto の定義、生成コードのコミット
 
-[サブ 3] [repo] [chore] docker compose に Firestore エミュレータを追加
+[サブ 3] [sub] [chore] docker compose に Firestore エミュレータを追加
 ```
 
 ### Step 5: 内容の確定
@@ -104,15 +105,19 @@ Issue 化する対象を確定する。ユーザーが指定しない場合は�
 issue_write(method: "create", owner, repo, title, body)
 ```
 
-作成された Issue 番号を控える。
+作成された Issue 番号を控える。**ラベルは付けない。** 影響範囲が確定する `create-release-pr` の段階で付ける。
 
 ### Step 7: サブ Issue 作成
 
 Step 4 で決めた順に 1 件ずつ作成する。`parent_issue_number` にメイン Issue の番号を渡し、作成と紐付けを同時に行う。
 
 ```text
-issue_write(method: "create", owner, repo, title, body, parent_issue_number: <メイン Issue の番号>)
+issue_write(method: "create", owner, repo, title, body, labels: ["<ラベル>"], parent_issue_number: <メイン Issue の番号>)
 ```
+
+`labels` には、そのサブ Issue で触る領域すべてを渡す (`[sub] [feat] buf の初期化` なら `proto` `backend` `frontend`)。
+**タイトルに領域は書かないため、ラベルだけが領域を表す。**
+**GitHub 上に無いラベルを渡すとエラーになる。** その場合は `sync-labels` スキルで同期してから作り直す。
 
 作成のたびに返ってきた Issue 番号で、本文の「作業ブランチ」を確定させる。
 

@@ -11,15 +11,18 @@
 import re
 import sys
 
-from _github_rules import LABEL, LABELS, TYPE, TYPES, allow, check_body, deny, gh_args, load_payload
+from _github_rules import TYPE, TYPES, allow, check_body, deny, gh_args, load_payload
 
 RULES = "規約: .claude/rules/github/issue.md, .github/ISSUE_TEMPLATE/"
 
-# メイン Issue: [milestone-<番号>] <タイトル>
-MAIN = re.compile(r"^\[(?:milestone-\d+|release)\] \S.*$")
+# メイン Issue: [main] [milestone-<番号>] <タイトル>
+MAIN = re.compile(r"^\[main\] \[(?:milestone-\d+|release)\] \S.*$")
 
-# サブ Issue・単体 Issue: [ラベル] [変更種別] <タイトル>
-SCOPED = re.compile(rf"^\[{LABEL}\] \[{TYPE}\] \S.*$")
+# サブ Issue: [sub] [変更種別] <タイトル>
+SUB = re.compile(rf"^\[sub\] \[{TYPE}\] \S.*$")
+
+# 単体 Issue: [変更種別] <タイトル>
+SINGLE = re.compile(rf"^\[{TYPE}\] \S.*$")
 
 HEADINGS_MAIN = ["## 目的", "## リリースブランチ", "## 完了条件"]
 HEADINGS_SCOPED = ["## 概要", "## 作業ブランチ", "## やること", "## 完了条件"]
@@ -27,11 +30,10 @@ HEADINGS_SCOPED = ["## 概要", "## 作業ブランチ", "## やること", "## 
 
 def check(title: str, body, has_parent: bool):
     if has_parent:
-        if not SCOPED.match(title):
+        if not SUB.match(title):
             deny(
                 f"サブ Issue のタイトルが規約に合っていません: {title!r}\n"
-                f"  形式: [ラベル] [変更種別] <タイトル>\n"
-                f"  ラベル: {', '.join(LABELS)}\n"
+                f"  形式: [sub] [変更種別] <タイトル>\n"
                 f"  変更種別: {', '.join(TYPES)}",
                 RULES,
             )
@@ -42,14 +44,16 @@ def check(title: str, body, has_parent: bool):
         check_body(body, HEADINGS_MAIN, RULES)
         return
 
-    if SCOPED.match(title):
+    if SUB.match(title) or SINGLE.match(title):
         check_body(body, HEADINGS_SCOPED, RULES)
         return
 
     deny(
         f"Issue のタイトルが規約に合っていません: {title!r}\n"
-        f"  メイン: [milestone-<番号>] <タイトル>\n"
-        f"  サブ・単体: [ラベル] [変更種別] <タイトル>",
+        f"  メイン: [main] [milestone-<番号>] <タイトル>\n"
+        f"  サブ:   [sub] [変更種別] <タイトル>\n"
+        f"  単体:   [変更種別] <タイトル>\n"
+        f"  変更種別: {', '.join(TYPES)}",
         RULES,
     )
 

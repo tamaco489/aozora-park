@@ -27,7 +27,7 @@ description: "リリースブランチを main へマージするリリース PR
 - **マージはしない。** `main` へのマージはユーザーが行う
 - 本文の型は `.github/PULL_REQUEST_TEMPLATE/release.md` を正とし、このファイルにテンプレートを持たない
 - PR 作成は GitHub MCP (`create_pull_request`) を使う
-- GitHub のラベルは付けない (`.claude/rules/github/issue.md` の「ラベル」を参照)
+- **リリース PR とメイン Issue には、サブ Issue のラベルをまとめて付ける。** `create_pull_request` はラベルを受け取らないため、作成後に `gh pr edit` で付ける
 
 ---
 
@@ -59,8 +59,8 @@ git branch --show-current
 ```text
 未完了のサブ Issue が 2 件あります。このままリリース PR を作りますか？
 
-  #725 [frontend] [feat] 記事一覧画面の刷新 — open (PR なし)
-  #728 [backend] [fix] 残数の減算を修正 — PR #741 レビュー中
+  #725 [sub] [feat] 記事一覧画面の刷新 — open (PR なし)
+  #728 [sub] [fix] 残数の減算を修正 — PR #741 レビュー中
 ```
 
 ### Step 3: 差分の把握
@@ -86,15 +86,27 @@ git diff --stat main...HEAD
 
 タイトルと本文を提示して承認を得る。
 
-### Step 5: PR 作成
+### Step 5: PR 作成とラベル
 
 ```text
 create_pull_request(owner, repo, title, body, head: <リリースブランチ>, base: "main")
 ```
 
+作成できたら、Step 2 で集めたサブ Issue のラベルを重複を除いてまとめ、PR とメイン Issue の両方に付ける。
+
+```bash
+gh pr edit <PR 番号> --add-label "<ラベル>,<ラベル>,..."
+gh issue edit <メイン Issue の番号> --add-label "<ラベル>,<ラベル>,..."
+```
+
+- ラベルはサブ Issue に付いているものを使う。**PR の差分から推測しない**
+- サブ Issue にラベルが付いていないものがあれば、**そのまま付けずに報告する**
+- **GitHub 上に無いラベルを渡すとエラーになる。** その場合は `sync-labels` スキルで同期してからやり直す
+
 ### Step 6: 結果報告
 
 - PR の URL
+- PR とメイン Issue に付けたラベルの一覧
 - 未完了のサブ Issue が残っている場合はその一覧
 - 次にやること (レビュー後、ユーザーが `main` へマージし、メイン Issue が閉じる)
 
