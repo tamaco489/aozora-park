@@ -1,7 +1,7 @@
 ---
 name: メイン Issue (リリース単位)
 about: 複数の PR にまたがるまとまり。リリースブランチ 1 本に対応する
-title: "[milestone-0] "
+title: "[main] [milestone-N] "
 labels: ""
 assignees: ""
 ---

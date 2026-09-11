@@ -1,7 +1,7 @@
 ---
 name: 単体 Issue
 about: リリースブランチを介さず main から直接進める作業
-title: "[repo] [docs] "
+title: "[docs] "
 labels: ""
 assignees: ""
 ---
@@ -16,7 +16,9 @@ assignees: ""
 
 ## 作業ブランチ
 
-`chore/issue-<この Issue の番号>/<名前>` (base: `main`)
+`<変更種別>/issue-<この Issue の番号>/<名前>` (base: `main`)
+
+<!-- 種別はタイトルの変更種別に合わせる (`[docs] ...` なら `docs/issue-20/...`) -->
 
 ## やること
 
