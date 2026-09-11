@@ -7,12 +7,14 @@ version: v2
 modules:
   - path: .
 
-# 命名と構成の検査規則、STANDARD は buf が推奨する規則を全部含む
+# 命名と構成の検査規則
 lint:
   use:
+    # buf が推奨する規則を全部含む
     - STANDARD
 
-# 破壊的変更の検査規則、FILE は生成コードの互換まで見る最も厳しい単位
+# 破壊的変更の検査規則
 breaking:
   use:
+    # 生成コードの互換まで見る最も厳しい単位
     - FILE

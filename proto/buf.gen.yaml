@@ -13,7 +13,7 @@ managed:
     - file_option: go_package_prefix
       value: github.com/tamaco489/aozora-park/backend/gen
 
-# 実行するプラグイン、remote は BSR 上の版を使うためローカルへの導入が要らない
+# 実行するプラグイン、remote は BSR (Buf Schema Registry) 上の版を使うためローカルへの導入が要らない
 plugins:
   # Go のメッセージ型、paths=source_relative で proto と同じ階層に出す
   - remote: buf.build/protocolbuffers/go:v1.36.12
