@@ -92,7 +92,7 @@ backend/
 | `serving`       | `httpx` `interceptor` `apperr`                             | リクエストを受ける側の下回り |
 | `observability` | `logging` `telemetry`                                      | 起きたことを外に出すもの     |
 
-- 設定は `internal/platform/config` で 1 箇所にまとめて読む。**他のパッケージで環境変数を読まない**
+- 設定は `internal/platform/config` で 1 箇所にまとめて読む。**他のパッケージで環境変数を読まない** (forbidigo が `os.Getenv` を検出する。エミュレータの起動を判定する `firestoretest` だけ除外している)
 
 ### 機能パッケージの中
 
@@ -150,7 +150,8 @@ cmd            → すべて
 
 - 規則は機能パッケージ 1 つにつき 5 つ (4 層とルート) 置く。**機能を足したら `park` の 5 つを複製する**
 - `list-mode: lax` を使い、禁じる import だけを `deny` に並べる。`allow` はその例外で、自分の機能の内側と `platform` だけを載せる
-- 標準ライブラリと外部のパッケージは `deny` に載せないため検査されない。依存の追加を depguard で止める運用にはしない
+- 機能ごとの規則とは別に、場所を問わない `everywhere` と実装ファイルだけの `impl` を置く。testify と DI コンテナ、実装での `go-cmp` がこれにあたる
+- 上に挙げたもの以外の外部パッケージは `deny` に載せないため検査されない。依存の追加そのものを depguard で止める運用にはしない
 - 禁じた import を足すと落ちることを確かめてから入れる。層の間に import の循環があるものはコンパイルが先に落ちるため、depguard の検査対象になっていない
 
 ### import エイリアス
@@ -240,6 +241,7 @@ const (
 - 永続化・送信・ログに出る値は文字列で定義する。数値の連番にしない
 - 数値が要る場合 (優先度・上限など) も `= 1` `= 2` のように値を書く
 - 例外は、外部に出ず順序そのものに意味がある内部的なビット列だけ。使うときは理由をコメントに残す
+- **`iota` は forbidigo が検出する。** 例外を通す場合は `.golangci.yaml` の除外に理由とともに書く
 
 ### バリデーション
 
@@ -353,7 +355,8 @@ var ErrSoldOut = apperr.New(apperr.KindConflict, "PURCHASE_SOLD_OUT", "在庫が
 - `errors.As` ではなく `errors.AsType[T]` を使う (Go 1.26)
 - ポインタが要る値は `new(x)` で作る (Go 1.26)。`Ptr` のようなヘルパは置かない
 - struct には `omitempty` が効かない。`time.Time` などの struct フィールドには付けない (`omitzero` への置き換えは挙動が変わるため採らない)
-- PR を出す前に `just fix-diff` と `just modernize` を通し、提案が 0 件であることを確認する
+- **提案は golangci-lint の `modernize` が出す。** 専用のレシピは置かない。`just lint` と CI の `backend-lint` で毎回見る
+- 指摘は `golangci-lint run --fix` で書き換えられる
 
 ### 依存の追加
 

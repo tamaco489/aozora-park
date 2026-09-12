@@ -84,6 +84,7 @@ concurrency:
 
 - **依存の向きは golangci-lint の depguard で検査する。** 規則は `backend/.golangci.yaml` にあり、向きの定義は `.claude/rules/go/coding.md` が持つ
 - `go vet` のステップは残す。golangci-lint の govet と重なるが、有効な解析器の既定が同じとは限らない
+- 新しい書き方への置き換え (`min` `max` `slices` など) は golangci-lint の `modernize` が見る。人の手順に置かない
 - **生成物はコミットする運用のため、生成し直して差分が出ないことを検査する**
 - 破壊的変更は PR の base と比較する。base に `.proto` が無ければ理由を出して飛ばす
 - テストは `go test -race -shuffle=on -count=1 ./...` で回す (`.claude/rules/go/testing.md`)
