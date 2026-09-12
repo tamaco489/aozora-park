@@ -30,11 +30,12 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: bufbuild/buf-setup-action@v1
+      # buf-setup-action は node20 宣言のまま更新が止まっているため後継を使う
+      - uses: bufbuild/buf-action@v1
         with:
+          setup_only: true
           # .tool-versions の buf と揃える
           version: 1.72.0
-          github_token: ${{ github.token }}
       - name: 規約の検査
         working-directory: proto
         run: buf lint
