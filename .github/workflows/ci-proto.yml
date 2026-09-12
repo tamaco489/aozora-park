@@ -18,32 +18,44 @@ on:
 permissions:
   contents: read
 
+env:
+  # .tool-versions の buf と揃える
+  BUF_VERSION: 1.72.0
+
 concurrency:
   group: ci-proto-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  proto:
+  lint:
     runs-on: ubuntu-latest
     steps:
-      # breaking の比較に base ブランチの履歴が要る
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
       # buf-setup-action は node20 宣言のまま更新が止まっているため後継を使う
       - uses: bufbuild/buf-action@v1
         with:
           setup_only: true
-          # .tool-versions の buf と揃える
-          version: 1.72.0
+          version: ${{ env.BUF_VERSION }}
       - name: 規約の検査
         working-directory: proto
         run: buf lint
       - name: 整形漏れの検査
         working-directory: proto
         run: buf format --diff --exit-code
+
+  breaking:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      # base ブランチの履歴と比較するため全履歴が要る
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: bufbuild/buf-action@v1
+        with:
+          setup_only: true
+          version: ${{ env.BUF_VERSION }}
       - name: 破壊的変更の検査
-        if: github.event_name == 'pull_request'
         env:
           BASE: origin/${{ github.event.pull_request.base.ref }}
         run: |
@@ -52,6 +64,15 @@ jobs:
           else
             echo "$BASE に .proto が無いため破壊的変更の検査を飛ばす"
           fi
+
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: bufbuild/buf-action@v1
+        with:
+          setup_only: true
+          version: ${{ env.BUF_VERSION }}
       - name: コードの生成
         working-directory: proto
         run: buf generate

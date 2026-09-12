@@ -24,7 +24,7 @@ defaults:
     working-directory: backend
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -37,8 +37,26 @@ jobs:
         run: test -z "$(gofmt -l .)"
       - name: 静的解析
         run: go vet ./...
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
       - name: ビルド
         run: go build ./...
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
       # -shuffle は順序依存、-count=1 はキャッシュ無効化
       - name: テスト
         run: go test -race -shuffle=on -count=1 ./...
