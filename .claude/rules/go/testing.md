@@ -54,8 +54,8 @@ t.Errorf("CreatePurchase() の差分 (-want +got):\n%s", cmp.Diff(want, got))
 ### アサーションと比較
 
 - **アサーションライブラリを入れない** (testify など)。Go の `if` と `t.Errorf` で書く
-- 構造体の比較は `reflect.DeepEqual` ではなく `google/go-cmp` の `cmp.Diff` を使う。未公開フィールドの変更に振り回されない (forbidigo が `reflect.DeepEqual` を検出する)
-- `cmp` はテスト専用。本番コードで使わない (未公開フィールドがあると panic する)。depguard が実装ファイルでの import を止める
+- 構造体の比較は `reflect.DeepEqual` ではなく `google/go-cmp` の `cmp.Diff` を使う。未公開フィールドの変更に振り回されない
+- `cmp` はテスト専用。本番コードで使わない (未公開フィールドがあると panic する)
 - フィールドを 1 つずつ比べず、構造体ごと比較して差分を出す
 - **エラーは文字列で比較しない。** `errors.Is` でセンチネルを、`errors.AsType[T]` で型を判定する
 
