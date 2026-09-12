@@ -64,11 +64,14 @@ concurrency:
 - アクションはメジャータグで固定する (`actions/checkout@v7`)
 - **ツールのバージョンは既にある定義から読む。** ワークフローに書き写さない
 
-| ツール | 読む先                                                   |
-| ------ | -------------------------------------------------------- |
-| Go     | `backend/go.mod` (`go-version-file`)                     |
-| Node   | `frontend/package.json` か `.tool-versions`              |
-| buf    | ファイルから読めないため `.tool-versions` と同じ値を書く |
+| ツール        | 読む先                                                   |
+| ------------- | -------------------------------------------------------- |
+| Go            | `backend/go.mod` (`go-version-file`)                     |
+| Node          | `frontend/package.json` か `.tool-versions`              |
+| golangci-lint | `.tool-versions` (`version-file`)                        |
+| buf           | ファイルから読めないため `.tool-versions` と同じ値を書く |
+
+`golangci-lint-action` の `version-file` は `working-directory` を起点に解決するため、`backend` から見て `../.tool-versions` を渡す。
 
 ファイルから読めないものは値を 1 か所にだけ書き、由来をコメントに残す。同じ値を 2 か所に書かない。
 
@@ -76,9 +79,11 @@ concurrency:
 
 | 対象      | 検査するもの                                       |
 | --------- | -------------------------------------------------- |
-| `backend` | 整形漏れ、`go vet`、ビルド、テスト                 |
+| `backend` | 整形漏れ、`go vet`、golangci-lint、ビルド、テスト  |
 | `proto`   | `buf lint`、整形漏れ、破壊的変更、生成コードの差分 |
 
+- **依存の向きは golangci-lint の depguard で検査する。** 規則は `backend/.golangci.yaml` にあり、向きの定義は `.claude/rules/go/coding.md` が持つ
+- `go vet` のステップは残す。golangci-lint の govet と重なるが、有効な解析器の既定が同じとは限らない
 - **生成物はコミットする運用のため、生成し直して差分が出ないことを検査する**
 - 破壊的変更は PR の base と比較する。base に `.proto` が無ければ理由を出して飛ばす
 - テストは `go test -race -shuffle=on -count=1 ./...` で回す (`.claude/rules/go/testing.md`)
@@ -105,5 +110,4 @@ concurrency:
 - ワークフロー自身が `paths` に入っているため、直せばその PR で走る。走った結果を確認する
 
 > [!NOTE]
-> golangci-lint はまだ導入していない。設定ファイルと depguard の規則は、最初の業務機能を作る時点で決めて `ci-backend.yml` に足す (`.claude/rules/go/coding.md`)。
 > CD (Cloud Run と Firebase Hosting へのデプロイ) はマイルストーン 4 以降に作る。Workload Identity Federation の使い方とデプロイの単位をここに書き足す。

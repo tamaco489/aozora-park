@@ -107,7 +107,7 @@ backend/
 | `infrastructure`    | `domain/repository` の実装 (`firestore/`)                              |
 | `handler`           | 入口。connect ハンドラ、Pub/Sub push、Cloud Tasks、Webhook             |
 
-- **機能パッケージを増減させたら `docs/backend/packages/` を更新する。** リングの割り当てと依存の図が実物とずれる
+- **機能パッケージを増減させたら `docs/backend/packages/` と `backend/.golangci.yaml` を更新する。** 図が実物とずれ、依存の向きが検査されない層が残る
 - 機能パッケージのルートには組み立て関数だけを置く (「依存の組み立て」を参照)
 - `handler` は入口ごとにファイルを分け (`connect.go` `subscriber.go`)、どれも同じユースケースを呼ぶ
 - **入口の中は RPC 1 つ 1 ファイルにする** (`create_park.go` `get_park.go`)。型と組み立てと変換だけを `connect.go` に残す
@@ -146,7 +146,12 @@ cmd            → すべて
 
 `cmd` だけが全層を import してよい。例外ではなく、最も外側だから許される。
 
-**この向きは golangci-lint の depguard で検査する。** 規約だけ置いて検査しない期間を作らない。
+**この向きは `backend/.golangci.yaml` の depguard で検査する。** 規約だけ置いて検査しない期間を作らない。
+
+- 規則は機能パッケージ 1 つにつき 5 つ (4 層とルート) 置く。**機能を足したら `park` の 5 つを複製する**
+- `list-mode: lax` を使い、禁じる import だけを `deny` に並べる。`allow` はその例外で、自分の機能の内側と `platform` だけを載せる
+- 標準ライブラリと外部のパッケージは `deny` に載せないため検査されない。依存の追加を depguard で止める運用にはしない
+- 禁じた import を足すと落ちることを確かめてから入れる。層の間に import の循環があるものはコンパイルが先に落ちるため、depguard の検査対象になっていない
 
 ### import エイリアス
 
