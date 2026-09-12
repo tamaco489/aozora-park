@@ -8,6 +8,7 @@ import (
 	"connectrpc.com/grpchealth"
 	"connectrpc.com/grpcreflect"
 
+	"github.com/tamaco489/aozora-park/backend/internal/platform/client/firestore"
 	"github.com/tamaco489/aozora-park/backend/internal/platform/config"
 	"github.com/tamaco489/aozora-park/backend/internal/platform/observability/logging"
 	"github.com/tamaco489/aozora-park/backend/internal/platform/serving/httpx"
@@ -26,8 +27,16 @@ func run() error {
 		return err
 	}
 	logger := logging.New(cfg.LogLevel)
+	app := httpx.NewApp(logger)
 
-	// TODO: クライアントを作る
+	ctx := context.Background()
+
+	firestoreClient, err := firestore.New(ctx, cfg.ProjectID)
+	if err != nil {
+		return err
+	}
+	// 登録の逆順に閉じるため、依存される側から順に登録する
+	app.Cleanup("firestore", func(context.Context) error { return firestoreClient.Close() })
 
 	// 共通処理は 1 つにまとめてすべての connect ハンドラに渡す (機能ごとに組み立てない)
 	opts := interceptor.All(logger)
@@ -46,6 +55,5 @@ func run() error {
 	mux.Handle(grpcreflect.NewHandlerV1Alpha(reflector))
 
 	// サーバを起動
-	app := httpx.NewApp(logger)
-	return app.Serve(context.Background(), ":"+cfg.Port, mux)
+	return app.Serve(ctx, ":"+cfg.Port, mux)
 }
