@@ -34,7 +34,7 @@
 ## 書き方
 
 - `terraform fmt` の整形に従う (2 スペースインデント、連続する引数の `=` を揃える、ブロック間は空行 1 つ)。`just fmt-check` を通す
-- 非推奨の書き方をしない。Cloud Run は `google_cloud_run_service` ではなく `google_cloud_run_v2_service` / `google_cloud_run_v2_job` を使う。IAM は `google_*_iam_policy` (全置換) ではなく `google_*_iam_member` を使う。provider の版に対する正しい書き方はドキュメントで確認する
+- 非推奨の書き方をしない。Cloud Run は `google_cloud_run_service` ではなく `google_cloud_run_v2_service` / `google_cloud_run_v2_job` を使う。IAM は `google_*_iam_policy` (全置換) ではなく `google_*_iam_member` を使う。provider のバージョンに対する正しい書き方はドキュメントで確認する
 - `google-beta` は beta 限定の引数が要るときだけ使い、その理由をコメントに残す
 - バージョンは `~>` で固定する (環境側は `required_version` と provider を固定、モジュール側は下限だけで足りる)。`.terraform.lock.hcl` はコミットする
 

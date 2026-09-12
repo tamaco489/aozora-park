@@ -177,7 +177,7 @@ func TestRepositoryCreateAndGet(t *testing.T) {
 
 - `Main` は `DOCKER_TESTS` が設定されていればコンテナを起こし、終わったら停止する。未設定なら起こさない
 - `Client` は用意できていなければ `t.Skip` する。ゲートの判定をテスト側に書かない
-- イメージは `gcr.io/google.com/cloudsdktool/cloud-sdk:<版>-emulators` をタグ付きで固定する。エミュレータの挙動が版で変わるため
+- イメージは `gcr.io/google.com/cloudsdktool/cloud-sdk:<バージョン>-emulators` をタグ付きで固定する。エミュレータの挙動がバージョンで変わるため
 - プロジェクト ID は `firestoretest.ProjectID` を使う。`demo-` で始まる ID は SDK が本物の Google Cloud への接続を拒む
 - ドキュメントは作った側が `t.Cleanup` で消す。コレクションは共有するため、ID をテストごとに分ける
 
