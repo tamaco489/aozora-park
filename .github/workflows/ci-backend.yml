@@ -24,7 +24,7 @@ defaults:
     working-directory: backend
 
 jobs:
-  lint:
+  backend-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -38,7 +38,7 @@ jobs:
       - name: 静的解析
         run: go vet ./...
 
-  build:
+  backend-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -49,7 +49,7 @@ jobs:
       - name: ビルド
         run: go build ./...
 
-  test:
+  backend-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

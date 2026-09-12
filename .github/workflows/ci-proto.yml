@@ -27,7 +27,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
+  proto-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -43,7 +43,7 @@ jobs:
         working-directory: proto
         run: buf format --diff --exit-code
 
-  breaking:
+  proto-breaking:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
@@ -65,7 +65,7 @@ jobs:
             echo "$BASE に .proto が無いため破壊的変更の検査を飛ばす"
           fi
 
-  generate:
+  proto-generate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
