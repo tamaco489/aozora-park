@@ -8,12 +8,17 @@ managed:
   # 無効のままだと override が読まれない
   enabled: true
 
+  # 依存先のパッケージ名まで書き換えると BSR (Buf Schema Registry) 公式の生成物と別物になるため除く
+  disable:
+    - file_option: go_package
+      module: buf.build/bufbuild/protovalidate
+
   # Go の import パスの接頭辞、go_package を .proto 側に書かずに済む
   override:
     - file_option: go_package_prefix
       value: github.com/tamaco489/aozora-park/backend/gen
 
-# 実行するプラグイン、remote は BSR (Buf Schema Registry) 上の版を使うためローカルへの導入が要らない
+# 実行するプラグイン、remote は BSR 上の版を使うためローカルへの導入が要らない
 plugins:
   # Go のメッセージ型、paths=source_relative で proto と同じ階層に出す
   - remote: buf.build/protocolbuffers/go:v1.36.12
@@ -28,3 +33,5 @@ plugins:
   - remote: buf.build/bufbuild/es:v2.14.1
     out: ../frontend/src/gen
     opt: target=ts
+    # npm の @bufbuild/protovalidate はサブパスを公開しないため、依存先の定義もここで生成する
+    include_imports: true

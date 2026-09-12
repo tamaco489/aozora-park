@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package aozorapark.park.v1;
+
+import "aozorapark/park/v1/park.proto";
+import "buf/validate/validate.proto";
+
+// ParkService はパークのマスタを操作する
+service ParkService {
+  // CreatePark はパークを新しく登録する
+  rpc CreatePark(CreateParkRequest) returns (CreateParkResponse) {}
+
+  // GetPark はパークを 1 件取得する
+  rpc GetPark(GetParkRequest) returns (GetParkResponse) {}
+
+  // UpdatePark は表示名と枠の生成に使う初期値を更新する
+  rpc UpdatePark(UpdateParkRequest) returns (UpdateParkResponse) {}
+}
+
+message CreateParkRequest {
+  // name はパークの表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // default_daily_capacity は 1 日あたりの上限人数の初期値、単位は人
+  int32 default_daily_capacity = 2 [(buf.validate.field).int32.gt = 0];
+
+  // inventory_days は入場枠を先行して生成する日数、90 日の上限は枠の生成が際限なく膨らまないための歯止め
+  int32 inventory_days = 3 [(buf.validate.field).int32 = {
+    gte: 1
+    lte: 90
+  }];
+}
+
+message CreateParkResponse {
+  // park は登録されたパーク
+  Park park = 1;
+}
+
+message GetParkRequest {
+  // park_id は取得するパークの識別子
+  string park_id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message GetParkResponse {
+  // park は取得したパーク
+  Park park = 1;
+}
+
+message UpdateParkRequest {
+  // park_id は更新するパークの識別子
+  string park_id = 1 [(buf.validate.field).string.min_len = 1];
+
+  // name はパークの表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // default_daily_capacity は 1 日あたりの上限人数の初期値、単位は人
+  int32 default_daily_capacity = 3 [(buf.validate.field).int32.gt = 0];
+
+  // inventory_days は入場枠を先行して生成する日数、90 日の上限は枠の生成が際限なく膨らまないための歯止め
+  int32 inventory_days = 4 [(buf.validate.field).int32 = {
+    gte: 1
+    lte: 90
+  }];
+}
+
+message UpdateParkResponse {
+  // park は更新後のパーク
+  Park park = 1;
+}

@@ -15,4 +15,4 @@ fmt-check:
 
 # Go と TypeScript のコードを生成する
 generate:
-    buf generate
+    ./scripts/generate.sh

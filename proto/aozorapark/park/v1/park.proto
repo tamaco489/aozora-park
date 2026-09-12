@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package aozorapark.park.v1;
+
+// Park は来園予約の最上位となるパーク
+message Park {
+  // park_id はパークの識別子
+  string park_id = 1;
+
+  // name はパークの表示名
+  string name = 2;
+
+  // default_daily_capacity は入場枠を生成するときの 1 日あたりの上限人数の初期値
+  int32 default_daily_capacity = 3;
+
+  // inventory_days は入場枠を先行して生成する日数
+  int32 inventory_days = 4;
+}
