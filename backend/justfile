@@ -32,3 +32,7 @@ modernize:
 # api をローカルで起動する
 run-api:
     go run ./cmd/api
+
+# ヘルスチェックを呼ぶ、api を起動した状態で実行する
+health port="8080":
+    buf curl --http2-prior-knowledge -d '{"service":""}' http://localhost:{{port}}/grpc.health.v1.Health/Check
