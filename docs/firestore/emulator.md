@@ -40,6 +40,21 @@ The local project ID is `demo-aozora-park`.
 An ID starting with `demo-` makes the SDK refuse to reach the real Google Cloud,
 so a misconfigured client cannot touch production data by accident.
 
+## Connecting the api
+
+`backend/justfile` passes both variables to the recipes that need them, so no extra setup is required.
+
+```sh
+cd backend
+just run-api        # starts the api against the emulator
+just test-emulator  # runs the tests that need the emulator
+```
+
+`GOOGLE_CLOUD_PROJECT` has no default in the code. The api refuses to start without it,
+so a misconfigured deployment fails at startup instead of talking to the wrong project.
+
+Tests that need the emulator skip themselves when `FIRESTORE_EMULATOR_HOST` is unset, so plain `just test` stays runnable without the container.
+
 ## Verifying read and write
 
 ```sh
