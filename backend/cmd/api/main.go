@@ -62,6 +62,6 @@ func run() error {
 	mux.Handle(grpcreflect.NewHandlerV1(reflector))
 	mux.Handle(grpcreflect.NewHandlerV1Alpha(reflector))
 
-	// サーバを起動
-	return app.Serve(ctx, ":"+cfg.Port, mux)
+	// CORS は connect の層より外側にあるため、インターセプタではなくハンドラを包んで掛ける
+	return app.Serve(ctx, ":"+cfg.Port, httpx.WithCORS(mux, cfg.AllowedOrigins))
 }
