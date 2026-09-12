@@ -40,6 +40,23 @@ export FIRESTORE_EMULATOR_HOST=localhost:18080
 `demo-` で始まる ID は SDK が本物の Google Cloud へ接続することを拒むため、
 設定を誤ったクライアントが本番のデータに触れる経路がありません。
 
+## api からの接続
+
+`backend/justfile` が必要なレシピにだけ環境変数を渡すため、追加の設定は要りません。
+
+```sh
+cd backend
+just run-api        # エミュレータに向けて api を起動する
+just test-emulator  # エミュレータが要るテストを実行する
+```
+
+`GOOGLE_CLOUD_PROJECT` にコードの既定値はありません。
+設定が無いと api は起動を拒みます。
+誤った設定のまま別のプロジェクトへ繋ぐより、起動の時点で失敗するほうが安全なためです。
+
+エミュレータが要るテストは、`FIRESTORE_EMULATOR_HOST` が未設定なら自分で飛ばします。
+そのため `just test` はコンテナを起動していなくても実行できます。
+
 ## 読み書きの確認
 
 ```sh
