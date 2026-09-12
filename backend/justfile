@@ -24,6 +24,10 @@ test-emulator:
 vet:
     go vet ./...
 
+# 規約の検査 (依存の向きは depguard が見る)
+lint:
+    golangci-lint run ./...
+
 # 整形
 fmt:
     go fmt ./...

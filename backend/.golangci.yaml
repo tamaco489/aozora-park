@@ -1,0 +1,102 @@
+version: "2"
+
+# 依存の向きは .claude/rules/go/coding.md の「依存の向き」を検査対象にしている
+# 機能パッケージを増やしたら park と同じ 5 つのルールを複製する
+linters:
+  default: standard
+  enable:
+    - depguard
+  settings:
+    depguard:
+      rules:
+        # lax は deny に載せたものだけを禁じ、allow をその例外として扱う
+        # 標準ライブラリと外部のパッケージまで列挙せずに済む
+        park-domain:
+          list-mode: lax
+          files:
+            - "**/internal/park/domain/**"
+          allow:
+            - github.com/tamaco489/aozora-park/backend/internal/park/domain
+            - github.com/tamaco489/aozora-park/backend/internal/platform
+          deny:
+            - pkg: github.com/tamaco489/aozora-park/backend/internal
+              desc: domain は usecase と infrastructure と他の機能を知らない
+            - pkg: github.com/tamaco489/aozora-park/backend/gen
+              desc: 入出力の変換は handler の仕事
+            - pkg: connectrpc.com/connect
+              desc: connect のコードは interceptor が apperr から変換する
+
+        park-usecase:
+          list-mode: lax
+          files:
+            - "**/internal/park/usecase/**"
+          allow:
+            - github.com/tamaco489/aozora-park/backend/internal/park/domain
+            - github.com/tamaco489/aozora-park/backend/internal/park/usecase
+            - github.com/tamaco489/aozora-park/backend/internal/platform
+          deny:
+            - pkg: github.com/tamaco489/aozora-park/backend/internal
+              desc: usecase は infrastructure と handler と他の機能を知らない
+            - pkg: github.com/tamaco489/aozora-park/backend/gen
+              desc: 入出力の変換は handler の仕事
+            - pkg: connectrpc.com/connect
+              desc: connect のコードは interceptor が apperr から変換する
+
+        park-infrastructure:
+          list-mode: lax
+          files:
+            - "**/internal/park/infrastructure/**"
+          allow:
+            - github.com/tamaco489/aozora-park/backend/internal/park/domain
+            - github.com/tamaco489/aozora-park/backend/internal/platform
+          deny:
+            - pkg: github.com/tamaco489/aozora-park/backend/internal
+              desc: 実装するインタフェースは domain/repository にある
+            - pkg: github.com/tamaco489/aozora-park/backend/gen
+              desc: 入出力の変換は handler の仕事
+            - pkg: connectrpc.com/connect
+              desc: SDK のエラーは domain のセンチネルに翻訳する
+
+        park-handler:
+          list-mode: lax
+          files:
+            - "**/internal/park/handler/**"
+          allow:
+            - github.com/tamaco489/aozora-park/backend/internal/park/domain
+            - github.com/tamaco489/aozora-park/backend/internal/park/usecase
+            - github.com/tamaco489/aozora-park/backend/internal/platform
+          deny:
+            - pkg: github.com/tamaco489/aozora-park/backend/internal
+              desc: handler は infrastructure を直接呼ばず usecase を通す
+
+        # 機能パッケージのルートだけが自分の4層を結線する
+        park-root:
+          list-mode: lax
+          files:
+            - "**/internal/park/*.go"
+          allow:
+            - github.com/tamaco489/aozora-park/backend/internal/park
+            - github.com/tamaco489/aozora-park/backend/internal/platform
+          deny:
+            - pkg: github.com/tamaco489/aozora-park/backend/internal
+              desc: 機能パッケージ同士は import しない
+
+        platform:
+          list-mode: lax
+          files:
+            - "**/internal/platform/**"
+          allow:
+            - github.com/tamaco489/aozora-park/backend/internal/platform
+          deny:
+            - pkg: github.com/tamaco489/aozora-park/backend/internal
+              desc: platform は機能に依存しない
+
+        # interceptor のテストは検査の対象に実在する proto の型が要るため、gen の禁止は実装だけに掛ける
+        platform-impl:
+          list-mode: lax
+          files:
+            - "**/internal/platform/**"
+            - "!$test"
+          deny:
+            - pkg: github.com/tamaco489/aozora-park/backend/gen
+              desc: platform は特定のサービスの定義を知らない
