@@ -107,6 +107,7 @@ backend/
 | `infrastructure`    | `domain/repository` の実装 (`firestore/`)                              |
 | `handler`           | 入口。connect ハンドラ、Pub/Sub push、Cloud Tasks、Webhook             |
 
+- **機能パッケージを増減させたら `docs/backend/packages/` を更新する。** リングの割り当てと依存の図が実物とずれる
 - 機能パッケージのルートには組み立て関数だけを置く (「依存の組み立て」を参照)
 - `handler` は入口ごとにファイルを分け (`connect.go` `subscriber.go`)、どれも同じユースケースを呼ぶ
 - **入口の中は RPC 1 つ 1 ファイルにする** (`create_park.go` `get_park.go`)。型と組み立てと変換だけを `connect.go` に残す
