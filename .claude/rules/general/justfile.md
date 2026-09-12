@@ -1,6 +1,6 @@
 # justfile の規約
 
-`backend/justfile` と、作る場合の `infra/justfile` に共通で適用する。
+直下の `justfile`、`backend/justfile`、`proto/justfile` に共通で適用する。
 
 ## justfile にシェルスクリプトを書かない
 
