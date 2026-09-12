@@ -58,5 +58,8 @@ jobs:
           go-version-file: backend/go.mod
           cache-dependency-path: backend/go.sum
       # -shuffle は順序依存、-count=1 はキャッシュ無効化
+      # DOCKER_TESTS はエミュレータを起動するテストを走らせる
       - name: テスト
         run: go test -race -shuffle=on -count=1 ./...
+        env:
+          DOCKER_TESTS: 1
