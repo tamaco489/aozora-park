@@ -46,14 +46,25 @@ so a misconfigured client cannot touch production data by accident.
 
 ```sh
 cd backend
-just run-api        # starts the api against the emulator
-just test-emulator  # runs the tests that need the emulator
+just run-api  # starts the api against the emulator
 ```
 
 `GOOGLE_CLOUD_PROJECT` has no default in the code. The api refuses to start without it,
 so a misconfigured deployment fails at startup instead of talking to the wrong project.
 
-Tests that need the emulator skip themselves when `FIRESTORE_EMULATOR_HOST` is unset, so plain `just test` stays runnable without the container.
+## Tests use their own emulator
+
+This container is for running the app by hand. Tests do not use it.
+
+```sh
+cd backend
+just test           # skips the tests that need an emulator
+just test-emulator  # runs them too, starting a container per package
+```
+
+Tests start their own emulator with testcontainers and gate it on `DOCKER_TESTS`.
+Without the variable they skip themselves, so `just test` stays runnable where Docker is missing.
+Keeping the two apart means a test never reads or deletes the data you are looking at in the UI.
 
 ## Verifying read and write
 
