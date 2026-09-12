@@ -38,17 +38,33 @@
 
 ## 図の使い分け
 
-コンポーネント同士を繋ぐ構成図・アーキテクチャ図には **draw.io** を使用する。Mermaid は使わない。
+図の種類で原本の形式を分ける。Mermaid を構成図に使わない。
 
-| 図の種類                 | ツール              | 用途例                                             |
-| ------------------------ | ------------------- | -------------------------------------------------- |
-| アーキテクチャ図・構成図 | draw.io (`.drawio`) | インフラ構成、システム構成、コンポーネント間の接続 |
-| シーケンス図・フロー図   | Mermaid (`.mmd`)    | 処理の順序・分岐・フロー                           |
+| 図の種類               | 原本                | 用途例                                   |
+| ---------------------- | ------------------- | ---------------------------------------- |
+| 層や領域を面で表す図   | draw.io (`.drawio`) | 同心円のアーキテクチャ図、インフラ構成図 |
+| 箱と矢印で関係を表す図 | SVG (`.svg`)        | パッケージ依存、コンポーネント間の接続   |
+| 処理の順序を表す図     | Mermaid (`.mmd`)    | シーケンス図、フロー図                   |
 
-`.mmd` ファイルを作成したら必ず PNG に変換する。
+- **draw.io** は面の重なりと矢印の自動ルーティングが効く。同心円のように帯の中へ文字を置く図はこちらにする
+- **SVG** は座標を自分で決める代わりに、書き出しまでコマンドで完結する。箱と矢印が主の図はこちらにする
+- **Excalidraw の MCP はビューアでの下書きに使う。** `.excalidraw` を原本として残さない。ファイルからの書き出しに使えるコマンドライン手段が無く、PNG が手作業になるため
+
+## 図の原本と書き出し
+
+**原本と PNG の両方をコミットする。**
 
 ```sh
+# draw.io (-p はページ番号、1 から数える)
+drawio --no-sandbox -x -f png -s 2 -p 1 -o {output}.png {input}.drawio
+
+# SVG (HTML に包んで headless Chrome で撮る、--force-device-scale-factor で解像度を上げる)
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --disable-gpu \
+  --hide-scrollbars --force-device-scale-factor=2 --window-size={幅},{高さ} \
+  --default-background-color=FFFFFFFF --screenshot={output}.png {input}.html
+
+# Mermaid (--scale 3 を必ず付ける、既定では日本語が判読できない)
 npx @mermaid-js/mermaid-cli -i {input}.mmd -o {output}.png --backgroundColor white --scale 3
 ```
 
-`--scale 3` を必ず付ける。デフォルトは解像度が低く、日本語テキストや情報量の多い図で判読困難になる。
+SVG を図として直接埋め込まない。フォントの扱いが環境で変わるため、埋め込むのは PNG にする。

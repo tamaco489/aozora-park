@@ -1,3 +1,6 @@
+# run-api はコンテナの firestore-emulator に向ける、demo- で始まる ID は本物の GCP への接続を拒む
+emulator_env := "FIRESTORE_EMULATOR_HOST=localhost:18080 GOOGLE_CLOUD_PROJECT=demo-aozora-park"
+
 default:
     @just --list
 
@@ -9,13 +12,21 @@ tidy:
 build:
     go build ./...
 
-# テスト
+# テスト (エミュレータが要るものは飛ばされる)
 test:
     go test ./...
+
+# エミュレータ相手のテストも含めて実行する (テストが Docker でエミュレータを起動します)
+test-emulator:
+    DOCKER_TESTS=1 go test ./...
 
 # 静的解析
 vet:
     go vet ./...
+
+# 規約の検査 (依存の向きは depguard が見る)
+lint:
+    golangci-lint run ./...
 
 # 整形
 fmt:
@@ -25,10 +36,10 @@ fmt:
 fmt-check:
     gofmt -l .
 
-# modernize の提案を出す (gen/ は手で直せないため外す)
-modernize:
-    go run golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@latest ./cmd/... ./internal/...
-
 # api をローカルで起動する
 run-api:
-    go run ./cmd/api
+    {{ emulator_env }} go run ./cmd/api
+
+# ヘルスチェックを呼ぶ、api を起動した状態で実行する
+health port="8080":
+    buf curl --http2-prior-knowledge -d '{"service":""}' http://localhost:{{port}}/grpc.health.v1.Health/Check

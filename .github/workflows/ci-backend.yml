@@ -37,6 +37,11 @@ jobs:
         run: test -z "$(gofmt -l .)"
       - name: 静的解析
         run: go vet ./...
+      # golangci-lint のバージョンは .tool-versions から読む、version-file は working-directory を起点に解決される
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          working-directory: backend
+          version-file: ../.tool-versions
 
   backend-build:
     runs-on: ubuntu-latest
@@ -58,5 +63,8 @@ jobs:
           go-version-file: backend/go.mod
           cache-dependency-path: backend/go.sum
       # -shuffle は順序依存、-count=1 はキャッシュ無効化
+      # DOCKER_TESTS はエミュレータを起動するテストを走らせる
       - name: テスト
         run: go test -race -shuffle=on -count=1 ./...
+        env:
+          DOCKER_TESTS: 1

@@ -17,7 +17,12 @@
 | `.claude/rules/infra/`   | Terraform のコーディング           |
 | `.claude/rules/ci/`      | GitHub Actions のコーディング      |
 
-- [docs/README.ja.md](docs/README.ja.md) — プロジェクトの構成・アーキテクチャ
+`docs/` は規約ではなく現状の説明を持つ。**構成を変えたら規約と一緒に更新する。**
+
+| ドキュメント                                                                 | 内容                     | 更新する条件                   |
+| ---------------------------------------------------------------------------- | ------------------------ | ------------------------------ |
+| [docs/README.ja.md](docs/README.ja.md)                                       | ドキュメントの索引       | 文書を追加・移動したとき       |
+| [docs/backend/packages/overview.ja.md](docs/backend/packages/overview.ja.md) | backend の層と依存の向き | 機能パッケージを増減させたとき |
 
 ## ソースコードの探索
 

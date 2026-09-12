@@ -160,10 +160,26 @@ Pub/Sub の購読、リトライ、graceful shutdown は goroutine を起こす�
 - **`go test ./...` はパッケージを並列に実行する。** エミュレータを使うパッケージが増えたら `-p 1` を検討する
 - テスト間の分離は、コレクション名を分けるか `t.Cleanup` で消して行う。`t.Cleanup` は panic では走らないため、次の実行が前のデータに影響されない書き方にする
 
-> [!NOTE]
-> 導入はサブ Issue #5 以降。Firestore を触るコードができた時点で、起動の作法とクリーンアップの形をここに書き足す。
-
 `docker compose` のエミュレータはテスト用ではない。アプリをローカルで動かして手で叩くためのもので、用途が違う。
+
+### Firestore のエミュレータの起動
+
+起動とクライアントの用意は `internal/platform/client/firestore/firestoretest` が持つ。**各パッケージで書き直さない。**
+
+```go
+func TestMain(m *testing.M) { os.Exit(firestoretest.Main(m)) }
+
+func TestRepositoryCreateAndGet(t *testing.T) {
+    client := firestoretest.Client(t) // DOCKER_TESTS が無ければここで飛ばされる
+    ...
+}
+```
+
+- `Main` は `DOCKER_TESTS` が設定されていればコンテナを起こし、終わったら停止する。未設定なら起こさない
+- `Client` は用意できていなければ `t.Skip` する。ゲートの判定をテスト側に書かない
+- イメージは `gcr.io/google.com/cloudsdktool/cloud-sdk:<バージョン>-emulators` をタグ付きで固定する。エミュレータの挙動がバージョンで変わるため
+- プロジェクト ID は `firestoretest.ProjectID` を使う。`demo-` で始まる ID は SDK が本物の Google Cloud への接続を拒む
+- ドキュメントは作った側が `t.Cleanup` で消す。コレクションは共有するため、ID をテストごとに分ける
 
 ## 実行と資材
 
