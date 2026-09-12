@@ -7,6 +7,10 @@ version: v2
 modules:
   - path: .
 
+# BSR (Buf Schema Registry) 上のモジュールへの依存、解決した版は buf.lock に固定される
+deps:
+  - buf.build/bufbuild/protovalidate
+
 # 命名と構成の検査規則
 lint:
   use:
