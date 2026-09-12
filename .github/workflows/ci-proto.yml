@@ -1,0 +1,61 @@
+name: ci-proto
+
+on:
+  pull_request:
+    paths:
+      - "proto/**"
+      - "backend/gen/**"
+      - "frontend/src/gen/**"
+      - ".github/workflows/ci-proto.yml"
+  push:
+    branches: [main]
+    paths:
+      - "proto/**"
+      - "backend/gen/**"
+      - "frontend/src/gen/**"
+      - ".github/workflows/ci-proto.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-proto-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  proto:
+    runs-on: ubuntu-latest
+    steps:
+      # breaking の比較に base ブランチの履歴が要る
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: bufbuild/buf-setup-action@v1
+        with:
+          # .tool-versions の buf と揃える
+          version: 1.72.0
+          github_token: ${{ github.token }}
+      - name: 規約の検査
+        working-directory: proto
+        run: buf lint
+      - name: 整形漏れの検査
+        working-directory: proto
+        run: buf format --diff --exit-code
+      - name: 破壊的変更の検査
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: origin/${{ github.event.pull_request.base.ref }}
+        run: |
+          if git ls-tree -r --name-only "$BASE" proto/ | grep -q '\.proto$'; then
+            buf breaking proto --against ".git#ref=$BASE,subdir=proto"
+          else
+            echo "$BASE に .proto が無いため破壊的変更の検査を飛ばす"
+          fi
+      - name: コードの生成
+        working-directory: proto
+        run: buf generate
+      # 生成物はコミットする運用のため、生成し直して差分が出たら落とす
+      - name: 生成コードに差分が無いこと
+        run: |
+          git add --intent-to-add .
+          git diff --exit-code

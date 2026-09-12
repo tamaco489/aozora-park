@@ -1,0 +1,44 @@
+name: ci-backend
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/ci-backend.yml"
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - ".github/workflows/ci-backend.yml"
+
+permissions:
+  contents: read
+
+# 同じブランチへの連続 push で古い実行を打ち切る
+concurrency:
+  group: ci-backend-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: backend
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+      # gofmt -l は差分があっても成功で返るため、出力が空であることを検査する
+      - name: 整形漏れの検査
+        run: test -z "$(gofmt -l .)"
+      - name: 静的解析
+        run: go vet ./...
+      - name: ビルド
+        run: go build ./...
+      # -shuffle は順序依存、-count=1 はキャッシュ無効化
+      - name: テスト
+        run: go test -race -shuffle=on -count=1 ./...
