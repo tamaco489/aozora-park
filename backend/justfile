@@ -36,10 +36,6 @@ fmt:
 fmt-check:
     gofmt -l .
 
-# modernize の提案を出す (gen/ は手で直せないため外す)
-modernize:
-    go run golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@latest ./cmd/... ./internal/...
-
 # api をローカルで起動する
 run-api:
     {{ emulator_env }} go run ./cmd/api
