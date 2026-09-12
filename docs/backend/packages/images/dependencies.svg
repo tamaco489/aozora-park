@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1420 950" width="1420" height="950">
+<style>text{font-family:'Hiragino Maru Gothic ProN','Hiragino Sans','Helvetica Neue',sans-serif;fill:#1e1e1e}</style>
+<rect x="0" y="0" width="1420" height="950" fill="#ffffff"/>
+<defs><marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4a9eed"/></marker></defs>
+<defs><marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15803d"/></marker></defs>
+<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b91c1c"/></marker></defs>
+<defs><marker id="ay" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b45309"/></marker></defs>
+<text x="60" y="38" font-size="28" font-weight="bold">backend のパッケージ依存</text>
+<text x="60" y="66" font-size="18" fill="#757575">矢印は import の向き (go list の出力そのまま)</text>
+<rect x="40" y="330" width="190" height="70" rx="12" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2"/>
+<text x="135.0" y="371" font-size="22" text-anchor="middle">cmd/api</text>
+<rect x="290" y="330" width="210" height="70" rx="12" fill="#b2f2bb" stroke="#15803d" stroke-width="2"/>
+<text x="395.0" y="357" font-size="20" text-anchor="middle">internal/park</text>
+<text x="395.0" y="384" font-size="20" text-anchor="middle">(組み立て)</text>
+<rect x="560" y="60" width="260" height="60" rx="12" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2"/>
+<text x="690.0" y="96" font-size="20" text-anchor="middle">gen/.../parkv1connect</text>
+<rect x="560" y="160" width="260" height="60" rx="12" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2"/>
+<text x="690.0" y="196" font-size="20" text-anchor="middle">gen/aozorapark/park/v1</text>
+<rect x="560" y="270" width="240" height="70" rx="12" fill="#b2f2bb" stroke="#15803d" stroke-width="2"/>
+<text x="680.0" y="311" font-size="22" text-anchor="middle">park/handler</text>
+<rect x="560" y="460" width="240" height="80" rx="12" fill="#b2f2bb" stroke="#15803d" stroke-width="2"/>
+<text x="680.0" y="492" font-size="20" text-anchor="middle">park/infrastructure</text>
+<text x="680.0" y="519" font-size="20" text-anchor="middle">firestore</text>
+<rect x="860" y="270" width="210" height="70" rx="12" fill="#ffc9c9" stroke="#b91c1c" stroke-width="2"/>
+<text x="965.0" y="311" font-size="22" text-anchor="middle">park/usecase</text>
+<rect x="860" y="460" width="210" height="80" rx="12" fill="#ffc9c9" stroke="#b91c1c" stroke-width="2"/>
+<text x="965.0" y="492" font-size="20" text-anchor="middle">park/domain</text>
+<text x="965.0" y="519" font-size="20" text-anchor="middle">repository</text>
+<rect x="1130" y="360" width="210" height="70" rx="12" fill="#fff3bf" stroke="#b45309" stroke-width="2"/>
+<text x="1235.0" y="400" font-size="20" text-anchor="middle">park/domain/model</text>
+<rect x="1130" y="560" width="210" height="70" rx="12" fill="#fff3bf" stroke="#b45309" stroke-width="2"/>
+<text x="1235.0" y="587" font-size="20" text-anchor="middle">platform/serving</text>
+<text x="1235.0" y="614" font-size="20" text-anchor="middle">apperr</text>
+<rect x="40" y="520" width="300" height="190" rx="12" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2"/>
+<text x="58" y="550" font-size="18" font-weight="bold">internal/platform</text>
+<text x="58" y="576" font-size="18">config</text>
+<text x="58" y="602" font-size="18">observability/logging</text>
+<text x="58" y="628" font-size="18">serving/httpx</text>
+<text x="58" y="654" font-size="18">serving/interceptor</text>
+<text x="58" y="680" font-size="18">client/firestore</text>
+<rect x="40" y="800" width="300" height="70" rx="12" fill="none" stroke="#4a9eed" stroke-width="2" stroke-dasharray="8 6"/>
+<text x="190.0" y="828" font-size="18" text-anchor="middle">client/firestore/firestoretest</text>
+<text x="190.0" y="852" font-size="18" text-anchor="middle">(テスト専用)</text>
+<path d="M230,365 L290,365" fill="none" stroke="#4a9eed" stroke-width="2" marker-end="url(#ab)"/>
+<path d="M90,330 L90,110 L560,110" fill="none" stroke="#4a9eed" stroke-width="2" marker-end="url(#ab)"/>
+<path d="M395,330 L395,90 L560,90" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M500,350 L560,305" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M680,270 L680,220" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M500,380 L560,500" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M500,365 L930,365 L930,340" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M800,305 L860,305" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M800,500 L860,500" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M780,270 L780,240 L1230,240 L1230,360" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M780,540 L780,555 L1180,555 L1180,430" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M965,340 L965,460" fill="none" stroke="#b91c1c" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1070,320 L1130,380" fill="none" stroke="#b91c1c" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1070,480 L1130,420" fill="none" stroke="#b91c1c" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1235,430 L1235,560" fill="none" stroke="#b45309" stroke-width="2" marker-end="url(#ay)"/>
+<path d="M135,400 L135,520" fill="none" stroke="#4a9eed" stroke-width="2" marker-end="url(#ab)"/>
+<path d="M190,800 L190,712" fill="none" stroke="#4a9eed" stroke-width="2" stroke-dasharray="8 6" marker-end="url(#ab)"/>
+<path d="M340,700 L1235,700 L1235,630" fill="none" stroke="#4a9eed" stroke-width="2" stroke-dasharray="8 6" marker-end="url(#ab)"/>
+<rect x="630" y="674" width="140" height="24" fill="#ffffff"/>
+<text x="700" y="690" font-size="16" text-anchor="middle" fill="#4a9eed">interceptor から</text>
+<rect x="1040" y="40" width="300" height="40" rx="10" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2"/>
+<text x="1190" y="66" font-size="18" text-anchor="middle">Frameworks & Drivers</text>
+<rect x="1040" y="88" width="300" height="40" rx="10" fill="#b2f2bb" stroke="#15803d" stroke-width="2"/>
+<text x="1190" y="114" font-size="18" text-anchor="middle">Interface Adapters</text>
+<rect x="1040" y="136" width="300" height="40" rx="10" fill="#ffc9c9" stroke="#b91c1c" stroke-width="2"/>
+<text x="1190" y="162" font-size="18" text-anchor="middle">Application Business Rules</text>
+<rect x="1040" y="184" width="300" height="40" rx="10" fill="#fff3bf" stroke="#b45309" stroke-width="2"/>
+<text x="1190" y="210" font-size="18" text-anchor="middle">Enterprise Business Rules</text>
+<text x="420" y="806" font-size="18" fill="#757575">infrastructure が repository を知り、usecase は実装を知らない</text>
+<text x="420" y="838" font-size="18" fill="#757575">3 層すべてを知るのは internal/park の組み立てだけ</text>
+<text x="420" y="870" font-size="18" fill="#757575">apperr は platform の下にあるが、model が使うので依存では中心</text>
+</svg>

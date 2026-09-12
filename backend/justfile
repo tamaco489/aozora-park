@@ -1,4 +1,4 @@
-# ローカルはエミュレータに向ける、demo- で始まる ID は本物の GCP への接続を拒む
+# run-api はコンテナの firestore-emulator に向ける、demo- で始まる ID は本物の GCP への接続を拒む
 emulator_env := "FIRESTORE_EMULATOR_HOST=localhost:18080 GOOGLE_CLOUD_PROJECT=demo-aozora-park"
 
 default:
@@ -16,9 +16,9 @@ build:
 test:
     go test ./...
 
-# エミュレータ相手のテストも含めて実行する (コンテナで firestore-emulator を起動しておく必要があります)
+# エミュレータ相手のテストも含めて実行する (テストが Docker でエミュレータを起動します)
 test-emulator:
-    {{ emulator_env }} go test ./...
+    DOCKER_TESTS=1 go test ./...
 
 # 静的解析
 vet:

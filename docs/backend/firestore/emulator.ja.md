@@ -2,7 +2,7 @@
 
 [English](./emulator.md) | [日本語](./emulator.ja.md)
 
-[ドキュメント一覧](../README.ja.md)に戻る。
+[ドキュメント一覧](../../README.ja.md)に戻る。
 
 ローカル開発では Firebase Emulator Suite の Firestore エミュレータを使います。
 コンテナの中で動くため、手元に JDK と Firebase CLI を入れる必要はありません。
@@ -46,16 +46,26 @@ export FIRESTORE_EMULATOR_HOST=localhost:18080
 
 ```sh
 cd backend
-just run-api        # エミュレータに向けて api を起動する
-just test-emulator  # エミュレータが要るテストを実行する
+just run-api  # エミュレータに向けて api を起動する
 ```
 
 `GOOGLE_CLOUD_PROJECT` にコードの既定値はありません。
 設定が無いと api は起動を拒みます。
 誤った設定のまま別のプロジェクトへ繋ぐより、起動の時点で失敗するほうが安全なためです。
 
-エミュレータが要るテストは、`FIRESTORE_EMULATOR_HOST` が未設定なら自分で飛ばします。
-そのため `just test` はコンテナを起動していなくても実行できます。
+## テストは別のエミュレータを使う
+
+このコンテナはアプリを手で動かすためのものです。テストはこれを使いません。
+
+```sh
+cd backend
+just test           # エミュレータが要るテストは飛ばされる
+just test-emulator  # パッケージごとにコンテナを起動して実行する
+```
+
+テストは testcontainers で自分でエミュレータを起動し、`DOCKER_TESTS` で入り切りを決めます。
+環境変数が無ければ自分で飛ばすため、Docker が無い環境でも `just test` は通ります。
+2 つを分けておくと、UI で見ているデータをテストが読んだり消したりすることがありません。
 
 ## 読み書きの確認
 
