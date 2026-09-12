@@ -93,6 +93,27 @@ syntax → package → import (ソート済み) → file option → 定義
 - **生成コードのドキュメントとして外に出る。** 読み手が実装を見られない前提で書く
 - 単位と制約はコメントに書く (`// amount は税込みの総額、単位は円`)
 
+## 入力の検証
+
+**形式の検証は protovalidate で proto に書く。** `buf.validate.field` のオプションを付け、インターセプタが全 RPC の入力を検査する。
+
+```proto
+string name = 1 [(buf.validate.field).string = {
+  min_len: 1
+  max_len: 100
+}];
+```
+
+- 制約を書くのは **request のメッセージだけ**にする。エンティティはサーバが組み立てて返すものなので付けない
+- 書いてよいのは、その型が単体で常に満たす形式だけ。長さ、範囲、必須、メールや URL の形式
+- **他のドキュメントの状態を見る判断を書かない。** 重複、権限、対象が操作可能な状態かは `usecase` の仕事
+- **業務の不変条件を寄せない。** ステータス遷移の妥当性は `domain/model` に残す
+- **上限値には根拠をコメントで残す。** 決め打ちの数字を理由なく置かない
+
+検証の 3 層の分担は変わらない (`.claude/rules/go/coding.md`)。protovalidate が引き受けるのは `handler` の形式検証だけで、`usecase` と `domain/model` は手で書く。
+
+依存は `buf.yaml` の `deps` に宣言し、`buf dep update` で `buf.lock` に固定する。**`buf.lock` はコミットする。**
+
 ## エラー
 
 **エラーの表現を proto に持ち込まない。** 成否を表すフィールドや、独自のエラーメッセージを response に入れない。
@@ -105,8 +126,4 @@ connect のエラーコードとアプリケーションのコードは `platfor
 - プラグインは BSR のリモート版を使う。ローカルに `protoc-gen-*` を入れない
 - **生成物は `backend/gen/` と `frontend/src/gen/` にコミットし、手で編集しない**
 - **`.proto` を削除しても生成ファイルは残る。** リネーム・削除をしたら出力先の不要なファイルを手で消す
-
-> [!NOTE]
-> 入力値の検証 (protovalidate) はまだ導入していない。最初の業務 API を作る時点で、
-> どこまでを proto の制約として書き、どこからを Go の `handler` と `domain/model` に
-> 置くかを決めてここに書き足す。
+- **依存先の定義は Go では生成せず、TypeScript では生成する。** Go は BSR 公式の生成モジュールを参照する (`managed.disable`)。自前で生成すると同じ proto ファイルが二重に登録される。TypeScript は npm のパッケージがサブパスを公開しないため `include_imports` で自分の出力に含める
