@@ -1,5 +1,8 @@
 # Go のコーディング規約
 
+この規約のどれが機械の検査に載っているかは `backend/.golangci.yaml` を見る。
+**どの linter が見ているかを規約側に書かない。** 検査を外したときに規約が嘘になるため。
+
 ## 構成
 
 ### アーキテクチャ
@@ -92,7 +95,7 @@ backend/
 | `serving`       | `httpx` `interceptor` `apperr`                             | リクエストを受ける側の下回り |
 | `observability` | `logging` `telemetry`                                      | 起きたことを外に出すもの     |
 
-- 設定は `internal/platform/config` で 1 箇所にまとめて読む。**他のパッケージで環境変数を読まない**
+- 設定は `internal/platform/config` で 1 箇所にまとめて読む。**他のパッケージで環境変数を読まない** (例外はエミュレータの起動を判定する `firestoretest` だけ)
 
 ### 機能パッケージの中
 
@@ -107,7 +110,7 @@ backend/
 | `infrastructure`    | `domain/repository` の実装 (`firestore/`)                              |
 | `handler`           | 入口。connect ハンドラ、Pub/Sub push、Cloud Tasks、Webhook             |
 
-- **機能パッケージを増減させたら `docs/backend/packages/` を更新する。** リングの割り当てと依存の図が実物とずれる
+- **機能パッケージを増減させたら `docs/backend/packages/` と `backend/.golangci.yaml` を更新する。** 図が実物とずれ、依存の向きが検査されない層が残る
 - 機能パッケージのルートには組み立て関数だけを置く (「依存の組み立て」を参照)
 - `handler` は入口ごとにファイルを分け (`connect.go` `subscriber.go`)、どれも同じユースケースを呼ぶ
 - **入口の中は RPC 1 つ 1 ファイルにする** (`create_park.go` `get_park.go`)。型と組み立てと変換だけを `connect.go` に残す
@@ -146,7 +149,13 @@ cmd            → すべて
 
 `cmd` だけが全層を import してよい。例外ではなく、最も外側だから許される。
 
-**この向きは golangci-lint の depguard で検査する。** 規約だけ置いて検査しない期間を作らない。
+**この向きは `backend/.golangci.yaml` の depguard で検査する。** 規約だけ置いて検査しない期間を作らない。
+
+- 規則は機能パッケージ 1 つにつき 5 つ (4 層とルート) 置く。**機能を足したら `park` の 5 つを複製する**
+- `list-mode: lax` を使い、禁じる import だけを `deny` に並べる。`allow` はその例外で、自分の機能の内側と `platform` だけを載せる
+- 機能ごとの規則とは別に、場所を問わない `everywhere` と実装ファイルだけの `impl` を置く。testify と DI コンテナ、実装での `go-cmp` がこれにあたる
+- 上に挙げたもの以外の外部パッケージは `deny` に載せないため検査されない。依存の追加そのものを depguard で止める運用にはしない
+- 禁じた import を足すと落ちることを確かめてから入れる。層の間に import の循環があるものはコンパイルが先に落ちるため、depguard の検査対象になっていない
 
 ### import エイリアス
 
@@ -235,6 +244,7 @@ const (
 - 永続化・送信・ログに出る値は文字列で定義する。数値の連番にしない
 - 数値が要る場合 (優先度・上限など) も `= 1` `= 2` のように値を書く
 - 例外は、外部に出ず順序そのものに意味がある内部的なビット列だけ。使うときは理由をコメントに残す
+- 上の例外を通す場合は `.golangci.yaml` の除外に理由とともに書く
 
 ### バリデーション
 
@@ -348,7 +358,8 @@ var ErrSoldOut = apperr.New(apperr.KindConflict, "PURCHASE_SOLD_OUT", "在庫が
 - `errors.As` ではなく `errors.AsType[T]` を使う (Go 1.26)
 - ポインタが要る値は `new(x)` で作る (Go 1.26)。`Ptr` のようなヘルパは置かない
 - struct には `omitempty` が効かない。`time.Time` などの struct フィールドには付けない (`omitzero` への置き換えは挙動が変わるため採らない)
-- PR を出す前に `just fix-diff` と `just modernize` を通し、提案が 0 件であることを確認する
+- **提案は golangci-lint の `modernize` が出す。** 専用のレシピは置かない。`just lint` と CI の `backend-lint` で毎回見る
+- 指摘は `golangci-lint run --fix` で書き換えられる
 
 ### 依存の追加
 
