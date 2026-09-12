@@ -1,0 +1,84 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="層と依存の向き" id="layers">
+    <mxGraphModel dx="1400" dy="900" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="ring4" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#b8cce4;strokeColor=#4a7ebb;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="20" y="40" width="760" height="760" as="geometry" />
+        </mxCell>
+        <mxCell id="ring3" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#c6d9cd;strokeColor=#5f8c74;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="90" y="110" width="620" height="620" as="geometry" />
+        </mxCell>
+        <mxCell id="ring2" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f2a9a2;strokeColor=#b85c54;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="175" y="195" width="450" height="450" as="geometry" />
+        </mxCell>
+        <mxCell id="ring1" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6a0;strokeColor=#bf9000;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="265" y="285" width="270" height="270" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t4" value="Frameworks &amp; Drivers" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontColor=#1f3864;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="270" y="46" width="260" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="p4" value="cmd/api ・ internal/platform/** ・ gen/**" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#1f3864;" vertex="1" parent="1">
+          <mxGeometry x="240" y="74" width="320" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t3" value="Interface Adapters" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontColor=#274e36;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="280" y="124" width="240" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="p3" value="park/handler ・ park (組み立て)&#10;park/infrastructure/firestore" style="text;html=1;align=center;verticalAlign=top;fontSize=12;fontColor=#274e36;spacingTop=0;" vertex="1" parent="1">
+          <mxGeometry x="230" y="146" width="340" height="42" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t2" value="Application Business Rules" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontColor=#7b2a23;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="260" y="222" width="280" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="p2" value="park/usecase&#10;park/domain/repository" style="text;html=1;align=center;verticalAlign=top;fontSize=12;fontColor=#7b2a23;" vertex="1" parent="1">
+          <mxGeometry x="220" y="248" width="360" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t1" value="Enterprise&#10;Business Rules" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontColor=#7f6000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="280" y="318" width="240" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="p1" value="park/domain/model&#10;Park ・ ParkID ・ センチネルエラー" style="text;html=1;align=center;verticalAlign=top;fontSize=13;fontColor=#7f6000;" vertex="1" parent="1">
+          <mxGeometry x="265" y="372" width="270" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="p1b" value="platform/serving/apperr (*)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#7f6000;dashed=1;fontSize=12;fontColor=#7f6000;" vertex="1" parent="1">
+          <mxGeometry x="290" y="418" width="220" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="inward" value="依存の向きは内側だけ" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="240" y="700" width="320" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="400" y="690" as="sourcePoint" />
+            <mxPoint x="400" y="565" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="legend" value="各リングに入るパッケージ" style="swimlane;html=1;startSize=32;fillColor=#ffffff;strokeColor=#999999;fontSize=15;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="840" y="40" width="520" height="420" as="geometry" />
+        </mxCell>
+        <mxCell id="l4" value="Frameworks &amp; Drivers&#10;cmd/api&#10;internal/platform/config&#10;internal/platform/observability/logging&#10;internal/platform/serving/httpx&#10;internal/platform/serving/interceptor&#10;internal/platform/client/firestore&#10;gen/aozorapark/park/v1 と parkv1connect" style="text;html=1;align=left;verticalAlign=top;fontSize=12;fillColor=#b8cce4;strokeColor=#4a7ebb;spacingLeft=8;spacingTop=4;" vertex="1" parent="legend">
+          <mxGeometry x="16" y="44" width="488" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="l3" value="Interface Adapters&#10;internal/park/handler (RPC 1 つ 1 ファイル)&#10;internal/park/infrastructure/firestore&#10;internal/park (組み立て関数)" style="text;html=1;align=left;verticalAlign=top;fontSize=12;fillColor=#c6d9cd;strokeColor=#5f8c74;spacingLeft=8;spacingTop=4;" vertex="1" parent="legend">
+          <mxGeometry x="16" y="184" width="488" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="l2" value="Application Business Rules&#10;internal/park/usecase (Create / Get / Update)&#10;internal/park/domain/repository (Reader / Writer)" style="text;html=1;align=left;verticalAlign=top;fontSize=12;fillColor=#f2a9a2;strokeColor=#b85c54;spacingLeft=8;spacingTop=4;" vertex="1" parent="legend">
+          <mxGeometry x="16" y="264" width="488" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="l1" value="Enterprise Business Rules&#10;internal/park/domain/model&#10;internal/platform/serving/apperr (*)" style="text;html=1;align=left;verticalAlign=top;fontSize=12;fillColor=#ffe6a0;strokeColor=#bf9000;spacingLeft=8;spacingTop=4;" vertex="1" parent="legend">
+          <mxGeometry x="16" y="334" width="488" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="note" value="(*) apperr は internal/platform/ の下に置いているが、依存の向きでは中心にある。&#10;domain/model がセンチネルエラーを作るのにこれを使うため、中心が外を向かない。&#10;外向きの知識を持つのは Kind から connect.Code へ変換するメソッドだけで、&#10;その変換を実際に呼ぶのは interceptor (外側) になる。&#10;&#10;domain/repository を Application の側に置くのは、インタフェースを使う側が持つため。&#10;実装は Interface Adapters の infrastructure/firestore にあり、向きが反転している。&#10;&#10;handler から usecase へはインタフェースを挟まない。向きが最初から内側なので&#10;反転させるものが無く、実装も 1 つしかない。" style="text;html=1;align=left;verticalAlign=top;fontSize=12;fillColor=#f7f7f7;strokeColor=#999999;spacingLeft=10;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="840" y="480" width="520" height="200" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

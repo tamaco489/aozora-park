@@ -2,7 +2,7 @@
 
 [English](./emulator.md) | [日本語](./emulator.ja.md)
 
-[ドキュメント一覧](../README.ja.md)に戻る。
+[ドキュメント一覧](../../README.ja.md)に戻る。
 
 ローカル開発では Firebase Emulator Suite の Firestore エミュレータを使います。
 コンテナの中で動くため、手元に JDK と Firebase CLI を入れる必要はありません。

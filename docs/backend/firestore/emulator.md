@@ -2,7 +2,7 @@
 
 [English](./emulator.md) | [日本語](./emulator.ja.md)
 
-Back to the [documentation index](../README.md).
+Back to the [documentation index](../../README.md).
 
 Local development uses the Firestore emulator from the Firebase Emulator Suite.
 It runs in a container, so neither a JDK nor the Firebase CLI is needed on the host.
