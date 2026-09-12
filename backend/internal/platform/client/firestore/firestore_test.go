@@ -1,39 +1,21 @@
-package firestore
+package firestore_test
 
 import (
 	"context"
 	"os"
 	"testing"
+
+	"github.com/tamaco489/aozora-park/backend/internal/platform/client/firestore/firestoretest"
 )
 
-// エミュレータが要るため、接続先が設定されていない環境では飛ばす
-func requireEmulator(tb testing.TB) string {
-	tb.Helper()
-
-	if os.Getenv("FIRESTORE_EMULATOR_HOST") == "" {
-		tb.Skip("run with FIRESTORE_EMULATOR_HOST set")
-	}
-
-	projectID := os.Getenv("GOOGLE_CLOUD_PROJECT")
-	if projectID == "" {
-		tb.Fatal("GOOGLE_CLOUD_PROJECT is required")
-	}
-	return projectID
+func TestMain(m *testing.M) {
+	os.Exit(firestoretest.Main(m))
 }
 
+// New が作ったクライアントでエミュレータに読み書きできることを確かめる
 func TestNew(t *testing.T) {
-	projectID := requireEmulator(t)
+	client := firestoretest.Client(t)
 	ctx := context.Background()
-
-	client, err := New(ctx, projectID)
-	if err != nil {
-		t.Fatalf("New(ctx, %q) = %v, want nil", projectID, err)
-	}
-	t.Cleanup(func() {
-		if err := client.Close(); err != nil {
-			t.Errorf("client.Close() = %v, want nil", err)
-		}
-	})
 
 	doc := client.Collection("connectivity").Doc(t.Name())
 	t.Cleanup(func() {
