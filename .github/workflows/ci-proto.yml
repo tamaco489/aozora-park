@@ -1,0 +1,83 @@
+name: ci-proto
+
+on:
+  pull_request:
+    paths:
+      - "proto/**"
+      - "backend/gen/**"
+      - "frontend/src/gen/**"
+      - ".github/workflows/ci-proto.yml"
+  push:
+    branches: [main]
+    paths:
+      - "proto/**"
+      - "backend/gen/**"
+      - "frontend/src/gen/**"
+      - ".github/workflows/ci-proto.yml"
+
+permissions:
+  contents: read
+
+env:
+  # .tool-versions の buf と揃える
+  BUF_VERSION: 1.72.0
+
+concurrency:
+  group: ci-proto-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  proto-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # buf-setup-action は node20 宣言のまま更新が止まっているため後継を使う
+      - uses: bufbuild/buf-action@v1
+        with:
+          setup_only: true
+          version: ${{ env.BUF_VERSION }}
+      - name: 規約の検査
+        working-directory: proto
+        run: buf lint
+      - name: 整形漏れの検査
+        working-directory: proto
+        run: buf format --diff --exit-code
+
+  proto-breaking:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      # base ブランチの履歴と比較するため全履歴が要る
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: bufbuild/buf-action@v1
+        with:
+          setup_only: true
+          version: ${{ env.BUF_VERSION }}
+      - name: 破壊的変更の検査
+        env:
+          BASE: origin/${{ github.event.pull_request.base.ref }}
+        run: |
+          if git ls-tree -r --name-only "$BASE" proto/ | grep -q '\.proto$'; then
+            buf breaking proto --against ".git#ref=$BASE,subdir=proto"
+          else
+            echo "$BASE に .proto が無いため破壊的変更の検査を飛ばす"
+          fi
+
+  proto-generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: bufbuild/buf-action@v1
+        with:
+          setup_only: true
+          version: ${{ env.BUF_VERSION }}
+      - name: コードの生成
+        working-directory: proto
+        run: buf generate
+      # 生成物はコミットする運用のため、生成し直して差分が出たら落とす
+      - name: 生成コードに差分が無いこと
+        run: |
+          git add --intent-to-add .
+          git diff --exit-code

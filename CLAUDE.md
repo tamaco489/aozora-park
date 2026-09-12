@@ -15,6 +15,7 @@
 | `.claude/rules/go/`      | Go のコーディングとテスト          |
 | `.claude/rules/proto/`   | proto と buf のコーディング        |
 | `.claude/rules/infra/`   | Terraform のコーディング           |
+| `.claude/rules/ci/`      | GitHub Actions のコーディング      |
 
 - [docs/README.ja.md](docs/README.ja.md) — プロジェクトの構成・アーキテクチャ
 
