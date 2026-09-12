@@ -1,0 +1,34 @@
+default:
+    @just --list
+
+# 依存の整理
+tidy:
+    go mod tidy
+
+# ビルド
+build:
+    go build ./...
+
+# テスト
+test:
+    go test ./...
+
+# 静的解析
+vet:
+    go vet ./...
+
+# 整形
+fmt:
+    go fmt ./...
+
+# 整形漏れの検査
+fmt-check:
+    gofmt -l .
+
+# modernize の提案を出す (gen/ は手で直せないため外す)
+modernize:
+    go run golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@latest ./cmd/... ./internal/...
+
+# api をローカルで起動する
+run-api:
+    go run ./cmd/api

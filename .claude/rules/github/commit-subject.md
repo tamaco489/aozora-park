@@ -57,6 +57,6 @@ git diff を見ればわかること (変更したファイル名、コードそ
 
 ```text
 #12 feat: 優先パスの申込ハンドラを追加 (backend)
-#20 docs: README に開発環境の起動手順を追記 (docs)
-#31 chore: Firestore エミュレータを docker compose に追加 (chore)
+#20 docs: README に開発環境の起動手順を追記 (repo)
+#31 chore: Firestore エミュレータを docker compose に追加 (repo)
 ```

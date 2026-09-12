@@ -30,7 +30,7 @@ description: "git の差分を適切な粒度でグループ化し、コミッ�
 - PR のタイトル・本文は `.claude/rules/github/pr-description.md` に従い、本文は `.github/PULL_REQUEST_TEMPLATE/` のテンプレートを埋める
 - push には GitHub MCP の `push_files` ではなく Bash の `git push` を使う
 - PR 作成は GitHub MCP (`create_pull_request`) を使う
-- **GitHub のラベルは付けない** (`.claude/rules/github/issue.md` の「ラベル」を参照)
+- **PR には GitHub のラベルを付ける。** 実際に変更した領域すべてを選ぶ。複数で構わない (`.claude/rules/github/labels.md`)
 
 ---
 
@@ -58,12 +58,13 @@ git branch --show-current
 
 | 現在のブランチ           | PR の base       | テンプレート |
 | ------------------------ | ---------------- | ------------ |
-| `release/main-issue-N/…` | `main`           | `release.md` |
 | `feature/sub-issue-N/…`  | リリースブランチ | `sub.md`     |
 | `chore/issue-N/…` など   | `main`           | `single.md`  |
+| `release/main-issue-N/…` | —                | —            |
 | `main`                   | —                | —            |
 
 - **`main` の場合**: 「現在 `main` ブランチです。作業ブランチを切りますか？」と確認する。直接コミットはしない
+- **リリースブランチの場合**: コミットと push は行うが、**PR は作らない。** リリース PR は `create-release-pr` スキルの担当 (`.claude/rules/github/pr-description.md`)
 - サブブランチの場合、base にするリリースブランチを次で探し、複数あるか見つからない場合はユーザーに確認する
 
 ```bash
@@ -96,9 +97,9 @@ git branch -r --list 'origin/release/*'
 以下のグループでコミットします。よろしいですか？
 
 [グループ 1] #12 feat: 優先パスの申込ハンドラを追加 (backend)
-  - backend/internal/handler/priority_pass.go
+  - backend/internal/prioritypass/handler/connect.go
 
-[グループ 2] #12 chore: commit rules を追加 (chore)
+[グループ 2] #12 chore: commit rules を追加 (repo)
   - .claude/rules/github/commit-types.md
   - .claude/rules/github/commit-subject.md
 ```
@@ -173,7 +174,10 @@ push 完了後、GitHub MCP (`list_pull_requests`) で現在のブランチの P
 - base は Step 2 で決めたブランチにする
 - タイトルは `.claude/rules/github/pr-description.md` の 3 形式から、ブランチに対応するものを選ぶ
 - 本文は Step 2 で決めたテンプレートを読み、その見出し構成のまま埋める。埋められない項目とコメント (`<!-- -->`) は削除する
-- PR の URL をユーザーに報告する
+- `create_pull_request` はラベルを受け取らないため、作成後に `gh pr edit <番号> --add-label "<ラベル>,<ラベル>"` で付ける。
+  **Step 1 で把握した変更ファイルのパスから領域を割り出す。** 対応する Issue のラベルより、実際に変更した範囲を優先する
+- **GitHub 上に無いラベルを渡すとエラーになる。** その場合は `sync-labels` スキルで同期してからやり直す
+- PR の URL と付けたラベルをユーザーに報告する
 
 ### Step 8: 結果報告
 

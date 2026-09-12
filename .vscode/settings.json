@@ -1,0 +1,8 @@
+{
+  "files.readonlyInclude": {
+    // backend/gen と frontend/src/gen は buf generate の出力
+    // 保存時整形や手編集で書き換わると CI の差分チェックが落ちるため読み取り専用にする
+    "backend/gen/**": true,
+    "frontend/src/gen/**": true
+  }
+}

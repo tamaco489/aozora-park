@@ -1,7 +1,7 @@
 ---
 name: サブ Issue (PR 単位)
 about: メイン Issue の下に紐付ける、PR 1 本ぶんの作業
-title: "[backend] [feat] "
+title: "[sub] [feat] "
 labels: ""
 assignees: ""
 ---
@@ -12,7 +12,15 @@ assignees: ""
 
 ## 作業ブランチ
 
-`feature/sub-issue-<この Issue の番号>/<名前>` (base: `release/main-issue-<メイン Issue の番号>/<名前>`)
+`<変更種別>/sub-issue-<この Issue の番号>/<名前>` (base: `release/main-issue-<メイン Issue の番号>/<名前>`)
+
+<!-- 種別はタイトルの変更種別に合わせる (`feat` は `feature` と綴る) -->
+
+## 依存
+
+<!-- 先に閉じている必要がある他のサブ Issue を `#12 (buf の初期化)` の形で書く。無ければこの節ごと削除する -->
+
+-
 
 ## やること
 
@@ -26,4 +34,4 @@ assignees: ""
 
 ## 補足
 
-<!-- 判断が必要な点、依存する他のサブ Issue があれば書く。なければ削除 -->
+<!-- 判断が必要な点、決め切れていない点があれば書く。なければ削除 -->

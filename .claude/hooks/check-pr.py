@@ -13,7 +13,6 @@ import sys
 
 from _github_rules import (
     BRANCH,
-    LABEL,
     SLUG,
     TYPE,
     allow,
@@ -28,7 +27,7 @@ RULES = "規約: .claude/rules/github/pr-description.md, .github/PULL_REQUEST_TE
 
 RELEASE = re.compile(rf"^\[Release\] \[{SLUG}\] \S.*$")
 SUB = re.compile(rf"^\[sub\] \[{SLUG}\] \S.*$")
-SINGLE = re.compile(rf"^\[{LABEL}\] (?:\[issue-\d+\] )?\[{TYPE}\] \S.*$")
+SINGLE = re.compile(rf"^\[issue-\d+\] \[{TYPE}\] \S.*$")
 
 HEADINGS_RELEASE = ["## 目的", "## 対応範囲", "## サブイシュー", "## マージ前の確認事項"]
 HEADINGS_OTHER = ["## 概要", "## 変更内容", "## 動作確認"]
@@ -70,7 +69,7 @@ def check(title: str, body, head: str, base: str):
     if not SINGLE.match(title):
         deny(
             f"PR のタイトルが規約に合っていません: {title!r}\n"
-            f"  形式: [ラベル] [issue-<番号>] [変更種別] <タイトル> (issue 番号は無ければ省略)",
+            f"  形式: [issue-<番号>] [変更種別] <タイトル>",
             RULES,
         )
     check_body(body, HEADINGS_OTHER, RULES)

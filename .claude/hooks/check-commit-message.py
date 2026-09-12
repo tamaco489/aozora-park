@@ -17,11 +17,13 @@ import sys
 SCOPES = [
     "frontend",
     "backend",
+    "proto",
     "infra",
     "ci",
     "cd",
-    "docs",
-    "chore",
+    "claude",
+    "vscode",
+    "repo",
 ]
 
 # .claude/rules/github/commit-types.md
@@ -81,6 +83,9 @@ def deny(reason: str):
 HEREDOC = re.compile(r"<<-?\s*'?\"?(\w+)'?\"?\n(.*?)\n\1", re.DOTALL)
 
 
+COMMIT_RE = re.compile(r"(?:^|[;&|(]|\n)\s*git\s+(?:-\S+\s+|--\S+\s+)*commit\b")
+
+
 def strip_heredocs(command: str) -> str:
     """ヒアドキュメントの中身を除いたシェルの本体を返す
 
@@ -89,26 +94,45 @@ def strip_heredocs(command: str) -> str:
     return HEREDOC.sub("<<HEREDOC", command)
 
 
-def extract_message(command: str) -> str | None:
+def commit_position(command: str) -> int | None:
+    """コマンド中で最初に現れる `git commit` の開始位置を返す
+
+    ヒアドキュメントの中身に現れるものは命令ではないため無視する。
+    """
+    bodies = [match.span(2) for match in HEREDOC.finditer(command)]
+    for match in COMMIT_RE.finditer(command):
+        # 一致は直前の区切り文字から始まるため、git 自体の位置で判定する
+        pos = match.start() + match.group(0).index("git")
+        if any(start <= pos < end for start, end in bodies):
+            continue
+        return pos
+    return None
+
+
+def extract_message(command: str, commit_pos: int) -> str | None:
     """git commit の -m / --message に渡された文字列を取り出す"""
     # heredoc 形式 (git commit -m "$(cat <<'EOF' ... EOF)")
-    heredoc = HEREDOC.search(command)
-    if heredoc:
-        return heredoc.group(2)
+    # 1 つのコマンドに複数のヒアドキュメントがある場合に備え、git commit より後のものを使う
+    for heredoc in HEREDOC.finditer(command):
+        if heredoc.start() > commit_pos:
+            return heredoc.group(2)
 
     try:
-        tokens = shlex.split(command)
+        tokens = shlex.split(strip_heredocs(command))
     except ValueError:
         return None
 
+    # git は -m を複数受け取ると段落として連結するため、同じ形に組み立てる
+    messages = []
     for i, token in enumerate(tokens):
         if token in ("-m", "--message"):
-            return tokens[i + 1] if i + 1 < len(tokens) else None
-        if token.startswith("--message="):
-            return token[len("--message=") :]
-        if token.startswith("-m") and len(token) > 2:
-            return token[2:]
-    return None
+            if i + 1 < len(tokens):
+                messages.append(tokens[i + 1])
+        elif token.startswith("--message="):
+            messages.append(token[len("--message=") :])
+        elif token.startswith("-m") and len(token) > 2:
+            messages.append(token[2:])
+    return "\n\n".join(messages) if messages else None
 
 
 def main():
@@ -119,16 +143,15 @@ def main():
 
     command = payload.get("tool_input", {}).get("command", "")
     # コマンドの先頭かシェルの区切りの直後にあるものだけを対象にする (文字列に含むだけの誤検知を避ける)
-    if not re.search(
-        r"(?:^|[;&|(]|\n)\s*git\s+(?:-\S+\s+|--\S+\s+)*commit\b", strip_heredocs(command)
-    ):
+    commit_pos = commit_position(command)
+    if commit_pos is None:
         allow()
 
     # メッセージを変えない・エディタで書く場合は検査しない
     if re.search(r"--no-edit|--amend\s*$|-C\b|--reuse-message|--fixup|--squash", command):
         allow()
 
-    message = extract_message(command)
+    message = extract_message(command, commit_pos)
     if message is None:
         allow()
 

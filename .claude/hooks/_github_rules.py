@@ -9,7 +9,7 @@ import shlex
 import subprocess
 import sys
 
-LABELS = ["frontend", "backend", "infra", "ci", "cd", "docs", "chore"]
+LABELS = ["frontend", "backend", "proto", "infra", "ci", "cd", "claude", "vscode", "repo"]
 TYPES = ["feat", "fix", "docs", "refactor", "chore", "add", "remove", "test", "ci"]
 
 LABEL = f"(?:{'|'.join(LABELS)})"
@@ -76,12 +76,21 @@ HEREDOC = re.compile(r"<<-?\s*'?\"?(\w+)'?\"?\n(.*?)\n\1", re.DOTALL)
 def gh_args(command: str, subcommand: str) -> dict | None:
     """gh <subcommand> create の引数を取り出す。対象外なら None"""
     # ヒアドキュメントの中身は命令ではないので除く。そのうえでコマンドの位置にあるものだけを対象にする
-    shell = HEREDOC.sub("<<HEREDOC", command)
-    if not re.search(rf"(?:^|[;&|(]|\n)\s*gh\s+{subcommand}\s+create\b", shell):
+    bodies = [match.span(2) for match in HEREDOC.finditer(command)]
+    pattern = re.compile(rf"(?:^|[;&|(]|\n)\s*gh\s+{subcommand}\s+create\b")
+    start = None
+    for match in pattern.finditer(command):
+        # 一致は直前の区切り文字から始まるため、gh 自体の位置で判定する
+        pos = match.start() + match.group(0).index("gh")
+        if not any(begin <= pos < end for begin, end in bodies):
+            start = pos
+            break
+    if start is None:
         return None
 
+    # 同じコマンドに複数のヒアドキュメントがある場合に備え、gh より前は読まない
     try:
-        tokens = shlex.split(command)
+        tokens = shlex.split(command[start:])
     except ValueError:
         return None
 

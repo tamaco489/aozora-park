@@ -1,0 +1,23 @@
+services:
+  firestore-emulator:
+    build: ./docker/firebase-emulator
+    ports:
+      - "18080:18080"
+      - "4000:4000" # Emulator UI
+      - "4400:4400" # Emulator hub
+      - "4500:4500" # UI のログ表示
+      - "9150:9150" # UI が変化を受け取る websocket
+    volumes:
+      # firebase.json をコンテナ内にコピーして、エミュレータの設定として使う
+      - ./firebase.json:/workspace/firebase.json:ro
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:18080/').then(()=>process.exit(0)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20

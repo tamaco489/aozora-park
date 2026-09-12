@@ -1,0 +1,30 @@
+# buf generate の出力設定
+# proto/ の定義から Go と TypeScript を生成し、backend/gen と frontend/src/gen へ書き出す
+# 生成物はコミットし、CI は生成し直して差分が出ないことを検査する
+version: v2
+
+# .proto に書かない file option を生成時に補う仕組み
+managed:
+  # 無効のままだと override が読まれない
+  enabled: true
+
+  # Go の import パスの接頭辞、go_package を .proto 側に書かずに済む
+  override:
+    - file_option: go_package_prefix
+      value: github.com/tamaco489/aozora-park/backend/gen
+
+# 実行するプラグイン、remote は BSR (Buf Schema Registry) 上の版を使うためローカルへの導入が要らない
+plugins:
+  # Go のメッセージ型、paths=source_relative で proto と同じ階層に出す
+  - remote: buf.build/protocolbuffers/go:v1.36.12
+    out: ../backend/gen
+    opt: paths=source_relative
+  # connect のハンドラとクライアント、<パッケージ名>connect として別ディレクトリに出る
+  - remote: buf.build/connectrpc/go:v1.21.0
+    out: ../backend/gen
+    opt: paths=source_relative
+  # TypeScript の型とサービス定義、connect-es v2 は専用プラグインを持たずこの出力を直接使う
+  # 版が npm の @bufbuild/protobuf より古いのは BSR の公開が追いついていないため
+  - remote: buf.build/bufbuild/es:v2.14.1
+    out: ../frontend/src/gen
+    opt: target=ts

@@ -1,0 +1,20 @@
+# buf のモジュール設定
+# proto/ 配下の .proto を 1 つのモジュールとして扱い、lint と breaking の規則をここで決める
+# buf CLI と VS Code の Buf 拡張はどちらもこのファイルを起点に動く
+version: v2
+
+# 検査と生成の対象、buf.yaml と同じ階層から下の .proto をすべて含む
+modules:
+  - path: .
+
+# 命名と構成の検査規則
+lint:
+  use:
+    # buf が推奨する規則を全部含む
+    - STANDARD
+
+# 破壊的変更の検査規則
+breaking:
+  use:
+    # 生成コードの互換まで見る最も厳しい単位
+    - FILE
