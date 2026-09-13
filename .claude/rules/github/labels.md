@@ -12,8 +12,8 @@ Issue と PR に付ける GitHub のラベルと、コミットメッセージ�
 | `backend`  | `#4147d4` | Go の実装 (`backend/` 配下)                                                              |
 | `proto`    | `#00b8d9` | Protocol Buffers と buf の設定 (`proto/` 配下)                                           |
 | `infra`    | `#b22ac3` | Terraform (`infra/` 配下)                                                                |
-| `ci`       | `#efcc12` | CI ワークフロー (`.github/workflows/ci-*.yml`)                                           |
-| `cd`       | `#6f42c1` | CD ワークフロー・デプロイ (`.github/workflows/cd-*.yml`)                                 |
+| `ci`       | `#efcc12` | CI ワークフロー (`.github/workflows/ci-*.yaml`)                                          |
+| `cd`       | `#6f42c1` | CD ワークフロー・デプロイ (`.github/workflows/cd-*.yaml`)                                |
 | `claude`   | `#f49c51` | Claude Code の設定 (`CLAUDE.md`、`.claude/` 配下)                                        |
 | `vscode`   | `#007acc` | エディタ設定 (`.vscode/` 配下)                                                           |
 | `repo`     | `#0e8a16` | リポジトリ全体 (`README`、`docs/` 配下、`.github/` の非ワークフロー、直下の設定ファイル) |
