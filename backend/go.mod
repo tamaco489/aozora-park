@@ -6,10 +6,12 @@ require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.12-20260825204119-511051f7f437.2
 	cloud.google.com/go/firestore v1.25.0
 	connectrpc.com/connect v1.21.0
+	connectrpc.com/cors v0.1.0
 	connectrpc.com/grpchealth v1.5.0
 	connectrpc.com/grpcreflect v1.3.0
 	connectrpc.com/validate v0.7.0
 	github.com/google/go-cmp v0.7.0
+	github.com/rs/cors v1.11.1
 	github.com/testcontainers/testcontainers-go v0.44.0
 	github.com/testcontainers/testcontainers-go/modules/gcloud v0.44.0
 	google.golang.org/grpc v1.82.1

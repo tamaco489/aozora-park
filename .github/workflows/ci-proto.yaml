@@ -6,14 +6,14 @@ on:
       - "proto/**"
       - "backend/gen/**"
       - "frontend/src/gen/**"
-      - ".github/workflows/ci-proto.yml"
+      - ".github/workflows/ci-proto.yaml"
   push:
     branches: [main]
     paths:
       - "proto/**"
       - "backend/gen/**"
       - "frontend/src/gen/**"
-      - ".github/workflows/ci-proto.yml"
+      - ".github/workflows/ci-proto.yaml"
 
 permissions:
   contents: read
@@ -36,10 +36,10 @@ jobs:
         with:
           setup_only: true
           version: ${{ env.BUF_VERSION }}
-      - name: 規約の検査
+      - name: Lint
         working-directory: proto
         run: buf lint
-      - name: 整形漏れの検査
+      - name: Check formatting
         working-directory: proto
         run: buf format --diff --exit-code
 
@@ -55,7 +55,7 @@ jobs:
         with:
           setup_only: true
           version: ${{ env.BUF_VERSION }}
-      - name: 破壊的変更の検査
+      - name: Check breaking changes
         env:
           BASE: origin/${{ github.event.pull_request.base.ref }}
         run: |
@@ -73,11 +73,11 @@ jobs:
         with:
           setup_only: true
           version: ${{ env.BUF_VERSION }}
-      - name: コードの生成
+      - name: Generate code
         working-directory: proto
         run: buf generate
       # 生成物はコミットする運用のため、生成し直して差分が出たら落とす
-      - name: 生成コードに差分が無いこと
+      - name: Check generated code is up to date
         run: |
           git add --intent-to-add .
           git diff --exit-code

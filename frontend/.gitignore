@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ローカルの api の接続先だけを持つため追跡する (秘匿値は入れない)
+# ルートの .gitignore が .env.* を除外しているため、ここで戻す
+!.env.development
