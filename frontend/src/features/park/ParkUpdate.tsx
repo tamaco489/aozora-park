@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type SubmitEvent } from "react";
 
 import { parkClient } from "../../api/park";
 import { messageOf } from "../../api/errors";
@@ -42,7 +42,7 @@ export function ParkUpdate() {
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     setPark(undefined);
