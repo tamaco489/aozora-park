@@ -31,6 +31,9 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version-file: .tool-versions
+          # 型情報を使う lint のバイナリが 22MB あり、毎回の取得が無駄になる
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
       # package-lock.json のとおりに入れる (npm install と違って lock を書き換えない)
       - name: Install dependencies
         run: npm ci
@@ -44,6 +47,9 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version-file: .tool-versions
+          # 型情報を使う lint のバイナリが 22MB あり、毎回の取得が無駄になる
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
       - name: Install dependencies
         run: npm ci
       # build は tsc -b を挟むため、型の検査もここで落ちる
