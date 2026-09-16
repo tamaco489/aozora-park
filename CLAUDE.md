@@ -41,7 +41,7 @@
 - `main` ブランチへの直接コミット・push の禁止
 - Git フック・署名のスキップ禁止 (`--no-verify`, `--no-gpg-sign`)
 - `rm -rf` の使用禁止 — ファイル削除は `rm -f` を使う
-- 生成コードの手動編集禁止 — `backend/gen/` と `frontend/src/gen/` は `buf generate` で再生成する
+- 生成コードの手動編集禁止 — `backend/gen/` と `frontend/src/gen/` と `docs/api/openapi.yaml` は `buf generate`、`docs/api/redoc.html` は `just docs` で再生成する
 - 機密情報のハードコーディング禁止 (API キー、fincode の認証情報、Slack Webhook URL、接続情報)
   - 秘匿値は Secret Manager に置く。Terraform はシークレットの入れ物と参照だけを定義し、値の投入はユーザーが行う
   - リポジトリと GitHub Secrets に長期クレデンシャルを置かない (デプロイは Workload Identity Federation)

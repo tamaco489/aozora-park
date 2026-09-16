@@ -124,6 +124,8 @@ connect のエラーコードとアプリケーションのコードは `platfor
 
 - `just lint` `just fmt` `just fmt-check` `just generate` を `proto/` で実行する。PR を出す前に `just lint` と `just fmt-check` を通す
 - プラグインは BSR のリモートプラグインを使う。ローカルに `protoc-gen-*` を入れない
-- **生成物は `backend/gen/` と `frontend/src/gen/` にコミットし、手で編集しない**
+- **生成物は `backend/gen/` と `frontend/src/gen/` と `docs/api/` にコミットし、手で編集しない**
+- `docs/api/openapi.yaml` は仕様を見るための資料で、api は使わない。`docs/api/redoc.html` をブラウザで開いて見る
+- **`redoc.html` は `just docs` で作り、手で編集しない。** CI は検査しないため、proto を変えたら `just generate` の後に `just docs` を流して一緒にコミットする
 - **`.proto` を削除しても生成ファイルは残る。** リネーム・削除をしたら出力先の不要なファイルを手で消す
 - **依存先の定義は Go では生成せず、TypeScript では生成する。** Go は BSR 公式の生成モジュールを参照する (`managed.disable`)。自前で生成すると同じ proto ファイルが二重に登録される。TypeScript は npm のパッケージがサブパスを公開しないため `include_imports` で自分の出力に含める
