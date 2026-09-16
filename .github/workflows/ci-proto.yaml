@@ -6,6 +6,7 @@ on:
       - "proto/**"
       - "backend/gen/**"
       - "frontend/src/gen/**"
+      - "docs/api/**"
       - ".github/workflows/ci-proto.yaml"
   push:
     branches: [main]
@@ -13,6 +14,7 @@ on:
       - "proto/**"
       - "backend/gen/**"
       - "frontend/src/gen/**"
+      - "docs/api/**"
       - ".github/workflows/ci-proto.yaml"
 
 permissions:
