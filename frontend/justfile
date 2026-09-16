@@ -1,0 +1,22 @@
+default:
+    @just --list
+
+# 依存の導入 (package-lock.json のとおりに入れる)
+install:
+    npm ci
+
+# 開発サーバを起動する、api は backend の just run-api で別に起動する
+dev:
+    npm run dev
+
+# 規約の検査
+lint:
+    npm run lint
+
+# 型検査を含むビルド
+build:
+    npm run build
+
+# ビルドした成果物を配信して確認する
+preview:
+    npm run preview
