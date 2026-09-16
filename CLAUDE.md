@@ -8,14 +8,15 @@
 
 規約は `.claude/rules/` にあり、すべて読み込まれる。**このファイルには規約を再掲しない。**
 
-| ディレクトリ             | 内容                               |
-| ------------------------ | ---------------------------------- |
-| `.claude/rules/general/` | 応答・表記、作業の進め方、justfile |
-| `.claude/rules/github/`  | コミット、Issue、PR、ラベル        |
-| `.claude/rules/go/`      | Go のコーディングとテスト          |
-| `.claude/rules/proto/`   | proto と buf のコーディング        |
-| `.claude/rules/infra/`   | Terraform のコーディング           |
-| `.claude/rules/ci/`      | GitHub Actions のコーディング      |
+| ディレクトリ                | 内容                                          |
+| --------------------------- | --------------------------------------------- |
+| `.claude/rules/general/`    | 応答・表記、作業の進め方、justfile            |
+| `.claude/rules/github/`     | コミット、Issue、PR、ラベル                   |
+| `.claude/rules/go/`         | Go のコーディングとテスト                     |
+| `.claude/rules/proto/`      | proto と buf のコーディング                   |
+| `.claude/rules/typescript/` | frontend (TypeScript と React) のコーディング |
+| `.claude/rules/infra/`      | Terraform のコーディング                      |
+| `.claude/rules/ci/`         | GitHub Actions のコーディング                 |
 
 `docs/` は規約ではなく現状の説明を持つ。**構成を変えたら規約と一緒に更新する。**
 
