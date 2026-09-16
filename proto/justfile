@@ -13,6 +13,10 @@ fmt:
 fmt-check:
     buf format --diff --exit-code
 
-# Go と TypeScript のコードを生成する
+# Go と TypeScript のコードと OpenAPI を生成する
 generate:
     ./scripts/generate.sh
+
+# docs/api/openapi.yaml から Redoc の HTML を作る (proto を変えたら流して一緒にコミットする)
+docs:
+    ./scripts/build-docs.sh

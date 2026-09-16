@@ -1,5 +1,5 @@
 # buf generate の出力設定
-# proto/ の定義から Go と TypeScript を生成し、backend/gen と frontend/src/gen へ書き出す
+# proto/ の定義から Go と TypeScript と OpenAPI を生成し、backend/gen と frontend/src/gen と docs/api へ書き出す
 # 生成物はコミットし、CI は生成し直して差分が出ないことを検査する
 version: v2
 
@@ -35,3 +35,11 @@ plugins:
     opt: target=ts
     # npm の @bufbuild/protovalidate はサブパスを公開しないため、依存先の定義もここで生成する
     include_imports: true
+  # connect の HTTP/JSON での呼び方を OpenAPI に起こす、仕様を画面で見るための資料で api からは使わない
+  # リモートプラグインは proto をまとめて 1 回で受け取るため、サービスが増えても path の 1 ファイルに収まる
+  - remote: buf.build/community/sudorandom-connect-openapi:v0.27.2
+    out: ../docs/api
+    opt:
+      - path=openapi.yaml
+      # タグをパッケージ名抜きのサービス名にする
+      - short-service-tags

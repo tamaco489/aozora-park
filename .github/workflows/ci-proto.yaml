@@ -77,7 +77,8 @@ jobs:
         working-directory: proto
         run: buf generate
       # 生成物はコミットする運用のため、生成し直して差分が出たら落とす
+      # docs/api はエディタの整形で書き換わってよい資料のため検査しない
       - name: Check generated code is up to date
         run: |
           git add --intent-to-add .
-          git diff --exit-code
+          git diff --exit-code -- . ':(exclude)docs/api'
