@@ -1,6 +1,6 @@
 # justfile の規約
 
-直下の `justfile`、`backend/justfile`、`proto/justfile` に共通で適用する。
+直下の `justfile`、`backend/justfile`、`proto/justfile`、`frontend/justfile` に共通で適用する。
 
 ## justfile にシェルスクリプトを書かない
 
