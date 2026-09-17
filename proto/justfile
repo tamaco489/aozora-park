@@ -17,6 +17,6 @@ fmt-check:
 generate:
     ./scripts/generate.sh
 
-# docs/api/openapi.yaml から Redoc の HTML を作る (proto を変えたら流して一緒にコミットする)
+# docs/api/openapi.yaml から Redoc の HTML を生成する (proto を変更したら流して一緒にコミットする)
 docs:
     ./scripts/build-docs.sh
