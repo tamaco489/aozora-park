@@ -55,7 +55,7 @@ RULES = (
     f"  type: {', '.join(TYPES)}\n"
     f"  スコープ: {', '.join(SCOPES)}\n"
     "  subject: 体言止めまたは「〜する」形、末尾に句点をつけない\n"
-    "  本文: 必須。空行をあけて「何が問題だったか → どう変えたか」を書く"
+    "  本文: 必須。空行をあけて「何が問題だったか → どう変更したか」を書く"
 )
 
 
@@ -147,7 +147,7 @@ def main():
     if commit_pos is None:
         allow()
 
-    # メッセージを変えない・エディタで書く場合は検査しない
+    # メッセージを変更しない・エディタで書く場合は検査しない
     if re.search(r"--no-edit|--amend\s*$|-C\b|--reuse-message|--fixup|--squash", command):
         allow()
 
@@ -172,7 +172,7 @@ def main():
     if not body:
         deny(
             "本文がありません。subject の後に空行をあけて、"
-            "何が問題だったか・どう変えたかを書いてください。"
+            "何が問題だったか・どう変更したかを書いてください。"
         )
 
     if len(subject) > MAX_SUBJECT_LEN:

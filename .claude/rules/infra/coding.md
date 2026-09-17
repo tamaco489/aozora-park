@@ -6,26 +6,26 @@
 
 - 環境は workspace ではなく `infra/envs/{env}/` のディレクトリで分ける。GCP に置く環境は `stg` と `prd` で、`dev` はローカル専用のため持たない
 - 環境の識別子は `dev` `stg` `prd` に固定する。`prod` `staging` `development` を使わない
-- `prd` は構成の定義だけを持ち、apply しない。GCP のプロジェクトと state バケットも作らないため、`backend.tf` を置かず、検査は `init` の上で `validate` まで行う
+- `prd` は構成の定義だけを持ち、apply しない。GCP のプロジェクトと state バケットも作成しないため、`backend.tf` を置かず、検査は `init` の上で `validate` まで行う
 - 部品は `infra/modules/{name}/` に置く。`envs/{env}/main.tf` はモジュールを呼び出すだけで、リソース定義を書かない
 - provider の設定 (`provider "google" {}`、`default_labels`) と backend (GCS) は環境ディレクトリにだけ書く。モジュールは `required_providers` で要件を宣言するだけにする
 
 ## Terraform で管理しないもの
 
-- GCP の組織・フォルダ・プロジェクト、課金アカウントの紐付け、state バケット、予算アラートは手作業で作る。手順は設計ドキュメントに置く
+- GCP の組織・フォルダ・プロジェクト、課金アカウントの紐付け、state バケット、予算アラートは手作業で作成する。手順は設計ドキュメントに置く
 - Terraform はプロジェクトの中のリソースだけを扱う
 
 ## 環境ディレクトリのファイル構成
 
-| ファイル              | 置くもの                                                                        |
-| --------------------- | ------------------------------------------------------------------------------- |
-| `versions.tf`         | `terraform { required_version, required_providers }`                            |
-| `backend.tf`          | GCS の backend。`stg` だけに置く                                                |
-| `providers.tf`        | `provider "google" {}` と `default_labels`                                      |
-| `variables.tf`        | `project_id` `region` `env` と、その `validation`                               |
-| `terraform.tfvars`    | 上の変数の値                                                                    |
-| `main.tf`             | モジュールの呼び出し。呼ぶモジュールができてから置く                            |
-| `.terraform.lock.hcl` | provider のバージョンとチェックサム。`init` と `just lock` が作る。コミットする |
+| ファイル              | 置くもの                                                                            |
+| --------------------- | ----------------------------------------------------------------------------------- |
+| `versions.tf`         | `terraform { required_version, required_providers }`                                |
+| `backend.tf`          | GCS の backend。`stg` だけに置く                                                    |
+| `providers.tf`        | `provider "google" {}` と `default_labels`                                          |
+| `variables.tf`        | `project_id` `region` `env` と、その `validation`                                   |
+| `terraform.tfvars`    | 上の変数の値                                                                        |
+| `main.tf`             | モジュールの呼び出し。呼ぶモジュールができてから置く                                |
+| `.terraform.lock.hcl` | provider のバージョンとチェックサム。`init` と `just lock` が作成する。コミットする |
 
 ## モジュールのファイル構成
 
@@ -36,9 +36,9 @@
 | `main.tf`      | `locals` とリソース定義                                                         |
 | `outputs.tf`   | 出力値。**すべてに `description`**                                              |
 
-- `main.tf` が肥大化するときは役割ごとに `<役割>.tf` へ分け (`api.tf` `payment_service.tf` など)、`main.tf` には `locals` と複数の役割で共有する部品だけを残す。1 ファイル 1 つの関心にし、区切り線のコメントでセクションを作らない
+- `main.tf` が肥大化するときは役割ごとに `<役割>.tf` へ分け (`api.tf` `payment_service.tf` など)、`main.tf` には `locals` と複数の役割で共有する部品だけを残す。1 ファイル 1 つの関心にし、区切り線のコメントでセクションを設けない
 - Terraform 内のリソース識別子は役割名にする (`google_cloud_run_v2_service.api`、`google_pubsub_topic.purchase_created`)。同種が 1 つでも `this` にしない
-- 使わない変数・出力を作らない。他モジュールが必要とする ID・名前・URL は出力し、派生形は使う側で組み立てる
+- 使わない変数・出力を定義しない。他モジュールが必要とする ID・名前・URL は出力し、派生形は使う側で組み立てる
 
 ## 命名と値の渡し方
 
@@ -56,7 +56,7 @@
 - 非推奨の書き方をしない。Cloud Run は `google_cloud_run_service` ではなく `google_cloud_run_v2_service` / `google_cloud_run_v2_job` を使う。IAM は `google_*_iam_policy` (全置換) ではなく `google_*_iam_member` を使う。provider のバージョンに対する正しい書き方はドキュメントで確認する
 - `google-beta` は beta 限定の引数が要るときだけ使い、その理由をコメントに残す
 - バージョンは `~>` で固定する (環境側は `required_version` と provider を固定、モジュール側は下限だけで足りる)
-- `required_version` は `.tool-versions` の terraform と同じ系列にする。terraform を上げたら両方を直す
+- `required_version` は `.tool-versions` の terraform と同じ系列にする。terraform を上げたら両方を修正する
 - `.terraform.lock.hcl` には、手元 (`darwin_arm64`) と CI (`linux_amd64`) の両方のチェックサムを `just lock <env>` で載せる。`init` は実行したマシンの分しか記録しないため。provider のバージョンを上げたときも実行する
 
 ## コメント
@@ -73,6 +73,6 @@
 - PR を出す前に `just fmt-check` `just lint` と、環境ごとの `just init <env>` `just validate <env>` `just scan <env>` を通す。stg は `just plan` で意図した差分だけが出ることを確かめる
 - `apply` と `destroy` のレシピは環境名を省略できない形にする。`prd` には使わない
 - trivy は環境ごとに、その環境の `terraform.tfvars` だけを `--tf-vars` で渡す。まとめて渡すと、環境の間で同名の変数が上書きし合う
-- backend を変えた直後の `init` は `-reconfigure` を使う (旧 backend に state が無いことを確認したうえで)
+- backend を変更した直後の `init` は `-reconfigure` を使う (旧 backend に state が無いことを確認したうえで)
 - Cloud Run のイメージタグは deploy ワークフローが差し替えるため、Terraform は初回作成と設定 (環境変数・シークレット参照・SA・スケール) だけを担う。`image` は `lifecycle { ignore_changes = [...] }` で無視し、CI の差し替えを drift にしない
 - justfile にシェルの処理を書かない (`.claude/rules/general/justfile.md`)

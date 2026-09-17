@@ -1,6 +1,6 @@
 # TypeScript のコーディング規約
 
-ディレクトリは `frontend/`。Vite と React で画面を作り、connect-web で api を呼ぶ。
+ディレクトリは `frontend/`。Vite と React で画面を作成し、connect-web で api を呼ぶ。
 
 この規約のどれが機械の検査に載っているかは `frontend/.oxlintrc.json` と `frontend/tsconfig.app.json` を見る。
 **どの検査が見ているかを規約側に書かない。** 検査を外したときに規約が嘘になるため。
@@ -18,7 +18,7 @@ frontend/
 │   ├── api/              # api との接続。画面から切り離す
 │   │   ├── transport.ts  # 接続先とトランスポート
 │   │   ├── park.ts       # サービスごとのクライアント
-│   │   └── errors.ts     # connect のエラーを画面の文言に変える
+│   │   └── errors.ts     # connect のエラーを画面の文言に変換する
 │   ├── features/         # 業務機能ごとの画面
 │   │   └── park/
 │   └── gen/              # buf generate の出力。手で編集しない
@@ -27,7 +27,7 @@ frontend/
 ```
 
 - `src/features/` は業務機能で分け、`backend/internal/<機能>` と名前を揃える
-- **画面の部品から connect のクライアントを作らない。** `src/api/` で作ったものを import する
+- **画面の部品から connect のクライアントを生成しない。** `src/api/` で生成したものを import する
 - `src/api/` はサービス 1 つにつき 1 ファイルにする (`park.ts`)。トランスポートは全サービスで共有する
 
 ## api との接続
@@ -58,7 +58,7 @@ export const parkClient = createClient(ParkService, transport);
 
 ### エラーの扱い
 
-**connect のエラーを文言に変える処理は `src/api/errors.ts` の 1 か所だけに置く。** 画面は `messageOf(err)` を呼ぶだけにする。
+**connect のエラーを文言に変換する処理は `src/api/errors.ts` の 1 か所だけに置く。** 画面は `messageOf(err)` を呼ぶだけにする。
 
 - `ConnectError.from(err)` で変換し、`Code` で振り分ける。エラーを文字列で比較しない
 - サーバは `apperr` の分類を connect のコードに変換して返すため、画面で扱う分類はコードで足りる
@@ -74,7 +74,7 @@ export const parkClient = createClient(ParkService, transport);
 
 ### 更新の RPC
 
-connect の更新 RPC は部分更新ではない。**変えない項目も現在の値を送る。** フォームの初期値は取得の RPC の結果で埋める。
+connect の更新 RPC は部分更新ではない。**変更しない項目も現在の値を送る。** フォームの初期値は取得の RPC の結果で埋める。
 
 ## 画面の部品
 
@@ -107,7 +107,7 @@ async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
 }
 ```
 
-- 送信の前に、前回の結果とエラーを消す
+- 送信の前に、前回の結果とエラーを削除する
 - 読み込み中はボタンを `disabled` にし、二重送信を防ぐ
 - フォームは `<form onSubmit>` で受け、`preventDefault` を呼ぶ
 
@@ -129,7 +129,7 @@ async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
 
 - 「なぜ」が自明でないときだけ書く。「何をしているか」は書かない
 - 日本語で書き、句点 (。) を含めない。1 行で書き、長くなるなら 1 行 1 論点で分ける
-- 公開する関数と部品の説明は、名前から始める (`// messageOf は connect のエラーを画面に出す文言に変える`)
+- 公開する関数と部品の説明は、名前から始める (`// messageOf は connect のエラーを画面に出す文言に変換する`)
 
 ### import の並び
 
@@ -155,4 +155,4 @@ import { ParkDetail } from "./ParkDetail";
 
 - 依存は `npm ci` で `package-lock.json` のとおりに入れる。`package-lock.json` はコミットする
 - Node のバージョンは `.tool-versions` から読む
-- 依存は必要になった時点で足す。**追加したら理由を PR に書く**
+- 依存は必要になった時点で追加する。**追加したら理由を PR に書く**

@@ -75,4 +75,4 @@ drawio --no-sandbox -x -f png -s 2 -p 1 -o {output}.png {input}.drawio
 npx @mermaid-js/mermaid-cli -i {input}.mmd -o {output}.png --backgroundColor white --scale 3
 ```
 
-SVG を図として直接埋め込まない。フォントの扱いが環境で変わるため、埋め込むのは PNG にする。
+SVG を図として直接埋め込まない。フォントの扱いが環境によって異なるため、埋め込むのは PNG にする。
