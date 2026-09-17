@@ -1,0 +1,32 @@
+# api を起動した状態で、各リクエストの上の Send Request から実行する
+@baseUrl = http://localhost:8080
+
+### パークを登録する
+# @name createPark
+POST {{baseUrl}}/aozorapark.park.v1.ParkService/CreatePark
+Content-Type: application/json
+
+{
+  "name": "Aozora Park",
+  "defaultDailyCapacity": 1000,
+  "inventoryDays": 30
+}
+
+### パークを 1 件取得する、直前に登録したパークを対象にする
+POST {{baseUrl}}/aozorapark.park.v1.ParkService/GetPark
+Content-Type: application/json
+
+{
+  "parkId": "{{createPark.response.body.park.parkId}}"
+}
+
+### パークを更新する、部分更新ではないため変更しない項目も現在の値を渡す
+POST {{baseUrl}}/aozorapark.park.v1.ParkService/UpdatePark
+Content-Type: application/json
+
+{
+  "parkId": "{{createPark.response.body.park.parkId}}",
+  "name": "Aozora Park 2",
+  "defaultDailyCapacity": 500,
+  "inventoryDays": 60
+}
