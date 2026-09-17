@@ -6,7 +6,7 @@
 
 - 環境は workspace ではなく `infra/envs/{env}/` のディレクトリで分ける。GCP に置く環境は `stg` と `prd` で、`dev` はローカル専用のため持たない
 - 環境の識別子は `dev` `stg` `prd` に固定する。`prod` `staging` `development` を使わない
-- `prd` は構成の定義だけを持ち、apply しない。GCP のプロジェクトと state バケットも作らないため、検査は `init -backend=false` の上で `validate` まで行う
+- `prd` は構成の定義だけを持ち、apply しない。GCP のプロジェクトと state バケットも作らないため、`backend.tf` を置かず、検査は `init` の上で `validate` まで行う
 - 部品は `infra/modules/{name}/` に置く。`envs/{env}/main.tf` はモジュールを呼び出すだけで、リソース定義を書かない
 - provider の設定 (`provider "google" {}`、`default_labels`) と backend (GCS) は環境ディレクトリにだけ書く。モジュールは `required_providers` で要件を宣言するだけにする
 
