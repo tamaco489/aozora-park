@@ -46,8 +46,8 @@
 - 機密情報のハードコーディング禁止 (API キー、fincode の認証情報、Slack Webhook URL、接続情報)
   - 秘匿値は Secret Manager に置く。Terraform はシークレットの入れ物と参照だけを定義し、値の投入はユーザーが行う
   - リポジトリと GitHub Secrets に長期クレデンシャルを置かない (デプロイは Workload Identity Federation)
-- **インフラ適用・GCP リソース操作の禁止** — 以下はユーザーのみが実行する。Claude が実行してはならない:
-  - `terraform apply` / `terraform destroy` (`terraform fmt` / `validate` / `plan` は可)
+- **インフラのコマンド実行・GCP リソース操作の禁止** — 以下はユーザーのみが実行する。Claude が実行してはならない:
+  - `terraform` のすべてのコマンド (`init` `fmt` `validate` `plan` `apply` `destroy` など)、`tflint`、`trivy`。`just` 経由でも同じ
   - `gcloud run deploy` / `gcloud run jobs update` / `gcloud run jobs execute`
   - `firebase deploy`
   - Pub/Sub への publish、Cloud Tasks へのタスク投入、Firestore への書き込み

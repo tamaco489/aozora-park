@@ -1,0 +1,83 @@
+default:
+    @just --list
+
+
+# ==========================================================================================
+# terraform: 初期化と静的検査
+# ==========================================================================================
+# 初期化する (stg は GCS の state に繋ぐ、prd は backend を持たない)
+init env="stg":
+    terraform -chdir=envs/{{ env }} init
+
+# 整形
+fmt:
+    terraform fmt -recursive
+
+# 整形漏れの検査
+fmt-check:
+    terraform fmt -recursive -check -diff
+
+# 構文と型の検査
+validate env:
+    terraform -chdir=envs/{{ env }} validate
+
+
+# ==========================================================================================
+# terraform: 差分の確認と適用 (ユーザーだけが実行する、prd には使わない)
+# ==========================================================================================
+# 差分の確認 (apply はユーザーが行う)
+plan env="stg":
+    terraform -chdir=envs/{{ env }} plan
+
+# 差分を GCP に適用する
+apply env:
+    terraform -chdir=envs/{{ env }} apply
+
+# 管理しているリソースをすべて削除する
+destroy env:
+    terraform -chdir=envs/{{ env }} destroy
+
+
+# ==========================================================================================
+# tflint
+# ==========================================================================================
+# tflint のプラグインを取得する
+lint-init:
+    tflint --init --config {{ justfile_directory() }}/.tflint.hcl
+
+# tflint の検査
+lint: lint-init
+    tflint --recursive --config {{ justfile_directory() }}/.tflint.hcl
+
+
+# ==========================================================================================
+# trivy
+# ==========================================================================================
+# trivy による設定の脆弱性検査
+scan env:
+    trivy config --config trivy.yaml --tf-vars envs/{{ env }}/terraform.tfvars envs/{{ env }}
+
+
+# ==========================================================================================
+# terraform: provider の依存ロック
+# ==========================================================================================
+# 手元と CI の両方のチェックサムを lock に書き足す
+#
+# init が lock に記録するチェックサムは、実行したマシンの OS と CPU 向けのものだけになる
+# このため手元で作った lock のまま CI で init すると、チェックサムが足りずに不整合が起きる
+# provider の版は変えず、指定した環境のチェックサムだけを増やす
+#
+# 対象の環境
+#   - darwin_arm64: 手元の mac
+#   - linux_amd64: GitHub Actions
+#
+# 実行する時点
+#   - lock を初めて作ったとき
+#   - init -upgrade で provider の版を上げたとき
+#
+# 実行しない場合
+#   - CI の init で lock が書き換わる
+#   - -lockfile=readonly を付けた init は失敗する
+[doc("手元と CI の両方のチェックサムを lock に書き足す")]
+lock env:
+    terraform -chdir=envs/{{ env }} providers lock -platform=linux_amd64 -platform=darwin_arm64
