@@ -11,3 +11,16 @@ module "artifact_registry" {
   project_id = module.project.project_id
   region     = var.region
 }
+
+module "firestore" {
+  source = "../../modules/firestore"
+
+  project_id = module.project.project_id
+  region     = var.region
+}
+
+module "identity_platform" {
+  source = "../../modules/identity_platform"
+
+  project_id = module.project.project_id
+}

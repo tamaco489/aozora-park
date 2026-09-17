@@ -1,7 +1,7 @@
 locals {
-  # 使うようになった API のみ追加していく
   services = toset([
     "artifactregistry.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
     "firestore.googleapis.com",
     "identitytoolkit.googleapis.com",
   ])
