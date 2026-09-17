@@ -2,7 +2,7 @@
 
 このファイルは Claude Code (claude.ai/code) がこのリポジトリで作業する際のガイダンスを提供します。
 
-架空テーマパーク **Aozora Park** の来園予約システム。Google Cloud のサーバレス構成 (Cloud Run / Firestore / Pub/Sub / Cloud Tasks / Cloud Scheduler / Identity Platform) を Terraform で構築し、Connect (connect-go / connect-web) で API を組む。環境は `dev` のみ。
+架空テーマパーク **Aozora Park** の来園予約システム。Google Cloud のサーバレス構成 (Cloud Run / Firestore / Pub/Sub / Cloud Tasks / Cloud Scheduler / Identity Platform) を Terraform で構築し、Connect (connect-go / connect-web) で API を組む。環境はローカルの `dev` と、GCP の `stg` / `prd` の 3 つ。
 
 ## 規約の場所
 
@@ -52,7 +52,7 @@
   - `firebase deploy`
   - Pub/Sub への publish、Cloud Tasks へのタスク投入、Firestore への書き込み
   - GCP の読み取り (`gcloud ... list` / `describe`) は確認目的で行ってよい
-- **外部サービスの実呼び出し禁止** — fincode と Slack はユーザーの承認を得てから実行する。fincode は検証環境のみを使い、本番環境は使わない。テストはフェイクとエミュレータで行う
+- **外部サービスの実呼び出し禁止** — fincode と Slack はユーザーの承認を得てから実行する。fincode は検証環境のみを使い、GCP の `prd` からも本番環境には繋がない。テストはフェイクとエミュレータで行う
 
 ## フック
 

@@ -4,7 +4,9 @@
 
 ## ディレクトリの分け方
 
-- 環境は workspace ではなく `infra/envs/{env}/` のディレクトリで分ける。当面は `dev` のみ
+- 環境は workspace ではなく `infra/envs/{env}/` のディレクトリで分ける。GCP に置く環境は `stg` と `prd` で、`dev` はローカル専用のため持たない
+- 環境の識別子は `dev` `stg` `prd` に固定する。`prod` `staging` `development` を使わない
+- `prd` は構成の定義だけを持ち、apply しない。GCP のプロジェクトと state バケットも作らないため、検査は `init -backend=false` の上で `validate` まで行う
 - 部品は `infra/modules/{name}/` に置く。`envs/{env}/main.tf` はモジュールを呼び出すだけで、リソース定義を書かない
 - provider の設定 (`provider "google" {}`、`default_labels`) と backend (GCS) は環境ディレクトリにだけ書く。モジュールは `required_providers` で要件を宣言するだけにする
 
@@ -25,7 +27,7 @@
 
 - GCP プロジェクトを環境ごとに分けるため、リソース名に環境の接頭辞を付けない (`api`、`payment-service`)。プロジェクト外で一意にする必要があるもの (GCS バケットなど) だけ `-${var.project_id}` を付ける
 - リソース名はモジュール内で組み立てる。環境ディレクトリは値 (`project_id` `region` `env`) を渡すだけで名前を組み立てない
-- `env` は `validation` で `dev` に限る (増やすときに広げる)。`project_id` は `validation` で GCP のプロジェクト ID の形式を検査する
+- `env` は `validation` で `stg` と `prd` に限る。`project_id` は `validation` で GCP のプロジェクト ID の形式を検査する
 - **API キー・シークレット・Webhook URL・メールアドレスをファイルに書かない。** 秘匿値は Secret Manager に置き、Terraform ではシークレットの入れ物と参照だけを定義する。値の投入はユーザーが手で行う
 - `terraform.tfvars` には `env` `region` のような公開してよい値だけを置く
 - モジュール間の受け渡しは outputs 経由で行う。**`module` ブロックに `depends_on` を書かない** (モジュール全体の依存になり循環する)。`for_each` のキーに他モジュールの output を使わない
