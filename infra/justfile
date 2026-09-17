@@ -54,8 +54,8 @@ lint: lint-init
 # trivy
 # ==========================================================================================
 # trivy による設定の脆弱性検査
-scan:
-    trivy config --config trivy.yaml .
+scan env:
+    trivy config --config trivy.yaml --tf-vars envs/{{ env }}/terraform.tfvars envs/{{ env }}
 
 
 # ==========================================================================================
