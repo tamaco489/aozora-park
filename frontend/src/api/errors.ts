@@ -1,6 +1,6 @@
 import { Code, ConnectError } from "@connectrpc/connect";
 
-// messageOf は connect のエラーを画面に出す文言に変える
+// messageOf は connect のエラーを画面に出す文言に変換する
 //
 // サーバは apperr の分類を connect のコードに変換して返すため、コードで振り分ける
 export function messageOf(err: unknown): string {

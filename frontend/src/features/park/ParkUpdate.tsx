@@ -19,7 +19,7 @@ export function ParkUpdate() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // UpdatePark は部分更新ではないため、変えない項目も現在の値を送る必要がある
+  // UpdatePark は部分更新ではないため、変更しない項目も現在の値を送る必要がある
   async function handleLoad() {
     setLoading(true);
     setPark(undefined);
