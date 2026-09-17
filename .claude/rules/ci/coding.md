@@ -71,6 +71,9 @@ concurrency:
 | Node          | `frontend/package.json` か `.tool-versions`              |
 | golangci-lint | `.tool-versions` (`version-file`)                        |
 | buf           | ファイルから読めないため `.tool-versions` と同じ値を書く |
+| terraform     | `.tool-versions` から直前のステップで取り出して渡す      |
+| tflint        | `.tool-versions` (`tflint_version_file`)                 |
+| trivy         | `.tool-versions` から直前のステップで取り出して渡す      |
 
 `golangci-lint-action` の `version-file` は `working-directory` を起点に解決するため、`backend` から見て `../.tool-versions` を渡す。
 
@@ -78,11 +81,12 @@ concurrency:
 
 ## 検査の内容
 
-| 対象       | 検査するもの                                              |
-| ---------- | --------------------------------------------------------- |
-| `backend`  | 整形漏れ、`go vet`、golangci-lint、ビルド、テスト         |
-| `proto`    | `buf lint`、整形漏れ、破壊的変更、生成コードの差分        |
-| `frontend` | oxlint (型情報を使う検査を含む)、ビルド (`tsc -b` を含む) |
+| 対象       | 検査するもの                                                            |
+| ---------- | ----------------------------------------------------------------------- |
+| `backend`  | 整形漏れ、`go vet`、golangci-lint、ビルド、テスト                       |
+| `proto`    | `buf lint`、整形漏れ、破壊的変更、生成コードの差分                      |
+| `frontend` | oxlint (型情報を使う検査を含む)、ビルド (`tsc -b` を含む)               |
+| `infra`    | 整形漏れ、`validate` (stg だけ、backend なし)、tflint、trivy (stg だけ) |
 
 - **依存の向きは golangci-lint の depguard で検査する。** 規則は `backend/.golangci.yaml` にあり、向きの定義は `.claude/rules/go/coding.md` が持つ
 - `go vet` のステップは残す。golangci-lint の govet と重なるが、有効な解析器の既定が同じとは限らない
