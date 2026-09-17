@@ -61,23 +61,23 @@ scan env:
 # ==========================================================================================
 # terraform: provider の依存ロック
 # ==========================================================================================
-# 手元と CI の両方のチェックサムを lock に書き足す
+# 手元と CI の両方のチェックサムを lock に追記する
 #
 # init が lock に記録するチェックサムは、実行したマシンの OS と CPU 向けのものだけになる
-# このため手元で作った lock のまま CI で init すると、チェックサムが足りずに不整合が起きる
-# provider のバージョンは変えず、指定した環境のチェックサムだけを増やす
+# このため手元で作成した lock のまま CI で init すると、チェックサムが足りずに不整合が起きる
+# provider のバージョンは変更せず、指定した環境のチェックサムだけを増やす
 #
 # 対象の環境
 #   - darwin_arm64: 手元の mac
 #   - linux_amd64: GitHub Actions
 #
 # 実行する時点
-#   - lock を初めて作ったとき
+#   - lock を初めて作成したとき
 #   - init -upgrade で provider のバージョンを上げたとき
 #
 # 実行しない場合
 #   - CI の init で lock が書き換わる
 #   - -lockfile=readonly を付けた init は失敗する
-[doc("手元と CI の両方のチェックサムを lock に書き足す")]
+[doc("手元と CI の両方のチェックサムを lock に追記する")]
 lock env:
     terraform -chdir=envs/{{ env }} providers lock -platform=linux_amd64 -platform=darwin_arm64
