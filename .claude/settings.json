@@ -23,6 +23,21 @@
             "type": "command",
             "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-pr.py",
             "statusMessage": "PR の規約を検査中"
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-session-url.py",
+            "statusMessage": "セッション URL の混入を検査中"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__github__.*|mcp__claude_ai_Mermaid_Chart__(create_pr|create_issue|push_file)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-session-url.py",
+            "statusMessage": "セッション URL の混入を検査中"
           }
         ]
       },

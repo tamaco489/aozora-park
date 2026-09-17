@@ -58,8 +58,9 @@
 
 `.claude/rules/github/` の規約に合わない操作は PreToolUse フックがブロックする。
 
-| フック                    | 対象                                       | 検査するもの                             |
-| ------------------------- | ------------------------------------------ | ---------------------------------------- |
-| `check-commit-message.py` | `git commit`                               | subject の形式・本文の有無               |
-| `check-issue.py`          | `issue_write` (create) / `gh issue create` | タイトルの形式・本文の見出し             |
-| `check-pr.py`             | `create_pull_request` / `gh pr create`     | タイトルの形式・ブランチ名・base・見出し |
+| フック                    | 対象                                                         | 検査するもの                                            |
+| ------------------------- | ------------------------------------------------------------ | ------------------------------------------------------- |
+| `check-commit-message.py` | `git commit`                                                 | subject の形式・本文の有無                              |
+| `check-issue.py`          | `issue_write` (create) / `gh issue create`                   | タイトルの形式・本文の見出し                            |
+| `check-pr.py`             | `create_pull_request` / `gh pr create`                       | タイトルの形式・ブランチ名・base・見出し                |
+| `check-session-url.py`    | `git commit` / `gh pr` `issue` `api` / GitHub に書き込む MCP | Claude のセッション URL の混入 (渡したファイルの中身も) |
