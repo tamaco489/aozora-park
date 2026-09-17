@@ -69,6 +69,8 @@ backend/
 │       └── observability/            # 起きたことを外に出すもの
 │           ├── logging/
 │           └── telemetry/
+├── tools/
+│   └── http/                         # VS Code の REST Client で api を呼ぶ .http。サービスごとに 1 ファイル
 └── gen/                              # buf generate の出力。手で編集しない
     └── aozorapark/<サービス>/v1/
 ```
@@ -84,6 +86,7 @@ backend/
 | `internal/<機能>`    | 業務機能 1 つ (`park` `purchase` `prioritypass` `payment` など) |
 | `internal/inventory` | 複数の機能から使う枠在庫の減算・復元                            |
 | `internal/platform`  | 機能に依存しない共通基盤                                        |
+| `tools/`             | 開発用の資材。Go のコードを置かない                             |
 | `gen/`               | buf generate の出力。手で編集しない                             |
 
 - **機能パッケージ同士は import しない。** 共有が必要になったら `inventory` のように独立したパッケージへ切り出し、利用側はインタフェースで受け取る
