@@ -2,7 +2,7 @@
 
 このファイルは Claude Code (claude.ai/code) がこのリポジトリで作業する際のガイダンスを提供します。
 
-架空テーマパーク **Aozora Park** の来園予約システム。Google Cloud のサーバレス構成 (Cloud Run / Firestore / Pub/Sub / Cloud Tasks / Cloud Scheduler / Identity Platform) を Terraform で構築し、Connect (connect-go / connect-web) で API を組む。環境は `dev` のみ。
+架空テーマパーク **Aozora Park** の来園予約システム。Google Cloud のサーバレス構成 (Cloud Run / Firestore / Pub/Sub / Cloud Tasks / Cloud Scheduler / Identity Platform) を Terraform で構築し、Connect (connect-go / connect-web) で API を組む。環境はローカルの `dev` と、GCP の `stg` / `prd` の 3 つ。
 
 ## 規約の場所
 
@@ -18,7 +18,7 @@
 | `.claude/rules/infra/`      | Terraform のコーディング                      |
 | `.claude/rules/ci/`         | GitHub Actions のコーディング                 |
 
-`docs/` は規約ではなく現状の説明を持つ。**構成を変えたら規約と一緒に更新する。**
+`docs/` は規約ではなく現状の説明を持つ。**構成を変更したら規約と一緒に更新する。**
 
 | ドキュメント                                                                 | 内容                     | 更新する条件                   |
 | ---------------------------------------------------------------------------- | ------------------------ | ------------------------------ |
@@ -30,7 +30,10 @@
 > [!IMPORTANT]
 >
 > - **調査に即時性は一切求めない。** 時間をかけてでも正確に探索し、確信が持てるまで結論を出さない
-> - **広く探すときは `Explore` サブエージェントに委譲する。** ファイルの中身をメインコンテキストに溜めない
+> - **ソースコードの調査は `Explore` サブエージェントに委譲する。** 目的はメインのセッションのトークン消費を抑えること。ファイルの中身をメインコンテキストに溜めず、結論と根拠の位置だけを受け取る
+> - **委譲するときは、依頼文に次の 2 点を必ず書く**
+>   - 即時性は一切求めない。時間をかけてよい
+>   - 正確性を最優先する。推測で埋めず、根拠にしたファイルと行を示す
 > - **場所が分かっているファイルは委譲せず直接 Read する。** 委譲は「どこにあるか分からない」ときだけ
 > - **探索範囲を先に絞る。** モノレポなので `proto/` `backend/` `frontend/` `infra/` のどこを見るかを決めてから探す
 > - **生成コードを探索対象にしない。** `backend/gen/` と `frontend/src/gen/` は buf の出力で、定義元は `proto/` にある
@@ -46,20 +49,21 @@
 - 機密情報のハードコーディング禁止 (API キー、fincode の認証情報、Slack Webhook URL、接続情報)
   - 秘匿値は Secret Manager に置く。Terraform はシークレットの入れ物と参照だけを定義し、値の投入はユーザーが行う
   - リポジトリと GitHub Secrets に長期クレデンシャルを置かない (デプロイは Workload Identity Federation)
-- **インフラ適用・GCP リソース操作の禁止** — 以下はユーザーのみが実行する。Claude が実行してはならない:
-  - `terraform apply` / `terraform destroy` (`terraform fmt` / `validate` / `plan` は可)
+- **インフラのコマンド実行・GCP リソース操作の禁止** — 以下はユーザーのみが実行する。Claude が実行してはならない:
+  - `terraform` のすべてのコマンド (`init` `fmt` `validate` `plan` `apply` `destroy` など)、`tflint`、`trivy`。`just` 経由でも同じ
   - `gcloud run deploy` / `gcloud run jobs update` / `gcloud run jobs execute`
   - `firebase deploy`
   - Pub/Sub への publish、Cloud Tasks へのタスク投入、Firestore への書き込み
   - GCP の読み取り (`gcloud ... list` / `describe`) は確認目的で行ってよい
-- **外部サービスの実呼び出し禁止** — fincode と Slack はユーザーの承認を得てから実行する。fincode は検証環境のみを使い、本番環境は使わない。テストはフェイクとエミュレータで行う
+- **外部サービスの実呼び出し禁止** — fincode と Slack はユーザーの承認を得てから実行する。fincode は検証環境のみを使い、GCP の `prd` からも本番環境には繋がない。テストはフェイクとエミュレータで行う
 
 ## フック
 
 `.claude/rules/github/` の規約に合わない操作は PreToolUse フックがブロックする。
 
-| フック                    | 対象                                       | 検査するもの                             |
-| ------------------------- | ------------------------------------------ | ---------------------------------------- |
-| `check-commit-message.py` | `git commit`                               | subject の形式・本文の有無               |
-| `check-issue.py`          | `issue_write` (create) / `gh issue create` | タイトルの形式・本文の見出し             |
-| `check-pr.py`             | `create_pull_request` / `gh pr create`     | タイトルの形式・ブランチ名・base・見出し |
+| フック                    | 対象                                                         | 検査するもの                                            |
+| ------------------------- | ------------------------------------------------------------ | ------------------------------------------------------- |
+| `check-commit-message.py` | `git commit`                                                 | subject の形式・本文の有無                              |
+| `check-issue.py`          | `issue_write` (create) / `gh issue create`                   | タイトルの形式・本文の見出し                            |
+| `check-pr.py`             | `create_pull_request` / `gh pr create`                       | タイトルの形式・ブランチ名・base・見出し                |
+| `check-session-url.py`    | `git commit` / `gh pr` `issue` `api` / GitHub に書き込む MCP | Claude のセッション URL の混入 (渡したファイルの中身も) |

@@ -41,7 +41,7 @@ type Error struct {
 	Message string
 }
 
-// New はセンチネルエラーを作る
+// New はセンチネルエラーを生成する
 //
 // 機能パッケージの domain/model/errors.go から呼ぶ
 func New(kind Kind, code, message string) *Error {

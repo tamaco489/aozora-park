@@ -17,7 +17,7 @@ linters:
       analyze-types: false
       forbid:
         - pattern: ^iota$
-          msg: 値を1つずつ明示する、並びが変わると保存済みの値の意味が変わるため
+          msg: 値を1つずつ明示する、並びが変更されると保存済みの値の意味が変化するため
         - pattern: ^reflect\.DeepEqual$
           msg: 構造体の比較は cmp.Diff を使う
         - pattern: ^os\.(Getenv|LookupEnv)$
@@ -145,7 +145,7 @@ linters:
             - pkg: github.com/google/go-cmp
               desc: cmp はテスト専用、未公開フィールドがあると panic する
 
-  # exclusions は禁止に例外を作る (理由は個々のエントリの上に書く)
+  # exclusions は禁止に例外を設ける (理由は個々のエントリの上に書く)
   exclusions:
     rules:
       # 環境変数を読む唯一の場所

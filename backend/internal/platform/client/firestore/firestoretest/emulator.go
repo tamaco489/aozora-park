@@ -19,7 +19,7 @@ import (
 // ProjectID はエミュレータに使うプロジェクト ID (demo- で始まる ID は SDK が本物の Google Cloud への接続を拒む)
 const ProjectID = "demo-aozora-park"
 
-// emulatorImage は Firestore エミュレータを含む Cloud SDK のイメージ (エミュレータの挙動が版で変わるため、タグを固定する)
+// emulatorImage は Firestore エミュレータを含む Cloud SDK のイメージ (エミュレータの挙動がバージョンによって異なるため、タグを固定する)
 const emulatorImage = "gcr.io/google.com/cloudsdktool/cloud-sdk:584.0.0-emulators"
 
 // gate はエミュレータを起動するかを決める環境変数 (Docker が無い環境でも go test ./... が通るようにするため、既定では起動しない)
@@ -63,7 +63,7 @@ func start() (func(), error) {
 		return nil, fmt.Errorf("run emulator: %w", err)
 	}
 
-	// SDK は環境変数で接続先を決めるため、クライアントを作る前に設定する
+	// SDK は環境変数で接続先を決めるため、クライアントを生成する前に設定する
 	if err := os.Setenv("FIRESTORE_EMULATOR_HOST", container.URI()); err != nil {
 		return nil, fmt.Errorf("set emulator host: %w", err)
 	}

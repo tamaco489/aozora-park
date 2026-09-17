@@ -76,7 +76,7 @@ func (r *Repository) Create(ctx context.Context, park *parkmodel.Park) error {
 }
 
 func (r *Repository) Update(ctx context.Context, park *parkmodel.Park) error {
-	// Set は存在しなくても作ってしまうため、消えた相手への更新を弾ける Update を使う
+	// Set は存在しなくても作成してしまうため、削除された相手への更新を弾ける Update を使う
 	updates := []gcpfirestore.Update{
 		{Path: "name", Value: park.Name()},
 		{Path: "defaultDailyCapacity", Value: park.DefaultDailyCapacity()},

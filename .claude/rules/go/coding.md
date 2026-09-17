@@ -69,6 +69,8 @@ backend/
 │       └── observability/            # 起きたことを外に出すもの
 │           ├── logging/
 │           └── telemetry/
+├── tools/
+│   └── http/                         # VS Code の REST Client で api を呼ぶ .http。サービスごとに 1 ファイル
 └── gen/                              # buf generate の出力。手で編集しない
     └── aozorapark/<サービス>/v1/
 ```
@@ -84,6 +86,7 @@ backend/
 | `internal/<機能>`    | 業務機能 1 つ (`park` `purchase` `prioritypass` `payment` など) |
 | `internal/inventory` | 複数の機能から使う枠在庫の減算・復元                            |
 | `internal/platform`  | 機能に依存しない共通基盤                                        |
+| `tools/`             | 開発用の資材。Go のコードを置かない                             |
 | `gen/`               | buf generate の出力。手で編集しない                             |
 
 - **機能パッケージ同士は import しない。** 共有が必要になったら `inventory` のように独立したパッケージへ切り出し、利用側はインタフェースで受け取る
@@ -149,13 +152,13 @@ cmd            → すべて
 
 `cmd` だけが全層を import してよい。例外ではなく、最も外側だから許される。
 
-**この向きは `backend/.golangci.yaml` の depguard で検査する。** 規約だけ置いて検査しない期間を作らない。
+**この向きは `backend/.golangci.yaml` の depguard で検査する。** 規約だけ置いて検査しない期間を設けない。
 
-- 規則は機能パッケージ 1 つにつき 5 つ (4 層とルート) 置く。**機能を足したら `park` の 5 つを複製する**
+- 規則は機能パッケージ 1 つにつき 5 つ (4 層とルート) 置く。**機能を追加したら `park` の 5 つを複製する**
 - `list-mode: lax` を使い、禁じる import だけを `deny` に並べる。`allow` はその例外で、自分の機能の内側と `platform` だけを載せる
 - 機能ごとの規則とは別に、場所を問わない `everywhere` と実装ファイルだけの `impl` を置く。testify と DI コンテナ、実装での `go-cmp` がこれにあたる
 - 上に挙げたもの以外の外部パッケージは `deny` に載せないため検査されない。依存の追加そのものを depguard で止める運用にはしない
-- 禁じた import を足すと落ちることを確かめてから入れる。層の間に import の循環があるものはコンパイルが先に落ちるため、depguard の検査対象になっていない
+- 禁じた import を追加すると落ちることを確かめてから入れる。層の間に import の循環があるものはコンパイルが先に落ちるため、depguard の検査対象になっていない
 
 ### import エイリアス
 
@@ -177,7 +180,7 @@ import (
 
 ### 不変条件を守る
 
-**`domain/model` のフィールドは公開しない。** 状態は振る舞いを表すメソッドで変える。
+**`domain/model` のフィールドは公開しない。** 状態は振る舞いを表すメソッドで変更する。
 
 ```go
 type Purchase struct {
@@ -191,7 +194,7 @@ func (p *Purchase) Cancel(reason string) error  { ... }
 ```
 
 - フィールドを公開すると `p.Status = StatusPaid` が書けてしまい、ステータス遷移の規則が意味を失う
-- **すべてのフィールドにゲッターを作らない。** 外に出す必要があるものだけ公開する。ゲッターを増やすと判断が `handler` に漏れる
+- **すべてのフィールドにゲッターを定義しない。** 外に出す必要があるものだけ公開する。ゲッターを増やすと判断が `handler` に漏れる
 - ゲッターに `Get` 接頭辞を付けない (`p.Status()` であって `p.GetStatus()` ではない)
 - 不変条件を持たない入れ物 (設定・DTO・リクエスト) はフィールドを公開してよい。すべてを非公開にするわけではない
 - 生成した時点で妥当な状態になるようにする。`New` が検証し、不正な入力ではインスタンスを返さない
@@ -210,14 +213,14 @@ func (p *Purchase) Cancel(reason string) error  { ... }
 `park` で最初に適用した結果、型にしたのは識別子の `ParkID` だけになった。表示名と上限人数と日数は、
 検証規則を持つが独立した振る舞いを持たないため、`Park` のメソッドが検証してプリミティブのまま持つ。
 
-**検証規則があることだけを理由に型を作らない。** その値を単体で受け渡す場所があるか、他の値と取り違えうるかで決める。
+**検証規則があることだけを理由に型を定義しない。** その値を単体で受け渡す場所があるか、他の値と取り違えうるかで決める。
 `Park` の 3 つはいずれも `Park` の外へ単体で出ないため、型にしても変換が増えるだけになる。
 
 ### 定数の定義
 
 **`iota` を使わない。値を 1 つずつ明示する。**
 
-`iota` は並びに意味を持たせるため、途中の 1 件を削除したり順序を入れ替えたりすると、後続の値が黙ってずれる。ステータスやエラーの分類は Firestore に保存され、ログにも出て、外部にも送られるため、値がずれると既存データの意味が変わる。コンパイルは通り、テストも落ちないまま壊れる。
+`iota` は並びに意味を持たせるため、途中の 1 件を削除したり順序を入れ替えたりすると、後続の値が黙ってずれる。ステータスやエラーの分類は Firestore に保存され、ログにも出て、外部にも送られるため、値がずれると既存データの意味が変化する。コンパイルは通り、テストも落ちないまま壊れる。
 
 ```go
 // 良い例。値が独立しているので、削除しても並び替えても他に影響しない
@@ -231,7 +234,7 @@ const (
 ```
 
 ```go
-// 悪い例。StatusPaid を削除すると StatusExpired の値が 2 から 1 に変わる
+// 悪い例。StatusPaid を削除すると StatusExpired の値が 2 から 1 に変化する
 type Status int
 
 const (
@@ -267,7 +270,7 @@ const (
 - それでも複数を更新する必要があるなら、Firestore のトランザクションで束ねずに Pub/Sub で分ける。購入の確定と Slack 通知のように、片方が失敗しても再実行で追いつく形にする
 - 即座の整合性が要る組み合わせは、同じ集約に入れることを検討する
 - トランザクションは `infrastructure` の内側に閉じる。`usecase` に `*firestore.Transaction` を渡さない
-- イベント名は過去形にする (`purchase.created` `payment.succeeded`)。発行済みのイベントの意味を後から変えない
+- イベント名は過去形にする (`purchase.created` `payment.succeeded`)。発行済みのイベントの意味を後から変更しない
 
 ## エラー
 
@@ -322,10 +325,10 @@ var ErrSoldOut = apperr.New(apperr.KindConflict, "PURCHASE_SOLD_OUT", "在庫が
 **DI に外部ライブラリを使わない。** コンストラクタで手書きする。
 
 - 機能パッケージのルートに組み立て関数を置く (`purchase.NewConnectHandler(...)`)。`usecase` と `infrastructure` と `handler` の結線はここに閉じる
-- `cmd/*/main.go` は 4 段に固定する。設定を読む → クライアントを作る → 機能の組み立て関数を呼ぶ → サーバを起動する
+- `cmd/*/main.go` は 4 段に固定する。設定を読む → クライアントを生成する → 機能の組み立て関数を呼ぶ → サーバを起動する
 - クライアントの終了処理は `platform/serving` の `App` に登録し、登録の逆順に閉じる
 - 業務上の時刻 (`createdAt`、失効の基準時刻) と乱数は `WithClock` `WithRandN` で差し替えられるようにし、組み立て関数の引数か `Option` で渡す
-- **待機のための `Sleeper` は作らない。** バックオフやポーリングは `time.Sleep` をそのまま書き、テスト側を `testing/synctest` で囲む (`.claude/rules/go/testing.md`)
+- **待機のための `Sleeper` は定義しない。** バックオフやポーリングは `time.Sleep` をそのまま書き、テスト側を `testing/synctest` で囲む (`.claude/rules/go/testing.md`)
 - **`main` が 4 段の形を保てなくなったら、まず組み立てを機能パッケージ側へ押し戻す。** 実行時解決のコンテナ (fx・dig) は採らない
 
 ### Cloud Run の形
@@ -339,7 +342,7 @@ var ErrSoldOut = apperr.New(apperr.KindConflict, "PURCHASE_SOLD_OUT", "在庫が
 
 - **CORS は connect の層より外側にあるため、インターセプタに書かない。** `httpx` が `http.Handler` を包む
 - 許可するメソッドとヘッダは `connectrpc.com/cors` から取る。手で並べると connect のバージョンが上がったときに追随できない
-- 許可するオリジンは `config` から渡し、空なら包まない。設定し忘れたまま全オリジンを通す状態を作らない
+- 許可するオリジンは `config` から渡し、空なら包まない。設定し忘れたまま全オリジンを通す状態にしない
 - connect のエラーはインターセプタが `apperr` から変換する。`handler` で `connect.NewError` を組み立てない
 - **Pub/Sub push と Cloud Tasks は at-least-once。** すべてのハンドラを冪等にし、対象が既に終端ステータスなら何もせず 2xx を返す
 - リトライしてほしい失敗だけ 5xx を返す。再実行しても直らない失敗は 2xx で ack し、ログに残す (無限リトライを避ける)
@@ -351,7 +354,7 @@ var ErrSoldOut = apperr.New(apperr.KindConflict, "PURCHASE_SOLD_OUT", "在庫が
 ### 実装とコメント
 
 - 必要最低限の実装にする。使わない公開 API、将来用の抽象、使わない `Option` 関数を入れない
-- **実装が 1 つしかないインタフェースを先回りで作らない。** 差し替えるか、テストでフェイクに置き換えるものだけ定義する
+- **実装が 1 つしかないインタフェースを先回りで定義しない。** 差し替えるか、テストでフェイクに置き換えるものだけ定義する
 - コメントは「なぜ」が自明でないときだけ書く。句点 (。) を含めず、文の途中で改行せず 1 行で書く。長くなるなら GoDoc の箇条書き (`//   - x`) にする
 - 構造体フィールドのコメントは行末に置く (`Field T // Field は ...`)
 - センチネルエラーの `var (...)` は 1 件ごとに空行で区切る
@@ -359,11 +362,11 @@ var ErrSoldOut = apperr.New(apperr.KindConflict, "PURCHASE_SOLD_OUT", "在庫が
 ### modernize の扱い
 
 - `errors.As` ではなく `errors.AsType[T]` を使う (Go 1.26)
-- ポインタが要る値は `new(x)` で作る (Go 1.26)。`Ptr` のようなヘルパは置かない
-- struct には `omitempty` が効かない。`time.Time` などの struct フィールドには付けない (`omitzero` への置き換えは挙動が変わるため採らない)
+- ポインタが要る値は `new(x)` で生成する (Go 1.26)。`Ptr` のようなヘルパは置かない
+- struct には `omitempty` が効かない。`time.Time` などの struct フィールドには付けない (`omitzero` への置き換えは挙動が変化するため採らない)
 - **提案は golangci-lint の `modernize` が出す。** 専用のレシピは置かない。`just lint` と CI の `backend-lint` で毎回見る
 - 指摘は `golangci-lint run --fix` で書き換えられる
 
 ### 依存の追加
 
-依存は必要になった時点で足す。**追加したら理由を PR に書く。**
+依存は必要になった時点で追加する。**追加したら理由を PR に書く。**

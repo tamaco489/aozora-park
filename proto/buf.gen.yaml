@@ -18,7 +18,7 @@ managed:
     - file_option: go_package_prefix
       value: github.com/tamaco489/aozora-park/backend/gen
 
-# 実行するプラグイン、remote は BSR 上の版を使うためローカルへの導入が要らない
+# 実行するプラグイン、remote は BSR 上のバージョンを使うためローカルへの導入が要らない
 plugins:
   # Go のメッセージ型、paths=source_relative で proto と同じ階層に出す
   - remote: buf.build/protocolbuffers/go:v1.36.12
@@ -29,7 +29,7 @@ plugins:
     out: ../backend/gen
     opt: paths=source_relative
   # TypeScript の型とサービス定義、connect-es v2 は専用プラグインを持たずこの出力を直接使う
-  # 版が npm の @bufbuild/protobuf より古いのは BSR の公開が追いついていないため
+  # バージョンが npm の @bufbuild/protobuf より古いのは BSR の公開が追いついていないため
   - remote: buf.build/bufbuild/es:v2.14.1
     out: ../frontend/src/gen
     opt: target=ts

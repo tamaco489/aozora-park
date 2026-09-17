@@ -7,7 +7,7 @@
 ### ディレクトリとパッケージ
 
 - パッケージは `aozorapark.<サービス>.v1` の形にし、`proto/aozorapark/<サービス>/v1/` に置く。**ディレクトリとパッケージ名を一致させる**
-- 末尾は必ずバージョン。`v1` を省いたパッケージを作らない
+- 末尾は必ずバージョン。`v1` を省いたパッケージを作成しない
 - サービス単位のパッケージと `backend/internal/<機能>` を 1 対 1 で対応させる (`aozorapark.purchase.v1` ↔ `internal/purchase`)
 - ファイル名は `lower_snake_case.proto`
 - 同じパッケージのファイルは同じディレクトリに置き、file option の値を揃える
@@ -53,9 +53,9 @@ syntax → package → import (ソート済み) → file option → 定義
 
 ### RPC と入出力の型
 
-- **RPC ごとに専用の request と response を作る。** 他の RPC と共有しない
+- **RPC ごとに専用の request と response を定義する。** 他の RPC と共有しない
 - 名前は `<RPC 名>Request` と `<RPC 名>Response`
-- **中身が空でも `google.protobuf.Empty` を使わない。** 空のメッセージを自分で定義する。後からフィールドを足すときに破壊的変更にならない
+- **中身が空でも `google.protobuf.Empty` を使わない。** 空のメッセージを自分で定義する。後からフィールドを追加するときに破壊的変更にならない
 - **ストリーミング RPC を使わない。** 非同期の処理は Pub/Sub と Cloud Tasks で行う
 
 ## 型の選び方
@@ -80,10 +80,10 @@ syntax → package → import (ソート済み) → file option → 定義
 - **フィールド番号を再利用しない。** 既存のデータが別の意味で読まれる
 - フィールドを削除したら `reserved` に番号と名前を残す (`reserved 3; reserved "old_name";`)
 - enum の値を削除したときも同じく `reserved` に残す
-- **フィールドの型を変えない。** 番号の再利用と同じ問題が起きる
+- **フィールドの型を変更しない。** 番号の再利用と同じ問題が起きる
 - `repeated` と単数の相互変更をしない
 - 破壊的変更は `buf breaking` で検出する。CI への導入はサブ Issue #7
-- どうしても壊す必要があるなら `v2` のパッケージを新しく作り、`v1` は残す
+- どうしても壊す必要があるなら `v2` のパッケージを新しく作成し、`v1` は残す
 
 ## コメント
 
@@ -110,7 +110,7 @@ string name = 1 [(buf.validate.field).string = {
 - **業務の不変条件を寄せない。** ステータス遷移の妥当性は `domain/model` に残す
 - **上限値には根拠をコメントで残す。** 決め打ちの数字を理由なく置かない
 
-検証の 3 層の分担は変わらない (`.claude/rules/go/coding.md`)。protovalidate が引き受けるのは `handler` の形式検証だけで、`usecase` と `domain/model` は手で書く。
+検証の 3 層の分担は変更しない (`.claude/rules/go/coding.md`)。protovalidate が引き受けるのは `handler` の形式検証だけで、`usecase` と `domain/model` は手で書く。
 
 依存は `buf.yaml` の `deps` に宣言し、`buf dep update` で `buf.lock` に固定する。**`buf.lock` はコミットする。**
 
@@ -125,7 +125,7 @@ connect のエラーコードとアプリケーションのコードは `platfor
 - `just lint` `just fmt` `just fmt-check` `just generate` を `proto/` で実行する。PR を出す前に `just lint` と `just fmt-check` を通す
 - プラグインは BSR のリモートプラグインを使う。ローカルに `protoc-gen-*` を入れない
 - **生成物は `backend/gen/` と `frontend/src/gen/` にコミットし、手で編集しない**
-- `docs/api/` は仕様を見るための資料で、api は使わない。`openapi.yaml` は `just generate`、`redoc.html` は `just docs` で作り、`redoc.html` をブラウザで開いて見る
-- **`docs/api/` はエディタの整形で書き換わってよく、CI は差分を検査しない。** proto を変えたら `just generate` の後に `just docs` を流して一緒にコミットする
-- **`.proto` を削除しても生成ファイルは残る。** リネーム・削除をしたら出力先の不要なファイルを手で消す
+- `docs/api/` は仕様を見るための資料で、api は使わない。`openapi.yaml` は `just generate`、`redoc.html` は `just docs` で生成し、`redoc.html` をブラウザで開いて見る
+- **`docs/api/` はエディタの整形で書き換わってよく、CI は差分を検査しない。** proto を変更したら `just generate` の後に `just docs` を流して一緒にコミットする
+- **`.proto` を削除しても生成ファイルは残る。** リネーム・削除をしたら出力先の不要なファイルを手で削除する
 - **依存先の定義は Go では生成せず、TypeScript では生成する。** Go は BSR 公式の生成モジュールを参照する (`managed.disable`)。自前で生成すると同じ proto ファイルが二重に登録される。TypeScript は npm のパッケージがサブパスを公開しないため `include_imports` で自分の出力に含める

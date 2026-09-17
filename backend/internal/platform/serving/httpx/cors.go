@@ -10,7 +10,7 @@ import (
 // WithCORS はブラウザからの呼び出しを許可するオリジンに限って通す
 //
 // 許可するメソッドとヘッダは connectrpc.com/cors から取る、connect のバージョンが上がったときに手で追随しなくて済む
-// origins が空なら何も包まない、設定し忘れたまま全オリジンを通す状態を作らないため
+// origins が空なら何も包まない、設定し忘れたまま全オリジンを通す状態にしないため
 func WithCORS(h http.Handler, origins []string) http.Handler {
 	if len(origins) == 0 {
 		return h

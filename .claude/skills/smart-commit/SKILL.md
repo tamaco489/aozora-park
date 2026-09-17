@@ -64,7 +64,7 @@ git branch --show-current
 | `main`                   | —                | —            |
 
 - **`main` の場合**: 「現在 `main` ブランチです。作業ブランチを切りますか？」と確認する。直接コミットはしない
-- **リリースブランチの場合**: コミットと push は行うが、**PR は作らない。** リリース PR は `create-release-pr` スキルの担当 (`.claude/rules/github/pr-description.md`)
+- **リリースブランチの場合**: コミットと push は行うが、**PR は作成しない。** リリース PR は `create-release-pr` スキルの担当 (`.claude/rules/github/pr-description.md`)
 - サブブランチの場合、base にするリリースブランチを次で探し、複数あるか見つからない場合はユーザーに確認する
 
 ```bash
@@ -114,8 +114,8 @@ git branch -r --list 'origin/release/*'
 <本文>
 ```
 
-- **Issue 番号と本文は必須。** 対応する Issue が無い場合は先に Issue を作る
-- 本文は「何が問題だったか → どう変えたか」の順で書く
+- **Issue 番号と本文は必須。** 対応する Issue が無い場合は先に Issue を作成する
+- 本文は「何が問題だったか → どう変更したか」の順で書く
 - type は `.claude/rules/github/commit-types.md`、スコープは `.claude/rules/github/labels.md` から選ぶ
 
 > [!NOTE]

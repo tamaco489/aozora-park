@@ -8,7 +8,7 @@ import (
 	gcpfirestore "cloud.google.com/go/firestore"
 )
 
-// New は Firestore のクライアントを作る
+// New は Firestore のクライアントを生成する
 //
 // FIRESTORE_EMULATOR_HOST が設定されていれば SDK がエミュレータへ繋ぐ
 // 呼び出し側は終了処理を App に登録する

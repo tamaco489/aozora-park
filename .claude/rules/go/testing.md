@@ -36,7 +36,7 @@
 
 補足。ケース名にスペースとスラッシュを入れない。スペースは `_` に置換され、スラッシュはサブテストの階層区切りとして解釈されるため、`-run` での指定が壊れる。区切りは `_` を使う。
 
-`tt := tt` は書かない。Go 1.22 以降、ループ変数は反復ごとに新しく作られる。
+`tt := tt` は書かない。Go 1.22 以降、ループ変数は反復ごとに新しく生成される。
 
 ### 失敗メッセージ
 
@@ -122,7 +122,7 @@ fincode の応答をフィクスチャに置く場合は `backend/testdata/finco
 
 ```go
 synctest.Test(t, func(t *testing.T) {
-    // bubble の中では時計が仮想。24 時間の待機も一瞬で終わる
+    // bubble の中では時計が仮想。24 時間の待機も一瞬で完了する
     synctest.Sleep(24 * time.Hour)
     synctest.Wait() // 他の goroutine が落ち着くまで待つ
     // ここで状態を検査する
@@ -138,7 +138,7 @@ synctest.Test(t, func(t *testing.T) {
 ### 冪等性を必ず検証する
 
 Pub/Sub と Cloud Tasks は at-least-once。
-**worker のテストは同じメッセージを 2 回渡し、2 回目で状態が変わらないことを確かめる。**
+**worker のテストは同じメッセージを 2 回渡し、2 回目で状態が変化しないことを確かめる。**
 
 在庫の減算は、同時実行で残数がマイナスにならないこと・終端ステータスからの再遷移が起きないことを検証する。
 
@@ -158,7 +158,7 @@ Pub/Sub の購読、リトライ、graceful shutdown は goroutine を起こす�
 - ビルドタグ (`//go:build integration`) では分けない。タグ付きファイルは gopls と golangci-lint の対象から外れ、気づかないうちに腐る
 - コンテナはパッケージ単位で `TestMain` から 1 つ起動して使い回す。テストごとの起動は遅すぎる
 - **`go test ./...` はパッケージを並列に実行する。** エミュレータを使うパッケージが増えたら `-p 1` を検討する
-- テスト間の分離は、コレクション名を分けるか `t.Cleanup` で消して行う。`t.Cleanup` は panic では走らないため、次の実行が前のデータに影響されない書き方にする
+- テスト間の分離は、コレクション名を分けるか `t.Cleanup` で削除して行う。`t.Cleanup` は panic では走らないため、次の実行が前のデータに影響されない書き方にする
 
 `docker compose` のエミュレータはテスト用ではない。アプリをローカルで動かして手で叩くためのもので、用途が違う。
 
@@ -175,11 +175,11 @@ func TestRepositoryCreateAndGet(t *testing.T) {
 }
 ```
 
-- `Main` は `DOCKER_TESTS` が設定されていればコンテナを起こし、終わったら停止する。未設定なら起こさない
+- `Main` は `DOCKER_TESTS` が設定されていればコンテナを起こし、完了したら停止する。未設定なら起こさない
 - `Client` は用意できていなければ `t.Skip` する。ゲートの判定をテスト側に書かない
-- イメージは `gcr.io/google.com/cloudsdktool/cloud-sdk:<バージョン>-emulators` をタグ付きで固定する。エミュレータの挙動がバージョンで変わるため
+- イメージは `gcr.io/google.com/cloudsdktool/cloud-sdk:<バージョン>-emulators` をタグ付きで固定する。エミュレータの挙動がバージョンによって異なるため
 - プロジェクト ID は `firestoretest.ProjectID` を使う。`demo-` で始まる ID は SDK が本物の Google Cloud への接続を拒む
-- ドキュメントは作った側が `t.Cleanup` で消す。コレクションは共有するため、ID をテストごとに分ける
+- ドキュメントは作成した側が `t.Cleanup` で削除する。コレクションは共有するため、ID をテストごとに分ける
 
 ## 実行と資材
 

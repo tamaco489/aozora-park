@@ -13,17 +13,17 @@ func TestNew(t *testing.T) {
 		inventoryDays        int32
 		wantErr              error
 	}{
-		"正常系_すべて範囲内の場合_パークが作られること": {
+		"正常系_すべて範囲内の場合_パークが生成されること": {
 			name:                 "Aozora Park",
 			defaultDailyCapacity: 1000,
 			inventoryDays:        30,
 		},
-		"境界値_表示名が1文字の場合_パークが作られること": {
+		"境界値_表示名が1文字の場合_パークが生成されること": {
 			name:                 "あ",
 			defaultDailyCapacity: 1,
 			inventoryDays:        1,
 		},
-		"境界値_表示名が100文字の場合_パークが作られること": {
+		"境界値_表示名が100文字の場合_パークが生成されること": {
 			name:                 strings.Repeat("あ", 100),
 			defaultDailyCapacity: 1,
 			inventoryDays:        90,

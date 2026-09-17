@@ -28,7 +28,7 @@ func Load() (*Config, error) {
 		ProjectID: os.Getenv("GOOGLE_CLOUD_PROJECT"),
 	}
 
-	// 既定値を置かない、設定し忘れたまま全オリジンを通す状態を作らないため
+	// 既定値を置かない、設定し忘れたまま全オリジンを通す状態にしないため
 	cfg.AllowedOrigins = splitOrigins(os.Getenv("CORS_ALLOWED_ORIGINS"))
 
 	if cfg.Port == "" {

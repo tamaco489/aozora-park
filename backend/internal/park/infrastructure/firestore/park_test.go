@@ -16,7 +16,7 @@ func TestMain(m *testing.M) {
 	os.Exit(firestoretest.Main(m))
 }
 
-// newRepository は保存先を用意し、テストが作ったドキュメントを片付ける
+// newRepository は保存先を用意し、テストが作成したドキュメントを片付ける
 //
 // テスト間の分離はドキュメント ID を分けて行う、同じコレクションを共有するため
 func newRepository(tb testing.TB) (*Repository, *gcpfirestore.Client) {
