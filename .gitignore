@@ -26,3 +26,7 @@ firestore-debug.log*
 
 # Other
 tmp/
+
+# Terraform
+.terraform/
+*.tfplan
