@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-// New は Cloud Logging が解釈できる JSON のロガーを作る
+// New は Cloud Logging が解釈できる JSON のロガーを生成する
 func New(level slog.Level) *slog.Logger {
 	return slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		Level:       level,

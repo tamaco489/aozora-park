@@ -37,7 +37,7 @@ func NewApp(logger *slog.Logger) *App {
 
 // Cleanup は終了時に呼ぶ処理を登録する
 //
-// 登録の逆順に実行する。依存される側を先に作り後に閉じるため
+// 登録の逆順に実行する。依存される側を先に生成し後に閉じるため
 func (a *App) Cleanup(name string, fn func(context.Context) error) {
 	a.cleanups = append(a.cleanups, cleanup{name: name, fn: fn})
 }

@@ -35,7 +35,7 @@ go list -f '{{.ImportPath}} {{.Imports}}' ./... | grep park/domain/model  # こ�
 
 ## apperr だけ置き場所とリングがずれる
 
-`platform/serving/apperr` はディレクトリでは外側の `internal/platform/` にありますが、依存の向きでは中心にあります。`domain/model` がセンチネルエラーを作るのに使うためです。
+`platform/serving/apperr` はディレクトリでは外側の `internal/platform/` にありますが、依存の向きでは中心にあります。`domain/model` がセンチネルエラーを生成するのに使うためです。
 
 外を向いた知識は `Kind` から `connect.Code` への変換メソッドだけで、それを呼ぶのは外側の `interceptor` です。図では中心に破線で置いています。
 
@@ -43,11 +43,11 @@ go list -f '{{.ImportPath}} {{.Imports}}' ./... | grep park/domain/model  # こ�
 
 **`usecase` にインタフェースを置かない。** `handler` から `usecase` への依存は最初から内側を向いているので、反転させるものがありません。1 つの取り決めに対する実装も 1 つだけです。Go は実装側に宣言が要らないため、必要になった時点で `handler` 側にインタフェースを切れます。切る時点は、同じ取り決めに 2 つ目の実装が要るとき (キャッシュ、機能フラグ) か、`handler` のテストで `usecase` ごと差し替えたくなったときです。
 
-**`infrastructure/firestore` は技術名のままにする。** 抽象名は `domain/repository` の `Reader` と `Writer` が持ちます。実装側を `datastore` のような抽象名にすると、2 つ目の実装を足すときに名前が空きません。役割は型名 (`firestore.Repository`) で表します。
+**`infrastructure/firestore` は技術名のままにする。** 抽象名は `domain/repository` の `Reader` と `Writer` が持ちます。実装側を `datastore` のような抽象名にすると、2 つ目の実装を追加するときに名前が空きません。役割は型名 (`firestore.Repository`) で表します。
 
-**値オブジェクトにしたのは `ParkID` だけ。** 表示名と上限人数と日数は `Park` の外へ単体で出ないため、型にすると変換だけが増えます。検証規則があることだけを理由に型を作りません。
+**値オブジェクトにしたのは `ParkID` だけ。** 表示名と上限人数と日数は `Park` の外へ単体で出ないため、型にすると変換だけが増えます。検証規則があることだけを理由に型を定義しません。
 
-## 図を作り直す
+## 図を再作成する
 
 ```sh
 # 同心円 (-p はページ番号、1 から数える)

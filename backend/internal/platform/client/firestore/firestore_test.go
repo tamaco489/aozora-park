@@ -12,7 +12,7 @@ func TestMain(m *testing.M) {
 	os.Exit(firestoretest.Main(m))
 }
 
-// New が作ったクライアントでエミュレータに読み書きできることを確かめる
+// New が生成したクライアントでエミュレータに読み書きできることを確かめる
 func TestNew(t *testing.T) {
 	client := firestoretest.Client(t)
 	ctx := context.Background()
