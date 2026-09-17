@@ -1,0 +1,96 @@
+name: ci-infra
+
+on:
+  pull_request:
+    paths:
+      - "infra/**"
+      - ".github/workflows/ci-infra.yaml"
+  push:
+    branches: [main]
+    paths:
+      - "infra/**"
+      - ".github/workflows/ci-infra.yaml"
+
+permissions:
+  contents: read
+
+# 同じブランチへの連続 push で古い実行を打ち切る
+concurrency:
+  group: ci-infra-${{ github.ref }}
+  cancel-in-progress: true
+
+# prd はコードを置くだけで apply しないため、環境ごとの検査は stg だけで行う
+env:
+  ENV_NAME: stg
+
+defaults:
+  run:
+    working-directory: infra
+
+jobs:
+  infra-fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # setup-terraform はバージョンをファイルから読めないため .tool-versions から取り出す
+      - name: Read Terraform version
+        id: versions
+        working-directory: .
+        run: echo "terraform=$(awk '$1 == "terraform" {print $2}' .tool-versions)" >> "$GITHUB_OUTPUT"
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ steps.versions.outputs.terraform }}
+          terraform_wrapper: false
+      - name: Check formatting
+        run: terraform fmt -recursive -check -diff
+
+  infra-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Read Terraform version
+        id: versions
+        working-directory: .
+        run: echo "terraform=$(awk '$1 == "terraform" {print $2}' .tool-versions)" >> "$GITHUB_OUTPUT"
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ steps.versions.outputs.terraform }}
+          terraform_wrapper: false
+      # GCP の認証を持たないため backend に繋がずに初期化する
+      # lock に linux のチェックサムが無ければ書き換えずに落とす
+      - name: Init
+        run: terraform -chdir="envs/$ENV_NAME" init -backend=false -lockfile=readonly
+      - name: Validate
+        run: terraform -chdir="envs/$ENV_NAME" validate
+
+  infra-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: terraform-linters/setup-tflint@v6
+        with:
+          tflint_version_file: .tool-versions
+      # プラグインの取得で GitHub API の回数制限に当たらないようトークンを渡す
+      - name: Init TFLint
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: tflint --init --config "$GITHUB_WORKSPACE/infra/.tflint.hcl"
+      - name: Lint
+        run: tflint --recursive --config "$GITHUB_WORKSPACE/infra/.tflint.hcl"
+
+  infra-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # setup-trivy はバージョンをファイルから読めないため .tool-versions から取り出す
+      - name: Read Trivy version
+        id: versions
+        working-directory: .
+        run: echo "trivy=v$(awk '$1 == "trivy" {print $2}' .tool-versions)" >> "$GITHUB_OUTPUT"
+      # メジャータグが無いためパッチバージョンまで固定する
+      - uses: aquasecurity/setup-trivy@v0.3.1
+        with:
+          version: ${{ steps.versions.outputs.trivy }}
+      # 環境の間で同名の変数が上書きし合わないよう、その環境の tfvars だけを渡す
+      - name: Scan
+        run: trivy config --config trivy.yaml --tf-vars "envs/$ENV_NAME/terraform.tfvars" "envs/$ENV_NAME"

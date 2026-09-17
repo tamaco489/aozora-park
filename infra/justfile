@@ -65,7 +65,7 @@ scan env:
 #
 # init が lock に記録するチェックサムは、実行したマシンの OS と CPU 向けのものだけになる
 # このため手元で作った lock のまま CI で init すると、チェックサムが足りずに不整合が起きる
-# provider の版は変えず、指定した環境のチェックサムだけを増やす
+# provider のバージョンは変えず、指定した環境のチェックサムだけを増やす
 #
 # 対象の環境
 #   - darwin_arm64: 手元の mac
@@ -73,7 +73,7 @@ scan env:
 #
 # 実行する時点
 #   - lock を初めて作ったとき
-#   - init -upgrade で provider の版を上げたとき
+#   - init -upgrade で provider のバージョンを上げたとき
 #
 # 実行しない場合
 #   - CI の init で lock が書き換わる

@@ -17,15 +17,15 @@
 
 ## 環境ディレクトリのファイル構成
 
-| ファイル              | 置くもの                                                                |
-| --------------------- | ----------------------------------------------------------------------- |
-| `versions.tf`         | `terraform { required_version, required_providers }`                    |
-| `backend.tf`          | GCS の backend。`stg` だけに置く                                        |
-| `providers.tf`        | `provider "google" {}` と `default_labels`                              |
-| `variables.tf`        | `project_id` `region` `env` と、その `validation`                       |
-| `terraform.tfvars`    | 上の変数の値                                                            |
-| `main.tf`             | モジュールの呼び出し。呼ぶモジュールができてから置く                    |
-| `.terraform.lock.hcl` | provider の版とチェックサム。`init` と `just lock` が作る。コミットする |
+| ファイル              | 置くもの                                                                        |
+| --------------------- | ------------------------------------------------------------------------------- |
+| `versions.tf`         | `terraform { required_version, required_providers }`                            |
+| `backend.tf`          | GCS の backend。`stg` だけに置く                                                |
+| `providers.tf`        | `provider "google" {}` と `default_labels`                                      |
+| `variables.tf`        | `project_id` `region` `env` と、その `validation`                               |
+| `terraform.tfvars`    | 上の変数の値                                                                    |
+| `main.tf`             | モジュールの呼び出し。呼ぶモジュールができてから置く                            |
+| `.terraform.lock.hcl` | provider のバージョンとチェックサム。`init` と `just lock` が作る。コミットする |
 
 ## モジュールのファイル構成
 
@@ -57,7 +57,7 @@
 - `google-beta` は beta 限定の引数が要るときだけ使い、その理由をコメントに残す
 - バージョンは `~>` で固定する (環境側は `required_version` と provider を固定、モジュール側は下限だけで足りる)
 - `required_version` は `.tool-versions` の terraform と同じ系列にする。terraform を上げたら両方を直す
-- `.terraform.lock.hcl` には、手元 (`darwin_arm64`) と CI (`linux_amd64`) の両方のチェックサムを `just lock <env>` で載せる。`init` は実行したマシンの分しか記録しないため。provider の版を上げたときも実行する
+- `.terraform.lock.hcl` には、手元 (`darwin_arm64`) と CI (`linux_amd64`) の両方のチェックサムを `just lock <env>` で載せる。`init` は実行したマシンの分しか記録しないため。provider のバージョンを上げたときも実行する
 
 ## コメント
 
