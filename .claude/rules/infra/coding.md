@@ -25,6 +25,7 @@
 | `variables.tf`        | `project_id` `region` `env` と、その `validation`                                   |
 | `terraform.tfvars`    | 上の変数の値                                                                        |
 | `main.tf`             | モジュールの呼び出し。呼ぶモジュールができてから置く                                |
+| `outputs.tf`          | apply 後にユーザーが確かめる値 (Cloud Run の URL など) の出力                       |
 | `.terraform.lock.hcl` | provider のバージョンとチェックサム。`init` と `just lock` が作成する。コミットする |
 
 ## モジュールのファイル構成
