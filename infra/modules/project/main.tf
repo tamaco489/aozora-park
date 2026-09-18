@@ -3,7 +3,9 @@ locals {
     "artifactregistry.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "firestore.googleapis.com",
+    "iam.googleapis.com",
     "identitytoolkit.googleapis.com",
+    "run.googleapis.com",
   ])
 }
 
