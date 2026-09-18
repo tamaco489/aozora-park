@@ -19,7 +19,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOTOOLCHAIN=local go build -trimpath -ldflags="-s -w" -o /out/server ./cmd/${SERVICE}
 
 # シェルもパッケージマネージャも持たない最小のイメージで、root 以外のユーザーで動かす
-FROM gcr.io/distroless/static-debian12:nonroot
+FROM gcr.io/distroless/static-debian13:nonroot
 
 COPY --from=build /out/server /server
 
