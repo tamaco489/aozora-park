@@ -3,30 +3,14 @@ default:
 
 
 # ==========================================================================================
-# terraform: 初期化と静的検査
+# terraform: 差分の確認と適用 (ユーザーだけが実行する、prd には使わない)
 # ==========================================================================================
 # 初期化する (stg は GCS の state に繋ぐ、prd は backend を持たない)
 init env="stg":
     terraform -chdir=envs/{{ env }} init
 
-# 整形
-fmt:
-    terraform fmt -recursive
-
-# 整形漏れの検査
-fmt-check:
-    terraform fmt -recursive -check -diff
-
-# 構文と型の検査
-validate env:
-    terraform -chdir=envs/{{ env }} validate
-
-
-# ==========================================================================================
-# terraform: 差分の確認と適用 (ユーザーだけが実行する、prd には使わない)
-# ==========================================================================================
 # 差分の確認 (apply はユーザーが行う)
-plan env="stg":
+plan env="stg": (init env)
     terraform -chdir=envs/{{ env }} plan
 
 # 差分を GCP に適用する
@@ -39,8 +23,20 @@ destroy env:
 
 
 # ==========================================================================================
-# tflint
+# 静的検査 (fmt, validate, tflint, trivy)
 # ==========================================================================================
+# 整形
+fmt:
+    terraform fmt -recursive
+
+# 整形漏れの検査
+fmt-check:
+    terraform fmt -recursive -check -diff
+
+# 構文と型の検査
+validate env:
+    terraform -chdir=envs/{{ env }} validate
+
 # tflint のプラグインを取得する
 lint-init:
     tflint --init --config {{ justfile_directory() }}/.tflint.hcl
@@ -49,13 +45,15 @@ lint-init:
 lint: lint-init
     tflint --recursive --config {{ justfile_directory() }}/.tflint.hcl
 
-
-# ==========================================================================================
-# trivy
-# ==========================================================================================
 # trivy による設定の脆弱性検査
 scan env:
     trivy config --config trivy.yaml --tf-vars envs/{{ env }}/terraform.tfvars envs/{{ env }}
+
+# 静的検査をまとめて実行する (validate は init の後でないと動かないため、init を先に実行する)
+check env: fmt-check lint (init env) (validate env) (scan env)
+
+# PR を出す前の静的検査を、stg と prd の両方でまとめて実行する
+check-all: (check "stg") (check "prd")
 
 
 # ==========================================================================================

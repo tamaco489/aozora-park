@@ -24,3 +24,10 @@ module "identity_platform" {
 
   project_id = module.project.project_id
 }
+
+module "api" {
+  source = "../../modules/api"
+
+  project_id = module.project.project_id
+  region     = var.region
+}
