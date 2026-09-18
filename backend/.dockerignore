@@ -1,0 +1,16 @@
+# ビルドに要らないものを送らない、gen/ は go build が参照するため除外しない
+Dockerfile
+.dockerignore
+cloudbuild.yaml
+justfile
+.golangci.yaml
+tools/
+
+# テストの成果物とローカルの生成物
+*.test
+*.out
+coverage.txt
+**/testdata/
+**/*_test.go
+
+.DS_Store

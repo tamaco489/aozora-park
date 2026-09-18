@@ -1,0 +1,45 @@
+# リポジトリのルートを作業ディレクトリとして実行する
+# stg は Developer Connect の git repository link から gcloud builds submit で、prd はタグのトリガで同じファイルを使う
+# 実行する SA はファイルに書かず、トリガか --service-account で渡す
+
+# env・SA・スケールは Terraform が管理するため、deploy は image だけを差し替える
+steps:
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --file=backend/Dockerfile
+      - --build-arg=SERVICE=${_SERVICE}
+      - --tag=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:${_TAG}
+      - backend
+
+  # deploy でタグではなく digest を指定するため、push した結果から digest 付きの名前を取り出して後続に渡す
+  - id: push
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - -c
+      - >-
+        docker push ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:${_TAG}
+        && docker inspect --format='{{index .RepoDigests 0}}'
+        ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:${_TAG}
+        > /workspace/image_digest.txt
+
+  # タグは付け直せるため、実際に push した中身を digest で固定して deploy する
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -c
+      - gcloud run deploy ${_SERVICE} --image="$$(cat /workspace/image_digest.txt)" --region=${_REGION}
+
+# _TAG は既定値を置かない、未指定のまま latest のような曖昧なタグで push させないため
+# stg は --substitutions=_TAG=<コミット SHA>、prd のトリガは _TAG=$TAG_NAME を渡す
+substitutions:
+  _REGION: asia-northeast1
+  _REPOSITORY: aozora-park
+  _SERVICE: api
+
+options:
+  # ユーザー指定の SA で実行するときは、ログの保存先を指定しないとビルドが開始できない
+  logging: CLOUD_LOGGING_ONLY
