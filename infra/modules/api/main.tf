@@ -1,3 +1,4 @@
+# api の実行 SA に付けるプロジェクトのロール (トレースの送信、Firestore の読み書き、ログの書き込み)
 locals {
   sa_api_roles = toset([
     "roles/cloudtrace.agent",
@@ -6,13 +7,15 @@ locals {
   ])
 }
 
-# NOTE: https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/google_service_account
+# NOTE: https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account
+# api の Cloud Run が名乗る実行 SA
 resource "google_service_account" "api" {
   project      = var.project_id
   account_id   = "sa-api"
   display_name = "api"
 }
 
+# 実行 SA に locals のロールを 1 つずつ付与する
 resource "google_project_iam_member" "api" {
   for_each = local.sa_api_roles
 
@@ -22,6 +25,7 @@ resource "google_project_iam_member" "api" {
 }
 
 # NOTE: https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_service
+# api を動かす Cloud Run のサービス
 # 認証はアプリ内で行う設計のため、ingress を全トラフィックにして外部から直接受ける
 # ステートレスで失うデータが無いため、Terraform の削除保護を外して destroy と再作成をできるようにする
 resource "google_cloud_run_v2_service" "api" {
@@ -33,12 +37,9 @@ resource "google_cloud_run_v2_service" "api" {
 
   template {
     service_account = google_service_account.api.email
-
-    # コールドスタートを許容して、リクエストが無い間の待機費用をゼロにするため min を 0 にする
-    # 想定する負荷は小さく、アクセスの急増や誤ったループで費用が膨らまないよう max を 2 に抑える
     scaling {
-      min_instance_count = 0
-      max_instance_count = 2
+      min_instance_count = 0 # コールドスタートを許容して、リクエストが無い間の待機費用をゼロにするため min を 0 にする
+      max_instance_count = 2 # 想定する負荷は小さく、アクセスの急増や誤ったループで費用が膨らまないよう max を 2 に抑える
     }
 
     containers {
@@ -71,6 +72,7 @@ resource "google_cloud_run_v2_service" "api" {
   }
 }
 
+# 誰でも api を呼び出せるよう、allUsers に呼び出し権限を付与する
 # 認証はアプリ内で行うため、Cloud Run の IAM による呼び出し元の制限はかけずに誰でも呼べるようにする
 resource "google_cloud_run_v2_service_iam_member" "api_invoker" {
   project  = google_cloud_run_v2_service.api.project
