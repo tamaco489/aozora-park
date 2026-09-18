@@ -2,6 +2,21 @@
 # stg は Developer Connect の git repository link から gcloud builds submit で、prd はタグのトリガで同じファイルを使う
 # 実行する SA はファイルに書かず、トリガか --service-account で渡す
 
+# _TAG は空を既定にして check で止める、未指定のまま latest のような曖昧なタグで push させないため
+# stg は --substitutions=_TAG=<コミット SHA>、prd のトリガは _TAG=$TAG_NAME を渡す
+substitutions:
+  _REGION: asia-northeast1
+  _REPOSITORY: aozora-park
+  _SERVICE: api
+  _TAG: ""
+
+# 既定の 10 分では go mod download とビルドに余裕が無いため、想定する上限を明示する
+timeout: 900s
+
+options:
+  # ユーザー指定の SA で実行するときは、ログの保存先を指定しないとビルドが開始できない
+  logging: CLOUD_LOGGING_ONLY
+
 # env・SA・スケールは Terraform が管理するため、deploy は image だけを差し替える
 steps:
   # _TAG を渡し忘れると不正なタグで build が失敗し原因がわかりにくいため、最初に検査して止める
@@ -41,18 +56,3 @@ steps:
     args:
       - -c
       - gcloud run deploy ${_SERVICE} --image="$$(cat /workspace/image_digest.txt)" --region=${_REGION}
-
-# _TAG は空を既定にして check で止める、未指定のまま latest のような曖昧なタグで push させないため
-# stg は --substitutions=_TAG=<コミット SHA>、prd のトリガは _TAG=$TAG_NAME を渡す
-substitutions:
-  _REGION: asia-northeast1
-  _REPOSITORY: aozora-park
-  _SERVICE: api
-  _TAG: ""
-
-# 既定の 10 分では go mod download とビルドに余裕が無いため、想定する上限を明示する
-timeout: 900s
-
-options:
-  # ユーザー指定の SA で実行するときは、ログの保存先を指定しないとビルドが開始できない
-  logging: CLOUD_LOGGING_ONLY
