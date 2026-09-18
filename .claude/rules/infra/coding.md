@@ -17,16 +17,17 @@
 
 ## 環境ディレクトリのファイル構成
 
-| ファイル              | 置くもの                                                                            |
-| --------------------- | ----------------------------------------------------------------------------------- |
-| `versions.tf`         | `terraform { required_version, required_providers }`                                |
-| `backend.tf`          | GCS の backend。`stg` だけに置く                                                    |
-| `providers.tf`        | `provider "google" {}` と `default_labels`                                          |
-| `variables.tf`        | `project_id` `region` `env` と、その `validation`                                   |
-| `terraform.tfvars`    | 上の変数の値                                                                        |
-| `main.tf`             | モジュールの呼び出し。呼ぶモジュールができてから置く                                |
-| `outputs.tf`          | apply 後にユーザーが確かめる値 (Cloud Run の URL など) の出力                       |
-| `.terraform.lock.hcl` | provider のバージョンとチェックサム。`init` と `just lock` が作成する。コミットする |
+| ファイル              | 置くもの                                                                               |
+| --------------------- | -------------------------------------------------------------------------------------- |
+| `versions.tf`         | `terraform { required_version, required_providers }`                                   |
+| `backend.tf`          | GCS の backend。`stg` だけに置く                                                       |
+| `providers.tf`        | `provider "google" {}` と `default_labels`                                             |
+| `variables.tf`        | `project_id` `region` `env` と、その `validation`                                      |
+| `terraform.tfvars`    | 上の変数の値                                                                           |
+| `main.tf`             | モジュールの呼び出し。呼ぶモジュールができてから置く                                   |
+| `outputs.tf`          | apply 後にユーザーが確かめる値 (Cloud Run の URL など) の出力                          |
+| `imports.tf`          | 手作業で作成したリソースを取り込む `import` ブロック。取り込む対象がある環境にだけ置く |
+| `.terraform.lock.hcl` | provider のバージョンとチェックサム。`init` と `just lock` が作成する。コミットする    |
 
 ## モジュールのファイル構成
 
