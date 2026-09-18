@@ -4,6 +4,14 @@
 
 # env・SA・スケールは Terraform が管理するため、deploy は image だけを差し替える
 steps:
+  # _TAG を渡し忘れると不正なタグで build が失敗し原因がわかりにくいため、最初に検査して止める
+  - id: check
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - -c
+      - test -n "${_TAG}" || { echo "_TAG を --substitutions で指定する" >&2; exit 1; }
+
   - id: build
     name: gcr.io/cloud-builders/docker
     args:
@@ -26,19 +34,24 @@ steps:
         > /workspace/image_digest.txt
 
   # タグは付け直せるため、実際に push した中身を digest で固定して deploy する
+  # gcloud の挙動がイメージの更新で変わらないよう、バージョンを固定する
   - id: deploy
-    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:585.0.0-slim
     entrypoint: bash
     args:
       - -c
       - gcloud run deploy ${_SERVICE} --image="$$(cat /workspace/image_digest.txt)" --region=${_REGION}
 
-# _TAG は既定値を置かない、未指定のまま latest のような曖昧なタグで push させないため
+# _TAG は空を既定にして check で止める、未指定のまま latest のような曖昧なタグで push させないため
 # stg は --substitutions=_TAG=<コミット SHA>、prd のトリガは _TAG=$TAG_NAME を渡す
 substitutions:
   _REGION: asia-northeast1
   _REPOSITORY: aozora-park
   _SERVICE: api
+  _TAG: ""
+
+# 既定の 10 分では go mod download とビルドに余裕が無いため、想定する上限を明示する
+timeout: 900s
 
 options:
   # ユーザー指定の SA で実行するときは、ログの保存先を指定しないとビルドが開始できない
