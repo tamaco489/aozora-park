@@ -17,9 +17,9 @@ plan env="stg": (init env)
 apply env:
     terraform -chdir=envs/{{ env }} apply
 
-# 管理しているリソースをすべて削除する
-destroy env:
-    terraform -chdir=envs/{{ env }} destroy
+# 指定したモジュールのリソースだけを削除する (例: just destroy-target stg module.api)
+destroy-target env target:
+    terraform -chdir=envs/{{ env }} destroy -target={{ target }}
 
 
 # ==========================================================================================
