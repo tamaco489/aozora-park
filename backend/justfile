@@ -69,3 +69,15 @@ run-api-stg:
 # ヘルスチェックを呼ぶ、api を起動した状態で実行する
 health port="8080":
     buf curl --http2-prior-knowledge -d '{"service":""}' http://localhost:{{port}}/grpc.health.v1.Health/Check
+
+
+# ==========================================================================================
+# docker: コンテナでの起動と確認
+# ==========================================================================================
+# api のイメージをローカルでビルドする
+docker-build:
+    docker build --build-arg SERVICE=api -t aozora-park/api:local .
+
+# ビルドしたイメージをエミュレータに向けて起動する (先にルートで just up を実行する)、コンテナから見たホストのエミュレータに繋ぐ
+docker-run:
+    docker run --rm -p 8080:8080 -e FIRESTORE_EMULATOR_HOST=host.docker.internal:18080 -e GOOGLE_CLOUD_PROJECT=demo-aozora-park -e CORS_ALLOWED_ORIGINS=http://localhost:5173 aozora-park/api:local
