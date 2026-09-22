@@ -46,6 +46,13 @@ resource "google_cloud_run_v2_service" "api" {
       # 初回の作成だけに使う公開サンプル、以降はデプロイが差し替える
       image = "us-docker.pkg.dev/cloudrun/container/hello"
 
+      # api は connect-go の h2c で待ち受けるため、コンテナまで HTTP/2 で渡させる
+      # 既定では Cloud Run がコンテナへのリクエストを HTTP/1.1 に変換するため、gRPC とサーバリフレクションが成立しない
+      ports {
+        name           = "h2c"
+        container_port = 8080
+      }
+
       resources {
         limits = {
           cpu    = "1"
