@@ -101,6 +101,8 @@ Issue 化する対象を確定する。ユーザーが指定しない場合は�
 [サブ 3] [sub] [chore] docker compose に Firestore エミュレータを追加
 ```
 
+**分割の議論で設計の方針を変更した場合は、Step 5 の前に設計ドキュメント (Notion) の修正案を提示し、反映してから Issue の本文を作成する。** 設計と Issue がずれたまま作成すると、後から両方を修正することになる。
+
 ### Step 5: 内容の確定
 
 テンプレートに沿って各 Issue のタイトルと本文を作成し、**すべてまとめて提示して承認を得る。**
@@ -132,6 +134,7 @@ issue_write(method: "create", owner, repo, title, body, labels: ["<ラベル>"],
 **GitHub 上に無いラベルを渡すとエラーになる。** その場合は `sync-labels` スキルで同期してから再作成する。
 
 作成のたびに返ってきた Issue 番号で、本文の「作業ブランチ」を確定させる。
+本文中で他のサブ Issue を参照している箇所も、番号が確定した時点で置き換える。
 
 ```text
 issue_write(method: "update", owner, repo, issue_number, body: <番号を埋めた本文>)

@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="880" viewBox="0 0 1600 880" font-family="'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="850" fill="#ffffff"/>
+
+  <!-- タイトル -->
+  <text x="30" y="48" font-size="26" font-weight="bold" fill="#222">api のデプロイ経路 (Developer Connect + Cloud Build)</text>
+
+  <!-- GCP プロジェクト -->
+  <rect x="560" y="85" width="1010" height="250" rx="12" fill="#f7f9ff" stroke="#4285f4" stroke-width="2" stroke-dasharray="8 5"/>
+  <text x="578" y="113" font-size="17" font-weight="bold" fill="#4285f4">GCP: stg-aozora-park</text>
+  <rect x="560" y="440" width="1010" height="250" rx="12" fill="#f7f9ff" stroke="#4285f4" stroke-width="2" stroke-dasharray="8 5"/>
+  <text x="578" y="468" font-size="17" font-weight="bold" fill="#4285f4">GCP: prd-aozora-park</text>
+
+  <!-- 操作 -->
+  <rect x="30" y="115" width="220" height="100" rx="8" fill="#eaf2fb" stroke="#1a4f8b" stroke-width="1.5"/>
+  <text x="140" y="143" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a4f8b">stg: 手動</text>
+  <text x="140" y="170" font-size="18" font-weight="bold" text-anchor="middle" fill="#222">just deploy-stg</text>
+  <text x="140" y="197" font-size="14" text-anchor="middle" fill="#555">main のマージ後、ローカルから</text>
+
+  <rect x="30" y="560" width="220" height="100" rx="8" fill="#fcefe8" stroke="#a0461b" stroke-width="1.5"/>
+  <text x="140" y="588" font-size="16" font-weight="bold" text-anchor="middle" fill="#a0461b">prd: 自動</text>
+  <text x="140" y="615" font-size="18" font-weight="bold" text-anchor="middle" fill="#222">タグの push</text>
+  <text x="140" y="642" font-size="14" text-anchor="middle" fill="#555">例: api/v1.2.3</text>
+
+  <!-- GitHub -->
+  <rect x="300" y="300" width="200" height="130" rx="8" fill="#f4f4f4" stroke="#333" stroke-width="1.5"/>
+  <text x="400" y="338" font-size="19" font-weight="bold" text-anchor="middle" fill="#222">GitHub</text>
+  <text x="400" y="366" font-size="14" text-anchor="middle" fill="#555">tamaco489/aozora-park</text>
+  <text x="400" y="394" font-size="14" text-anchor="middle" fill="#555">main はリリース PR の</text>
+  <text x="400" y="414" font-size="14" text-anchor="middle" fill="#555">マージで更新</text>
+
+  <!-- stg のリソース -->
+  <rect x="590" y="220" width="200" height="90" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
+  <text x="690" y="257" font-size="17" font-weight="bold" text-anchor="middle" fill="#222">Developer Connect</text>
+  <text x="690" y="284" font-size="14" text-anchor="middle" fill="#555">git repository link</text>
+
+  <rect x="850" y="110" width="240" height="110" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
+  <text x="970" y="142" font-size="18" font-weight="bold" text-anchor="middle" fill="#222">Cloud Build</text>
+  <text x="970" y="170" font-size="14" text-anchor="middle" fill="#555">build → push → deploy</text>
+  <text x="970" y="194" font-size="14" text-anchor="middle" fill="#555">SA: sa-deployer</text>
+
+  <rect x="1150" y="120" width="180" height="90" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
+  <text x="1240" y="157" font-size="17" font-weight="bold" text-anchor="middle" fill="#222">Artifact Registry</text>
+  <text x="1240" y="184" font-size="14" text-anchor="middle" fill="#555">aozora-park/api</text>
+
+  <rect x="1380" y="120" width="170" height="90" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
+  <text x="1465" y="157" font-size="17" font-weight="bold" text-anchor="middle" fill="#222">Cloud Run api</text>
+  <text x="1465" y="184" font-size="14" text-anchor="middle" fill="#555">SA: sa-api</text>
+
+  <!-- prd のリソース -->
+  <rect x="590" y="480" width="200" height="90" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
+  <text x="690" y="517" font-size="17" font-weight="bold" text-anchor="middle" fill="#222">Developer Connect</text>
+  <text x="690" y="544" font-size="14" text-anchor="middle" fill="#555">git repository link</text>
+
+  <rect x="850" y="555" width="240" height="110" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
+  <text x="970" y="587" font-size="18" font-weight="bold" text-anchor="middle" fill="#222">Cloud Build</text>
+  <text x="970" y="615" font-size="14" text-anchor="middle" fill="#555">タグのトリガ (^api/v*)</text>
+  <text x="970" y="639" font-size="14" text-anchor="middle" fill="#555">build → push → deploy</text>
+
+  <rect x="1150" y="565" width="180" height="90" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
+  <text x="1240" y="602" font-size="17" font-weight="bold" text-anchor="middle" fill="#222">Artifact Registry</text>
+  <text x="1240" y="629" font-size="14" text-anchor="middle" fill="#555">aozora-park/api</text>
+
+  <rect x="1380" y="565" width="170" height="90" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
+  <text x="1465" y="602" font-size="17" font-weight="bold" text-anchor="middle" fill="#222">Cloud Run api</text>
+  <text x="1465" y="629" font-size="14" text-anchor="middle" fill="#555">SA: sa-api</text>
+
+  <!-- 矢印 -->
+  <g stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <!-- stg: 操作から Cloud Build へ -->
+    <line x1="250" y1="165" x2="846" y2="165"/>
+    <!-- GitHub から Developer Connect へ -->
+    <path d="M 500 340 C 545 340, 545 265, 586 265"/>
+    <path d="M 500 400 C 545 400, 545 525, 586 525"/>
+    <!-- Developer Connect から Cloud Build へ -->
+    <path d="M 790 265 C 820 265, 820 200, 846 200"/>
+    <path d="M 790 525 C 820 525, 820 590, 846 590"/>
+    <!-- prd: 操作から GitHub へ -->
+    <path d="M 250 610 C 400 610, 400 520, 400 434"/>
+    <!-- Cloud Build から Artifact Registry、Cloud Run へ -->
+    <line x1="1090" y1="165" x2="1146" y2="165"/>
+    <line x1="1330" y1="165" x2="1376" y2="165"/>
+    <line x1="1090" y1="610" x2="1146" y2="610"/>
+    <line x1="1330" y1="610" x2="1376" y2="610"/>
+  </g>
+
+  <!-- 矢印のラベル -->
+  <text x="405" y="150" font-size="13" text-anchor="middle" fill="#333">gcloud beta builds submit --revision=&lt;SHA&gt;</text>
+  <text x="410" y="188" font-size="13" text-anchor="middle" fill="#555">(ユーザーの gcloud 認証)</text>
+  <text x="800" y="302" font-size="13" fill="#333">main を取得</text>
+  <text x="800" y="500" font-size="13" fill="#333">起動・取得</text>
+  <text x="335" y="540" font-size="14" text-anchor="middle" fill="#333">git push (tag)</text>
+  <text x="1118" y="153" font-size="13" text-anchor="middle" fill="#333">push</text>
+  <text x="1353" y="153" font-size="13" text-anchor="middle" fill="#333">deploy</text>
+  <text x="1118" y="598" font-size="13" text-anchor="middle" fill="#333">push</text>
+  <text x="1353" y="598" font-size="13" text-anchor="middle" fill="#333">deploy</text>
+
+  <!-- 注記 -->
+  <line x1="30" y1="720" x2="1570" y2="720" stroke="#ccc" stroke-width="1"/>
+  <text x="30" y="752" font-size="15" fill="#333">・stg はトリガを持たない (Developer Connect は手動トリガに非対応)。main のマージ後に just deploy-stg で Cloud Build に main をビルドさせる</text>
+  <text x="30" y="780" font-size="15" fill="#333">・どちらも同じ backend/cloudbuild.yaml で build → push → deploy (digest) をまとめて行う。Cloud Run の image 以外は Terraform が管理する (ignore_changes)</text>
+  <text x="30" y="808" font-size="15" fill="#333">・GitHub との接続 (GitHub App の認可) はブラウザで作成して Terraform に import する。トークンは Developer Connect が Secret Manager に保存する</text>
+  <text x="30" y="836" font-size="15" fill="#333">・prd の GCP プロジェクトは現時点では未作成 (Terraform の定義のみ)</text>
+  <text x="30" y="864" font-size="15" fill="#333">・prd のトリガは承認を必須にしている。タグを push しただけではビルドは始まらず、承認した時点で build → push → deploy が動く</text>
+</svg>

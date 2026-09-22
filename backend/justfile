@@ -69,3 +69,36 @@ run-api-stg:
 # ヘルスチェックを呼ぶ、api を起動した状態で実行する
 health port="8080":
     buf curl --http2-prior-knowledge -d '{"service":""}' http://localhost:{{port}}/grpc.health.v1.Health/Check
+
+
+# ==========================================================================================
+# docker: コンテナでの起動と確認
+# ==========================================================================================
+# api のイメージをローカルでビルドする
+docker-build:
+    docker build --build-arg SERVICE=api -t aozora-park/api:local .
+
+# ビルドしたイメージをエミュレータに向けて起動する (先にルートで just up を実行する)、コンテナから見たホストのエミュレータに繋ぐ
+docker-run: docker-build
+    docker run --rm --detach --name aozora-park-api -p 8080:8080 \
+        -e FIRESTORE_EMULATOR_HOST=host.docker.internal:18080 \
+        -e GOOGLE_CLOUD_PROJECT=demo-aozora-park \
+        -e CORS_ALLOWED_ORIGINS=http://localhost:5173 \
+        aozora-park/api:local
+
+# docker-run で起動したコンテナを停止する、--rm で起動しているため停止と同時に破棄される
+docker-stop:
+    docker stop aozora-park-api
+
+
+# ==========================================================================================
+# deploy: stg への手動デプロイ
+# ==========================================================================================
+# stg へデプロイする (例: just deploy-stg release/main-issue-54/api-deploy)
+#
+# 指定した ref のコミットを Cloud Build がビルドし、Cloud Run の api を差し替える
+# ソースは GitHub から Developer Connect 経由で取得するため、手元の変更は反映されない
+# イメージのタグにはコミットの SHA を使う
+[doc("stg へデプロイする (既定の ref は main)")]
+deploy-stg ref="main":
+    ./scripts/deploy-stg.sh {{ ref }}

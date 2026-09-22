@@ -116,5 +116,11 @@ concurrency:
 - ローカルで同じコマンドを通してから push する。**CI 上で試行錯誤しない**
 - ワークフロー自身が `paths` に入っているため、修正すればその PR で走る。走った結果を確認する
 
-> [!NOTE]
-> CD (Cloud Run と Firebase Hosting へのデプロイ) はマイルストーン 4 以降に作成する。Workload Identity Federation の使い方とデプロイの単位をここに追記する。
+## CD
+
+- **api のデプロイを GitHub Actions で行わない。** Cloud Build が GitHub のソースを取得してビルドし、Cloud Run を更新する
+- stg は手元からの `just deploy-stg <ref>` で実行する。Developer Connect のリポジトリは手動のトリガを作れないため、`gcloud builds submit` を使う
+- prd は `api/v1.2.3` の形のタグの push で起動するトリガから実行する。トリガは承認を必須にする
+- ビルド定義は対象のディレクトリに置く (`backend/cloudbuild.yaml`)。イメージのタグにはコミットの SHA を使う
+- ビルドは `sa-deployer` で走らせる。ユーザー指定の SA ではログの保存先を選べないため `logging: CLOUD_LOGGING_ONLY` を指定する
+- frontend (Firebase Hosting) のデプロイはマイルストーン 7 以降に決める
