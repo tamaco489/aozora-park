@@ -89,3 +89,16 @@ docker-run: docker-build
 # docker-run で起動したコンテナを停止する、--rm で起動しているため停止と同時に破棄される
 docker-stop:
     docker stop aozora-park-api
+
+
+# ==========================================================================================
+# deploy: stg への手動デプロイ
+# ==========================================================================================
+# stg へデプロイする (例: just deploy-stg release/main-issue-54/api-deploy)
+#
+# 指定した ref のコミットを Cloud Build がビルドし、Cloud Run の api を差し替える
+# ソースは GitHub から Developer Connect 経由で取得するため、手元の変更は反映されない
+# イメージのタグにはコミットの SHA を使う
+[doc("stg へデプロイする (既定の ref は main)")]
+deploy-stg ref="main":
+    ./scripts/deploy-stg.sh {{ ref }}

@@ -48,7 +48,7 @@
 - 生成コードの手動編集禁止 — `backend/gen/` と `frontend/src/gen/` は `buf generate` で再生成する
 - 機密情報のハードコーディング禁止 (API キー、fincode の認証情報、Slack Webhook URL、接続情報)
   - 秘匿値は Secret Manager に置く。Terraform はシークレットの入れ物と参照だけを定義し、値の投入はユーザーが行う
-  - リポジトリと GitHub Secrets に長期クレデンシャルを置かない (デプロイは Workload Identity Federation)
+  - リポジトリと GitHub Secrets に長期クレデンシャルを置かない。デプロイは GitHub Actions を経由せず、Cloud Build が GCP の中で実行する
 - **インフラのコマンド実行・GCP リソース操作の禁止** — 以下はユーザーのみが実行する。Claude が実行してはならない:
   - `terraform` のすべてのコマンド (`init` `fmt` `validate` `plan` `apply` `destroy` など)、`tflint`、`trivy`。`just` 経由でも同じ
   - `gcloud run deploy` / `gcloud run jobs update` / `gcloud run jobs execute`

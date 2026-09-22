@@ -76,5 +76,5 @@
 - `apply` と `destroy` のレシピは環境名を省略できない形にする。`prd` には使わない
 - trivy は環境ごとに、その環境の `terraform.tfvars` だけを `--tf-vars` で渡す。まとめて渡すと、環境の間で同名の変数が上書きし合う
 - backend を変更した直後の `init` は `-reconfigure` を使う (旧 backend に state が無いことを確認したうえで)
-- Cloud Run のイメージタグは deploy ワークフローが差し替えるため、Terraform は初回作成と設定 (環境変数・シークレット参照・SA・スケール) だけを担う。`image` は `lifecycle { ignore_changes = [...] }` で無視し、CI の差し替えを drift にしない
+- Cloud Run のイメージタグは Cloud Build のデプロイが差し替えるため、Terraform は初回作成と設定 (環境変数・シークレット参照・SA・スケール) だけを担う。`image` は `lifecycle { ignore_changes = [...] }` で無視し、デプロイの差し替えを drift にしない
 - justfile にシェルの処理を書かない (`.claude/rules/general/justfile.md`)
