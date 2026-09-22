@@ -4,7 +4,7 @@
 
 [ドキュメント一覧](../README.ja.md)に戻る。
 
-`main` へマージした後に、手元から 1 コマンドで stg の api を更新します。
+`main` へマージした後に、手元から 1 コマンドで stg の api を更新します。構成の全体像は[デプロイの構成](./overview.ja.md)にあります。
 ビルドとデプロイは Cloud Build が GCP の中で実行し、ソースは GitHub から Developer Connect 経由で取得します。
 
 ## 前提

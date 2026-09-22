@@ -11,4 +11,5 @@ This directory contains project documentation.
 | [Connecting to the stg Firestore](./backend/firestore/stg.md) | Pointing the local api at the stg Firestore                       |
 | [API specification (OpenAPI)](./api/openapi.yaml)             | Generated from proto; do not edit by hand                         |
 | [API specification (Redoc)](./api/redoc.html)                 | HTML version of the above; open it in a browser                   |
+| [Deployment architecture](./deploy/overview.md)               | The paths, stg versus prd, and what Terraform owns                |
 | [Deploying to stg](./deploy/stg.md)                           | Updating the stg api from your machine, verification and rollback |

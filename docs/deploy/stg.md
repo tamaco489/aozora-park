@@ -4,7 +4,7 @@
 
 Back to the [documentation index](../README.md).
 
-After merging into `main`, update the api on stg with a single command from your machine.
+After merging into `main`, update the api on stg with a single command from your machine. The overall architecture is described in [Deployment architecture](./overview.md).
 Cloud Build runs the build and the deployment inside GCP, and fetches the source from GitHub through Developer Connect.
 
 ## Prerequisites

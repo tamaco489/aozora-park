@@ -11,4 +11,5 @@
 | [stg の Firestore への接続](./backend/firestore/stg.ja.md)    | ローカルの api を stg の Firestore に向ける            |
 | [API 仕様 (OpenAPI)](./api/openapi.yaml)                      | proto から生成した仕様、手で編集しない                 |
 | [API 仕様 (Redoc)](./api/redoc.html)                          | 上の仕様の HTML 形式、手元のブラウザで開いて見る       |
+| [デプロイの構成](./deploy/overview.ja.md)                     | 経路の図、stg と prd の違い、Terraform との分担        |
 | [stg へのデプロイ](./deploy/stg.ja.md)                        | 手元から stg の api を更新する、疎通確認とロールバック |
