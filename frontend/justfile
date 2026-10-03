@@ -32,3 +32,11 @@ dev:
 # ビルドした成果物を配信して確認する
 preview:
     npm run preview
+
+
+# ==========================================================================================
+# firebase: Hosting へのデプロイ
+# ==========================================================================================
+# stg の Hosting に配信する、firebase.json はリポジトリルートのものが使われる
+deploy-stg: build
+    firebase deploy --only hosting --project stg-aozora-park
