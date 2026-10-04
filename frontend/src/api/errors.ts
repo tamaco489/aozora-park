@@ -15,10 +15,10 @@ export function messageOf(err: unknown): string {
       return `入力が正しくありません: ${connectErr.rawMessage}`;
     case Code.Unavailable:
       return "api に繋がりません。just run-api で起動しているか確認してください";
-    // ネットワークに届かない場合と CORS で遮断された場合は、どちらも fetch の失敗として Unknown になる
-    // ブラウザは遮断の理由を JavaScript に渡さないため、コードからは区別できない
+    // api に届かなかった場合は fetch の失敗として Unknown になる
+    // ブラウザは届かなかった理由を JavaScript に渡さないため、コードからは区別できない
     case Code.Unknown:
-      return "api に繋がらないか CORS で遮断されています。api が起動しているか、CORS_ALLOWED_ORIGINS がこの画面のオリジンを含むかを確認してください";
+      return "api に繋がりません。api が起動しているか、プロキシや rewrites の設定が崩れていないかを確認してください";
     default:
       return `失敗しました: ${connectErr.rawMessage}`;
   }

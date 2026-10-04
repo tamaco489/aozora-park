@@ -107,7 +107,7 @@ Developer Connect の接続と同じ扱いです。
 
 ### CORS を設定して別オリジンのまま使う
 
-api に `CORS_ALLOWED_ORIGINS` を渡し、Hosting から `*.run.app` を直接呼ぶ案です。
+api に許可するオリジンを設定し、Hosting から `*.run.app` を直接呼ぶ案です。
 
 - Connect のプリフライトのキャッシュは URL ごとに効くため、`Access-Control-Max-Age` を付けても RPC の種類だけ往復が増える
 - 外部 LB と Cloud Armor で同一オリジンにする案は、固定費が月 18 ドル程度かかる

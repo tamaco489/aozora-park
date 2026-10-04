@@ -107,7 +107,7 @@ The Developer Connect connection is treated the same way.
 
 ### Configure CORS and keep separate origins
 
-Pass `CORS_ALLOWED_ORIGINS` to the api and call `*.run.app` directly from Hosting.
+Configure the allowed origins on the api and call `*.run.app` directly from Hosting.
 
 - Connect caches preflights per URL, so `Access-Control-Max-Age` still leaves one extra round trip per RPC method
 - Putting both behind an external load balancer with Cloud Armor costs roughly 18 USD per month in fixed fees

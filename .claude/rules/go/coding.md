@@ -63,7 +63,7 @@ backend/
 │       │   ├── fincode/
 │       │   └── slack/
 │       ├── serving/                  # リクエストを受ける側の下回り
-│       │   ├── httpx/                # サーバ起動・graceful shutdown・App・CORS
+│       │   ├── httpx/                # サーバ起動・graceful shutdown・App
 │       │   ├── interceptor/          # 認証・ログ・エラー変換
 │       │   └── apperr/               # エラーの型・Kind・connect.Code への変換
 │       └── observability/            # 起きたことを外に出すもの
@@ -340,9 +340,8 @@ var ErrSoldOut = apperr.New(apperr.KindConflict, "PURCHASE_SOLD_OUT", "在庫が
 
 ### ハンドラの形
 
-- **CORS は connect の層より外側にあるため、インターセプタに書かない。** `httpx` が `http.Handler` を包む
-- 許可するメソッドとヘッダは `connectrpc.com/cors` から取る。手で並べると connect のバージョンが上がったときに追随できない
-- 許可するオリジンは `config` から渡し、空なら包まない。設定し忘れたまま全オリジンを通す状態にしない
+- **CORS を設定しない。** 画面からの呼び出しは Firebase Hosting の `rewrites` と Vite の `server.proxy` で同一オリジンになる (`.claude/rules/ci/coding.md`)
+- 設定が必要になったら、connect の層より外側で `httpx` が `http.Handler` を包む。インターセプタには書かない。許可するメソッドとヘッダは `connectrpc.com/cors` から取る
 - connect のエラーはインターセプタが `apperr` から変換する。`handler` で `connect.NewError` を組み立てない
 - **Pub/Sub push と Cloud Tasks は at-least-once。** すべてのハンドラを冪等にし、対象が既に終端ステータスなら何もせず 2xx を返す
 - リトライしてほしい失敗だけ 5xx を返す。再実行しても直らない失敗は 2xx で ack し、ログに残す (無限リトライを避ける)
