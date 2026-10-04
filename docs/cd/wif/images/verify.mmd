@@ -1,0 +1,40 @@
+sequenceDiagram
+    autonumber
+    box rgba(250,240,235,0.6) GitHub
+        participant J as ジョブ<br/>(ワークフローの実行)
+        participant GH as OIDC の発行元<br/>(token.actions.githubusercontent.com)
+    end
+    box rgba(235,242,255,0.6) Google Cloud
+        participant STS as STS + WIF プロバイダ<br/>(入口)
+        participant IC as IAM Credentials + SA<br/>(出口)
+        participant API as Cloud Build / Firebase Hosting など
+    end
+
+    J->>GH: 証明書を要求する
+    Note right of J: permissions に<br/>id-token: write が要る
+    GH-->>J: 署名付きの証明書 (JWT)<br/>数分で失効する
+
+    J->>STS: 証明書を提示する
+
+    STS->>GH: 公開鍵の一覧を取得する
+    GH-->>STS: 公開鍵 (kid で選ぶ)
+    Note over STS: 1. kid に合う鍵を選ぶ<br/>2. 署名を検証する<br/>3. 発行者 (iss) を照合する<br/>4. 宛先 (aud) を照合する<br/>5. 有効期限 (exp) を見る<br/>6. クレームを属性に変換する<br/>7. 受け入れ条件を評価する
+
+    alt いずれかを満たさない
+        STS--xJ: 拒否する。トークンは発行されない
+        Note right of STS: 証明書か受け入れ条件を疑う
+    else すべて満たす
+        STS-->>J: 連携トークン (1 時間)
+
+        J->>IC: サービスアカウントの<br/>アクセストークンを要求する
+        Note over IC: その相手に<br/>workloadIdentityUser が<br/>与えられているかを見る
+
+        alt 許可されていない
+            IC--xJ: 拒否する。権限不足
+            Note right of IC: SA 側の許可を疑う
+        else 許可されている
+            IC-->>J: アクセストークン (1 時間)
+            J->>API: そのトークンで API を呼び出す
+            API-->>J: 結果
+        end
+    end

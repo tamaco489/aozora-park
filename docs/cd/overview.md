@@ -6,6 +6,7 @@ Back to the [documentation index](../README.md).
 
 This project has two deployment paths that work in different ways. This page gives an overview of both.
 The details are in [Backend deployment architecture](../backend/deploy/overview.md) and [Frontend deployment architecture](../frontend/deploy/overview.md).
+The mechanism used to authenticate to GCP is described in [Workload Identity Federation](./wif/overview.md).
 
 ## The two paths
 
@@ -81,4 +82,4 @@ Each diagram lives with the area it describes. Both are shown here side by side.
 | [Frontend deployment architecture](../frontend/deploy/overview.md) | Rewrites and caching, and the alternatives that were rejected |
 | [Deploying the frontend to stg](../frontend/deploy/stg.md)         | Procedure, verification, rollback                             |
 
-The conventions live in the "CD" section of `.claude/rules/ci/coding.md`. These pages record the current shape and why it was chosen.
+The conventions live in `.claude/rules/cd/coding.md`. These pages record the current shape and why it was chosen.
