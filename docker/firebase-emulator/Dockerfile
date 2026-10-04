@@ -1,4 +1,5 @@
-FROM node:24.13.0-trixie-slim
+# .tool-versions の nodejs と揃える
+FROM node:24.21.0-trixie-slim
 
 # Firestore エミュレータの本体は Java で動く、firebase-tools が JDK 21 以上を要求するため trixie を使う
 RUN apt-get update \
