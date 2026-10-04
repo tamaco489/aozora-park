@@ -6,6 +6,7 @@
 
 このプロジェクトには、仕組みの異なる 2 つのデプロイの経路があります。ここでは両方を俯瞰します。
 それぞれの詳細は [backend のデプロイの構成](../backend/deploy/overview.ja.md)と [frontend のデプロイの構成](../frontend/deploy/overview.ja.md)にあります。
+GCP への認証に使う仕組みは [Workload Identity Federation](./wif/overview.ja.md)にあります。
 
 ## 2 つの経路
 

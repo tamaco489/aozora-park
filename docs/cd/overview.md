@@ -6,6 +6,7 @@ Back to the [documentation index](../README.md).
 
 This project has two deployment paths that work in different ways. This page gives an overview of both.
 The details are in [Backend deployment architecture](../backend/deploy/overview.md) and [Frontend deployment architecture](../frontend/deploy/overview.md).
+The mechanism used to authenticate to GCP is described in [Workload Identity Federation](./wif/overview.md).
 
 ## The two paths
 

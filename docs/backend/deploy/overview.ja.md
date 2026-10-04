@@ -5,7 +5,7 @@
 [ドキュメント一覧](../../README.ja.md)に戻る。
 
 api を Cloud Run へ届ける経路をまとめます。手順は [backend の stg へのデプロイ](./stg.ja.md)にあります。
-frontend を含めた全体の俯瞰は[デプロイの構成](../../deploy/overview.ja.md)にあります。
+frontend を含めた全体の俯瞰は[デプロイの構成](../../cd/overview.ja.md)にあります。
 規約は `.claude/rules/ci/coding.md` の「CD」が持ちます。ここには現状と、その形を選んだ理由を置きます。
 
 ## デプロイの経路

@@ -5,7 +5,7 @@
 [ドキュメント一覧](../../README.ja.md)に戻る。
 
 frontend を Firebase Hosting へ届ける経路をまとめます。手順は [frontend の stg へのデプロイ](./stg.ja.md)にあります。
-backend を含めた全体の俯瞰は[デプロイの構成](../../deploy/overview.ja.md)にあります。
+backend を含めた全体の俯瞰は[デプロイの構成](../../cd/overview.ja.md)にあります。
 規約は `.claude/rules/ci/coding.md` の「CD」が持ちます。ここには現状と、その形を選んだ理由を置きます。
 
 ## デプロイの経路
@@ -76,7 +76,7 @@ backend のタグは `api/v1.2.3` の形で、Cloud Build のトリガが `^api/
 
 ただし **Firebase Hosting には Cloud Build のトリガに相当する仕組みがありません。**
 タグの push で配信するには GitHub Actions でタグを拾う形になります。stg の自動化でその土台はできましたが、
-**prd には Workload Identity Federation を置いていない**ため、配信方法を決めるところからになります (理由は[デプロイの構成](../../deploy/overview.ja.md)にあります)。
+**prd には Workload Identity Federation を置いていない**ため、配信方法を決めるところからになります (理由は[デプロイの構成](../../cd/overview.ja.md)にあります)。
 
 ## 登場するリソース
 
