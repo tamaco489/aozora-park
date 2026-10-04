@@ -108,13 +108,15 @@ gcloud run services update-traffic api \
 
 ## How it works, and how prd differs
 
-| Item       | stg                                                              | prd                                                      |
-| ---------- | ---------------------------------------------------------------- | -------------------------------------------------------- |
-| Started by | `just deploy-stg` from your machine                              | Pushing a tag shaped like `api/v1.2.3`                   |
-| Trigger    | None. Developer Connect repositories cannot have manual triggers | A Cloud Build trigger, defined in Terraform              |
-| Approval   | Not required                                                     | Required. Pushing the tag alone does not start the build |
-| Image tag  | The commit SHA                                                   | The commit SHA                                           |
+| Item                | stg                                                              | prd                                                      |
+| ------------------- | ---------------------------------------------------------------- | -------------------------------------------------------- |
+| Automatic trigger   | A push to `main`, which starts `cd-backend-stg`                  | Pushing a tag shaped like `api/v1.2.3`                   |
+| Manual trigger      | `workflow_dispatch`, or `just deploy-stg <ref>`                  | None                                                     |
+| Cloud Build trigger | None. Developer Connect repositories cannot have manual triggers | Yes, defined in Terraform                                |
+| Approval            | Not required                                                     | Required. Pushing the tag alone does not start the build |
+| Image tag           | The commit SHA                                                   | The commit SHA                                           |
 
 - Terraform ignores the `image` of the Cloud Run service with `ignore_changes`, so a deployment is not reported as drift.
-- GitHub Actions only runs the checks and takes no part in deploying the backend, which keeps deployment permissions inside GCP rather than handing them to GitHub.
+- All GitHub Actions does is start the Cloud Build. `sa-deployer` still performs the build and the deployment inside GCP, so no deployment permission is handed to GitHub.
+- The steps on this page are for starting a deployment by hand. Anything merged into `main` is deployed by `cd-backend-stg`, so running them is normally unnecessary.
 - The steps for creating the Developer Connect connection live in the design notes, in the section titled "5. Developer Connect の接続" (Setting up the Developer Connect connection).
