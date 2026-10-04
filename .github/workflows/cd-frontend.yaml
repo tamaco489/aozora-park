@@ -1,0 +1,64 @@
+name: cd-frontend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      # rewrites と headers の変更は frontend のファイルを触らずに起きるため、設定も対象に入れる
+      - "firebase.json"
+      - ".firebaserc"
+      - ".github/workflows/cd-frontend.yaml"
+
+permissions:
+  contents: read
+  id-token: write
+
+# 検査と違い打ち切らずに直列化する、途中で止めると古い dist が後から配信されうる
+concurrency:
+  group: cd-frontend
+  cancel-in-progress: false
+
+# infra/envs/stg の terraform output が出す値、秘匿値ではない
+env:
+  WORKLOAD_IDENTITY_PROVIDER: projects/1098169918715/locations/global/workloadIdentityPools/github/providers/github
+  SERVICE_ACCOUNT: sa-cd-frontend@stg-aozora-park.iam.gserviceaccount.com
+  PROJECT_ID: stg-aozora-park
+
+defaults:
+  run:
+    working-directory: frontend
+
+jobs:
+  frontend-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .tool-versions
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+      # firebase-tools にはセットアップのアクションが無いため .tool-versions から取り出して入れる
+      - name: Read firebase-tools version
+        id: versions
+        working-directory: .
+        run: echo "firebase=$(awk '$1 == "firebase" {print $2}' .tool-versions)" >> "$GITHUB_OUTPUT"
+      - name: Install firebase-tools
+        env:
+          FIREBASE_VERSION: ${{ steps.versions.outputs.firebase }}
+        run: npm install -g "firebase-tools@${FIREBASE_VERSION}"
+      # package-lock.json のとおりに入れる (npm install と違って lock を書き換えない)
+      - name: Install dependencies
+        run: npm ci
+      # build は tsc -b を挟むため、型の検査もここで落ちる
+      - name: Build
+        run: npm run build
+      # firebase.json はリポジトリのルートにあるため、探索に頼らずルートで実行する
+      - name: Deploy
+        working-directory: .
+        run: firebase deploy --only hosting --project "$PROJECT_ID"
