@@ -59,13 +59,13 @@ Adding a long cache requires first excluding `/assets/` from the SPA fallback.
 
 ## stg versus prd
 
-| Item          | stg                                 | prd                                |
-| ------------- | ----------------------------------- | ---------------------------------- |
+| Item          | stg                                 | prd                                                                 |
+| ------------- | ----------------------------------- | ------------------------------------------------------------------- |
 | Trigger       | `just deploy-stg` from your machine | Undecided. A tag shaped like `spa/v1.2.3` is the expected direction |
-| Where it runs | Your machine                        | Undecided                          |
-| Build trigger | None                                | Undecided                          |
-| Approval      | None                                | Undecided                          |
-| Current state | Running                             | The GCP project does not exist yet |
+| Where it runs | Your machine                        | Undecided                                                           |
+| Build trigger | None                                | Undecided                                                           |
+| Approval      | None                                | Undecided                                                           |
+| Current state | Running                             | The GCP project does not exist yet                                  |
 
 Backend tags are shaped like `api/v1.2.3`, picked up by a Cloud Build trigger matching `^api/v[0-9]+\.[0-9]+\.[0-9]+$`.
 The prefix exists so that triggers can be split as more deployment targets appear, so the frontend will use `spa/v1.2.3`.
@@ -75,12 +75,12 @@ Serving on a tag push requires CI (GitHub Actions), so how prd is served will be
 
 ## Resources involved
 
-| Resource              | Role                                                                                         |
-| --------------------- | -------------------------------------------------------------------------------------------- |
+| Resource              | Role                                                                                                                                                                                |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Firebase Hosting site | The default site `stg-aozora-park`, created automatically when the project became a Firebase project (which happened as a side effect of enabling Identity Platform in milestone 3) |
-| `firebase.json`       | Public directory, `rewrites`, `headers`. Shares the file with the emulator settings          |
-| `.firebaserc`         | The default project, so running `firebase` directly cannot target the wrong one by accident  |
-| firebase-tools        | Managed through `.tool-versions`. Used only for deployment                                   |
+| `firebase.json`       | Public directory, `rewrites`, `headers`. Shares the file with the emulator settings                                                                                                 |
+| `.firebaserc`         | The default project, so running `firebase` directly cannot target the wrong one by accident                                                                                         |
+| firebase-tools        | Managed through `.tool-versions`. Used only for deployment                                                                                                                          |
 
 There are two default domains, and both point at the same site.
 
@@ -93,12 +93,12 @@ There are two default domains, and both point at the same site.
 
 Terraform only enables the APIs.
 
-| Target                                      | Owned by                              | Reason                                                               |
-| ------------------------------------------- | ------------------------------------- | -------------------------------------------------------------------- |
-| Enabling `firebase` and `firebasehosting`   | Terraform (`modules/project`)         | `google_project_service` is enough                                   |
-| Turning the project into a Firebase project | Manual                                | `google_firebase_project` requires `google-beta`                     |
+| Target                                      | Owned by                              | Reason                                                                                 |
+| ------------------------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------- |
+| Enabling `firebase` and `firebasehosting`   | Terraform (`modules/project`)         | `google_project_service` is enough                                                     |
+| Turning the project into a Firebase project | Manual                                | `google_firebase_project` requires `google-beta`                                       |
 | The default Hosting site                    | Manual                                | Same as above. It is created automatically when the project becomes a Firebase project |
-| Hosting configuration and serving           | `firebase.json` and `firebase deploy` | The configuration changes often                                      |
+| Hosting configuration and serving           | `firebase.json` and `firebase deploy` | The configuration changes often                                                        |
 
 Adding `google-beta` for only these two resources is not worth it, so they are handled by hand.
 The Developer Connect connection is treated the same way.

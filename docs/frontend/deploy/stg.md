@@ -101,14 +101,14 @@ Because `index.html` is served with `no-cache`, the rollback takes effect on the
 
 ## How it differs from the backend
 
-| Item                 | Frontend                      | Backend                              |
-| -------------------- | ----------------------------- | ------------------------------------ |
-| Where the build runs | Your machine                  | Cloud Build (inside GCP)             |
+| Item                        | Frontend                      | Backend                              |
+| --------------------------- | ----------------------------- | ------------------------------------ |
+| Where the build runs        | Your machine                  | Cloud Build (inside GCP)             |
 | Where the source comes from | Your working tree             | GitHub (through Developer Connect)   |
-| Uncommitted changes  | **Included**                  | Not included                         |
-| Deployment target    | Firebase Hosting              | Cloud Run                            |
-| Rollback             | Pick a release in the console | `gcloud run services update-traffic` |
-| prd                  | Undecided                     | A tag push of the form `api/v1.2.3`  |
+| Uncommitted changes         | **Included**                  | Not included                         |
+| Deployment target           | Firebase Hosting              | Cloud Run                            |
+| Rollback                    | Pick a release in the console | `gcloud run services update-traffic` |
+| prd                         | Undecided                     | A tag push of the form `api/v1.2.3`  |
 
 - GitHub Actions only runs checks today and is not involved in deployment. Automating it is deferred until Workload Identity Federation is in place
 - `firebase.json` is shared with the emulator settings. Adding `hosting` also started the Hosting emulator, so `docker/firebase-emulator/Dockerfile` now pins it to `--only firestore`
