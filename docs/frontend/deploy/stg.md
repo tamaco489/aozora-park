@@ -103,12 +103,13 @@ Because `index.html` is served with `no-cache`, the rollback takes effect on the
 
 | Item                        | Frontend                      | Backend                              |
 | --------------------------- | ----------------------------- | ------------------------------------ |
-| Where the build runs        | Your machine                  | Cloud Build (inside GCP)             |
+| Where the build runs        | Your machine (a runner in CI) | Cloud Build (inside GCP)             |
 | Where the source comes from | Your working tree             | GitHub (through Developer Connect)   |
 | Uncommitted changes         | **Included**                  | Not included                         |
 | Deployment target           | Firebase Hosting              | Cloud Run                            |
 | Rollback                    | Pick a release in the console | `gcloud run services update-traffic` |
 | prd                         | Undecided                     | A tag push of the form `api/v1.2.3`  |
 
-- GitHub Actions only runs checks today and is not involved in deployment. Automating it is deferred until Workload Identity Federation is in place
+- The steps on this page are for starting a deployment by hand. Anything merged into `main` is deployed by `cd-frontend-stg`, so running them is normally unnecessary
+- A deployment from CI builds on the runner, so **uncommitted changes are not included.** The working tree is served as-is only when the deployment is started locally
 - `firebase.json` is shared with the emulator settings. Adding `hosting` also started the Hosting emulator, so `docker/firebase-emulator/Dockerfile` now pins it to `--only firestore`

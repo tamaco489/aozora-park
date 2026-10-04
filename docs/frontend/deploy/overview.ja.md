@@ -12,8 +12,11 @@ backend を含めた全体の俯瞰は[デプロイの構成](../../deploy/overv
 
 ![frontend のデプロイ経路](./images/flow.png)
 
-**ビルドもデプロイも手元で実行します。** backend と違い Cloud Build を経由しません。
+**ビルドもデプロイも 1 か所で実行します。** backend と違い Cloud Build を経由しません。
 配信するのは `frontend/dist` の静的ファイルだけで、サーバのプロセスはありません。
+
+既定では `cd-frontend-stg` が GitHub Actions のランナーで `npm ci` からビルドと `firebase deploy` までを行います。
+手元からの `just deploy-stg` も残しており、**実行する場所が違うだけで手順は同じ**です。
 
 ## api を同一オリジンにする
 
@@ -59,19 +62,21 @@ Firebase Hosting は既定で静的コンテンツに `Cache-Control: max-age=36
 
 ## stg と prd の違い
 
-| 項目       | stg                          | prd                                                 |
-| ---------- | ---------------------------- | --------------------------------------------------- |
-| 起こし方   | 手元からの `just deploy-stg` | 未定。`spa/v1.2.3` の形のタグでの配信を想定している |
-| 実行場所   | 手元                         | 未定                                                |
-| トリガ     | 無し                         | 未定                                                |
-| 承認       | 無し                         | 未定                                                |
-| 現在の状態 | 稼働中                       | GCP のプロジェクトが未作成                          |
+| 項目       | stg                                                              | prd                                                 |
+| ---------- | ---------------------------------------------------------------- | --------------------------------------------------- |
+| 自動の起点 | `main` への push (`frontend/**`、`firebase.json`、`.firebaserc`) | 未定。`spa/v1.2.3` の形のタグでの配信を想定している |
+| 手で起こす | `workflow_dispatch`、または `just deploy-stg`                    | 未定                                                |
+| 実行場所   | GitHub Actions のランナー。手で起こす場合は手元                  | 未定                                                |
+| 認証       | Workload Identity Federation (`sa-cd-frontend`)                  | 未定                                                |
+| 承認       | 無し                                                             | 未定                                                |
+| 現在の状態 | 稼働中                                                           | GCP のプロジェクトが未作成                          |
 
 backend のタグは `api/v1.2.3` の形で、Cloud Build のトリガが `^api/v[0-9]+\.[0-9]+\.[0-9]+$` で拾います。
 接頭辞を付けたのは配信の対象が増えたときにトリガを分けるためなので、frontend は `spa/v1.2.3` の形にします。
 
 ただし **Firebase Hosting には Cloud Build のトリガに相当する仕組みがありません。**
-タグの push で配信するには CI (GitHub Actions) が要るため、prd の配信方法は CD の自動化と同時に決めます。
+タグの push で配信するには GitHub Actions でタグを拾う形になります。stg の自動化でその土台はできましたが、
+**prd には Workload Identity Federation を置いていない**ため、配信方法を決めるところからになります (理由は[デプロイの構成](../../deploy/overview.ja.md)にあります)。
 
 ## 登場するリソース
 
@@ -114,13 +119,20 @@ api に許可するオリジンを設定し、Hosting から `*.run.app` を直�
 
 `rewrites` なら追加の費用がかからず、プリフライト自体が無くなります。
 
-### GitHub Actions からデプロイする (現時点では見送り)
+### `firebase login:ci` のトークンを使う
 
-設計には `cd-frontend` (main への push で `firebase deploy`) がありますが、まだ実装していません。
-GitHub Actions から GCP へ入るには Workload Identity Federation が必要で、その構築が `cd-infra` と共通の前提になるためです。
+`firebase login:ci` が発行するトークンを GitHub Secrets に置けば CI から配信できますが、**採りません。**
 
-`firebase login:ci` が発行するトークンは非推奨で、`GOOGLE_APPLICATION_CREDENTIALS` (ADC) を使う形が推奨されています。
-WIF で発行した認証情報を指せば長期クレデンシャルを置かずに済む見込みですが、**未検証**です。
+- 公式が非推奨としており、`GOOGLE_APPLICATION_CREDENTIALS` (ADC) を使う形が推奨されている
+- 失効しない長期クレデンシャルになり、リポジトリに長期クレデンシャルを置かない方針に反する
+
+firebase CLI は google-auth-library の ADC をそのまま使い、**資格情報の型で分岐していません。**
+そのため WIF が発行する `external_account` 型の資格情報でも認証が通り、`google-github-actions/auth` が書き出すものをそのまま読みます。
+
+### `FirebaseExtended/action-hosting-deploy` を使う
+
+サービスアカウントの JSON キーが必須で、WIF と ADC に対応していません。
+長期クレデンシャルを置かない方針と相容れないため採りません。
 
 ### firebase-tools を frontend の devDependency にする
 

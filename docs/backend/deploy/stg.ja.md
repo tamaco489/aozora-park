@@ -110,13 +110,15 @@ gcloud run services update-traffic api \
 
 ## 仕組みと、prd との違い
 
-| 項目           | stg                                                                  | prd                                     |
-| -------------- | -------------------------------------------------------------------- | --------------------------------------- |
-| 起こし方       | 手元からの `just deploy-stg`                                         | `api/v1.2.3` の形のタグの push          |
-| トリガ         | 作らない。Developer Connect のリポジトリは手動のトリガを作れないため | Cloud Build のトリガ (Terraform で定義) |
-| 承認           | 無し                                                                 | 必須。タグの push だけでは走らない      |
-| イメージのタグ | コミットの SHA                                                       | コミットの SHA                          |
+| 項目                 | stg                                                                  | prd                                |
+| -------------------- | -------------------------------------------------------------------- | ---------------------------------- |
+| 自動の起点           | `main` への push。`cd-backend-stg` が起動する                        | `api/v1.2.3` の形のタグの push     |
+| 手で起こす           | `workflow_dispatch`、または `just deploy-stg <ref>`                  | 無し                               |
+| Cloud Build のトリガ | 作らない。Developer Connect のリポジトリは手動のトリガを作れないため | 作る (Terraform で定義)            |
+| 承認                 | 無し                                                                 | 必須。タグの push だけでは走らない |
+| イメージのタグ       | コミットの SHA                                                       | コミットの SHA                     |
 
 - Terraform は Cloud Run の `image` を `ignore_changes` で無視します。デプロイでの差し替えを drift にしないためです。
-- GitHub Actions は検査だけを行い、backend のデプロイには関わりません。デプロイの権限を GitHub 側に出さず、GCP の中で完結させるためです。
+- GitHub Actions が行うのは Cloud Build の起動だけです。ビルドとデプロイは `sa-deployer` が GCP の中で行うため、デプロイの権限を GitHub 側に出していません。
+- ここに書いた手順は手元から起こす場合のものです。`main` に入った変更は `cd-backend-stg` が自動で配信するため、通常は実行する必要がありません。
 - 接続 (Developer Connect) の作成手順は、設計ドキュメントの「5. Developer Connect の接続」にあります。

@@ -12,8 +12,11 @@ The conventions live in the "CD" section of `.claude/rules/ci/coding.md`. This p
 
 ![Deployment path of the frontend](./images/flow.png)
 
-**Both the build and the deployment run on your machine.** Unlike the backend, Cloud Build is not involved.
+**The build and the deployment run in one place.** Unlike the backend, Cloud Build is not involved.
 Only the static files under `frontend/dist` are served; there is no server process.
+
+By default `cd-frontend-stg` runs `npm ci`, the build and `firebase deploy` on a GitHub Actions runner.
+Running `just deploy-stg` locally is still supported: **only the place it runs differs, not the steps.**
 
 ## Putting the api on the same origin
 
@@ -59,19 +62,21 @@ Adding a long cache requires first excluding `/assets/` from the SPA fallback.
 
 ## stg versus prd
 
-| Item          | stg                                 | prd                                                                 |
-| ------------- | ----------------------------------- | ------------------------------------------------------------------- |
-| Trigger       | `just deploy-stg` from your machine | Undecided. A tag shaped like `spa/v1.2.3` is the expected direction |
-| Where it runs | Your machine                        | Undecided                                                           |
-| Build trigger | None                                | Undecided                                                           |
-| Approval      | None                                | Undecided                                                           |
-| Current state | Running                             | The GCP project does not exist yet                                  |
+| Item              | stg                                                                    | prd                                                                 |
+| ----------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Automatic trigger | A push to `main` under `frontend/**`, `firebase.json` or `.firebaserc` | Undecided. A tag shaped like `spa/v1.2.3` is the expected direction |
+| Manual trigger    | `workflow_dispatch`, or `just deploy-stg`                              | Undecided                                                           |
+| Where it runs     | A GitHub Actions runner, or your machine when started by hand          | Undecided                                                           |
+| Authentication    | Workload Identity Federation (`sa-cd-frontend`)                        | Undecided                                                           |
+| Approval          | None                                                                   | Undecided                                                           |
+| Current state     | Running                                                                | The GCP project does not exist yet                                  |
 
 Backend tags are shaped like `api/v1.2.3`, picked up by a Cloud Build trigger matching `^api/v[0-9]+\.[0-9]+\.[0-9]+$`.
 The prefix exists so that triggers can be split as more deployment targets appear, so the frontend will use `spa/v1.2.3`.
 
 However, **Firebase Hosting has no equivalent of a Cloud Build trigger.**
-Serving on a tag push requires CI (GitHub Actions), so how prd is served will be decided together with automating CD.
+Serving on a tag push means matching the tag in GitHub Actions. Automating stg has put that groundwork in place, but
+**there is no Workload Identity Federation in prd**, so the delivery path has to be decided first (the reason is in [Deployment architecture](../../deploy/overview.md)).
 
 ## Resources involved
 
@@ -114,13 +119,20 @@ Configure the allowed origins on the api and call `*.run.app` directly from Host
 
 `rewrites` cost nothing extra and remove the preflight entirely.
 
-### Deploy from GitHub Actions (deferred for now)
+### Use a `firebase login:ci` token
 
-The design includes `cd-frontend` (running `firebase deploy` on a push to main), but it is not implemented yet.
-Reaching GCP from GitHub Actions requires Workload Identity Federation, and setting that up is a prerequisite shared with `cd-infra`.
+Storing a token from `firebase login:ci` in GitHub Secrets would let CI deploy, but it is **not used.**
 
-The token issued by `firebase login:ci` is deprecated; `GOOGLE_APPLICATION_CREDENTIALS` (ADC) is the recommended path.
-Pointing that at a WIF credential should avoid long-lived credentials entirely, but this is **not verified yet**.
+- It is deprecated; `GOOGLE_APPLICATION_CREDENTIALS` (ADC) is the recommended path
+- It is a long-lived credential that never expires, which conflicts with keeping such credentials out of the repository
+
+The Firebase CLI uses the ADC from google-auth-library directly and **does not branch on the credential type.**
+An `external_account` credential issued through WIF therefore works, and the file written by `google-github-actions/auth` is picked up as-is.
+
+### Use `FirebaseExtended/action-hosting-deploy`
+
+It requires a service account JSON key and supports neither WIF nor ADC.
+That conflicts with keeping long-lived credentials out of the repository, so it is not used.
 
 ### Install firebase-tools as a frontend devDependency
 
