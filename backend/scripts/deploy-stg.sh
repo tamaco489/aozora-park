@@ -25,7 +25,7 @@ sha="$(git rev-parse "origin/${ref}" 2>/dev/null || git rev-parse "${ref}")"
 echo "deploy to ${PROJECT_ID}: ref=${ref} sha=${sha}"
 
 # ログを表示するため beta を使う (GA の submit は CLOUD_LOGGING_ONLY のログを出さない)
-# 引数は .github/workflows/cd-backend.yaml と同じ、片方を変更したらもう片方も直す
+# 引数は .github/workflows/cd-backend-stg.yaml と同じ、片方を変更したらもう片方も直す
 gcloud beta builds submit "${REPOSITORY_LINK}" \
   --project="${PROJECT_ID}" \
   --region="${REGION}" \

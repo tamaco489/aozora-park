@@ -1,4 +1,4 @@
-name: cd-frontend
+name: cd-frontend-stg
 
 on:
   push:
@@ -8,7 +8,10 @@ on:
       # rewrites と headers の変更は frontend のファイルを触らずに起きるため、設定も対象に入れる
       - "firebase.json"
       - ".firebaserc"
-      - ".github/workflows/cd-frontend.yaml"
+      - ".github/workflows/cd-frontend-stg.yaml"
+  # stg は作業中のブランチからも配信したいことがあるため、任意のブランチから手で起こせるようにする
+  # 手元の just deploy-stg と同じ用途で、実行したブランチの内容がそのまま stg に入る
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,7 +19,7 @@ permissions:
 
 # 検査と違い打ち切らずに直列化する、途中で止めると古い dist が後から配信されうる
 concurrency:
-  group: cd-frontend
+  group: cd-frontend-stg
   cancel-in-progress: false
 
 # infra/envs/stg の terraform output が出す値、秘匿値ではない
@@ -30,7 +33,7 @@ defaults:
     working-directory: frontend
 
 jobs:
-  frontend-deploy:
+  frontend-deploy-stg:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

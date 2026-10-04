@@ -1,11 +1,14 @@
-name: cd-backend
+name: cd-backend-stg
 
 on:
   push:
     branches: [main]
     paths:
       - "backend/**"
-      - ".github/workflows/cd-backend.yaml"
+      - ".github/workflows/cd-backend-stg.yaml"
+  # stg は作業中のブランチからも配信したいことがあるため、任意のブランチから手で起こせるようにする
+  # 手元の just deploy-stg と同じ用途で、実行したブランチの内容がそのまま stg に入る
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -13,7 +16,7 @@ permissions:
 
 # 検査と違い打ち切らずに直列化する、途中で止めても GCP 側のビルドは止まらず古いイメージが後から Cloud Run を更新しうる
 concurrency:
-  group: cd-backend
+  group: cd-backend-stg
   cancel-in-progress: false
 
 # infra/envs/stg の terraform output が出す値、秘匿値ではない
@@ -28,7 +31,7 @@ defaults:
     working-directory: backend
 
 jobs:
-  backend-deploy:
+  backend-deploy-stg:
     runs-on: ubuntu-latest
     steps:
       # cloudbuild.yaml は手元から渡すため、ソースの取得とは別にチェックアウトが要る
