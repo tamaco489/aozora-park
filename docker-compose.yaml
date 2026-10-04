@@ -8,7 +8,7 @@ services:
       - "4500:4500" # UI のログ表示
       - "9150:9150" # UI が変化を受け取る websocket
     volumes:
-      # firebase.json をコンテナ内にコピーして、エミュレータの設定として使う
+      # Hosting のデプロイと共有している firebase.json を、エミュレータの設定として読み取り専用で渡す
       - ./firebase.json:/workspace/firebase.json:ro
     healthcheck:
       test:

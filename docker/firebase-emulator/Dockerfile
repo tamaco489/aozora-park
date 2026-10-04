@@ -5,7 +5,8 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends default-jre-headless \
     && rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g firebase-tools@15.30.0
+# .tool-versions の firebase と揃える
+RUN npm install -g firebase-tools@15.32.1
 
 # 起動のたびに取りに行かせないため、エミュレータ本体と UI をイメージに焼き込む
 RUN firebase setup:emulators:firestore \
