@@ -12,3 +12,18 @@ output "deployer_email" {
   description = "The email of the service account that runs the builds and deployments."
   value       = module.cloud_build.deployer_email
 }
+
+output "workload_identity_provider_name" {
+  description = "The full resource name of the provider, passed to google-github-actions/auth."
+  value       = module.github_oidc.workload_identity_provider_name
+}
+
+output "cd_backend_service_account_email" {
+  description = "The email of the service account that cd-backend impersonates."
+  value       = module.github_oidc.cd_backend_service_account_email
+}
+
+output "cd_frontend_service_account_email" {
+  description = "The email of the service account that cd-frontend impersonates."
+  value       = module.github_oidc.cd_frontend_service_account_email
+}
