@@ -22,7 +22,7 @@ frontend/
 │   ├── features/         # 業務機能ごとの画面
 │   │   └── park/
 │   └── gen/              # buf generate の出力。手で編集しない
-├── .env.development      # ローカルの接続先。コミットする
+├── vite.config.ts        # 開発サーバの proxy。api の接続先を決める
 └── .oxlintrc.json
 ```
 
@@ -50,11 +50,12 @@ export const parkClient = createClient(ParkService, transport);
 
 ### 接続先
 
-- 接続先は `VITE_API_BASE_URL` から読む。Vite は `VITE_` で始まる変数だけを `import.meta.env` に出す
-- **既定値を置かない。** 未設定なら起動時に例外を投げ、接続先を誤ったまま動く余地を残さない
-- `.env.development` はローカルの接続先だけを持つため、コミットする。ルートの `.gitignore` が `.env.*` を除外しているので、`frontend/.gitignore` で戻している
-- **秘匿値を `VITE_` の変数に入れない。** ビルドした JavaScript にそのまま埋め込まれる
-- 個人の上書きは `.env.development.local` に置く (`*.local` は追跡しない)
+- **接続先は `/` に固定する。** 本番は Firebase Hosting の `rewrites` が、ローカルは Vite の `server.proxy` が api へ転送するため、全環境で同一オリジンになる
+- **環境変数で切り替えない。** 値が 1 つしか取り得ないものを設定として持つと、既定で除外されている `.env.*` をコミット対象に戻すことになり、秘匿値を置ける場所を作ってしまう
+- **`.env` をコミットしない。** ルートの `.gitignore` が `.env` と `.env.*` を除外しているので、`frontend/.gitignore` で戻さない
+- **秘匿値を `VITE_` の変数に入れない。** ビルドした JavaScript にそのまま埋め込まれる。`VITE_` を付けない変数も、ファイルをコミットすれば git の履歴に残る
+- ローカルから別の api を見たい場合は `frontend/vite.config.ts` の `apiTarget` を書き換える
+- Vite は `import.meta.env` をビルド時にリテラルへ置換する。SPA は利用者のブラウザで動くため、配信後に値を差し替える手段は無い
 
 ### エラーの扱い
 
@@ -62,7 +63,7 @@ export const parkClient = createClient(ParkService, transport);
 
 - `ConnectError.from(err)` で変換し、`Code` で振り分ける。エラーを文字列で比較しない
 - サーバは `apperr` の分類を connect のコードに変換して返すため、画面で扱う分類はコードで足りる
-- ネットワークに届かない場合と CORS で遮断された場合は、どちらも `Code.Unknown` になり区別できない。文言は両方の可能性を示す
+- `Code.Unknown` は api に届かなかったことを示す。文言は到達できない原因 (api が起動していない、プロキシや `rewrites` の設定崩れ) を案内する
 - 失敗の表示には `role="alert"` を付け、色だけに頼らない
 
 ### 入力の検証
@@ -148,8 +149,8 @@ import { ParkDetail } from "./ParkDetail";
 
 - `just install` `just dev` `just lint` `just build` `just preview` を `frontend/` で実行する
 - **PR を出す前に `just lint` と `just build` を通す。** `build` は `tsc -b` を含むため、型の検査もここで落ちる
-- `just dev` の前に、backend で `just run-api` を起動しておく。Vite の既定のオリジン (`http://localhost:5173`) を api の CORS が許可している
-- 5173 が塞がっていると Vite は別のポートで起動し、CORS で遮断される。先に塞いでいるプロセスを止める
+- `just dev` の前に、backend で `just run-api` を起動しておく。`vite.config.ts` の `server.proxy` が `http://localhost:8080` へ転送する
+- プロキシ経由で同一オリジンになるため、ブラウザからの呼び出しに CORS は関わらない。5173 が塞がって別のポートで起動しても動く
 
 ### 依存
 

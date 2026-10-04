@@ -1,10 +1,10 @@
-# stg へのデプロイ
+# backend の stg へのデプロイ
 
 [English](./stg.md) | [日本語](./stg.ja.md)
 
-[ドキュメント一覧](../README.ja.md)に戻る。
+[ドキュメント一覧](../../README.ja.md)に戻る。
 
-`main` へマージした後に、手元から 1 コマンドで stg の api を更新します。構成の全体像は[デプロイの構成](./overview.ja.md)にあります。
+`main` へマージした後に、手元から 1 コマンドで stg の api を更新します。構成の全体像は[backend のデプロイの構成](./overview.ja.md)にあります。
 ビルドとデプロイは Cloud Build が GCP の中で実行し、ソースは GitHub から Developer Connect 経由で取得します。
 
 ## 前提
@@ -30,7 +30,7 @@ just deploy-stg              # main をデプロイする
 just deploy-stg <ref>        # ブランチ・タグ・SHA を指定する
 ```
 
-`<ref>` は `origin/<ref>` として解決し、無ければそのまま SHA として扱います。
+`<ref>` はまず `origin/<ref>` として解決し、無ければ `<ref>` をそのまま `git rev-parse` に渡します。ローカルのタグやブランチ名も指定できます。
 解決した SHA をイメージのタグに使うため、どのコミットが動いているかをイメージから追えます。
 
 処理の流れは次のとおりです。
@@ -64,7 +64,7 @@ terraform -chdir=envs/stg output -raw api_uri
 buf curl -d '{"service":""}' <api_uri>/grpc.health.v1.Health/Check
 ```
 
-`{"status":"SERVING"}` が返ればよいです。
+`{"status":"SERVING_STATUS_SERVING"}` が返ればよいです。
 
 > [!NOTE]
 > `buf curl` は `--schema` を渡さない場合、サーバのリフレクションで定義を取得します。
@@ -101,7 +101,7 @@ gcloud run services update-traffic api \
   --to-revisions=<戻す先のリビジョン>=100
 ```
 
-戻した後に、もう一度デプロイすると最新のリビジョンに切り替わります。
+戻した後は、次のコマンドで最新のリビジョンに戻せます。もう一度デプロイしても同じ状態になります。
 
 ```sh
 gcloud run services update-traffic api \
@@ -118,5 +118,5 @@ gcloud run services update-traffic api \
 | イメージのタグ | コミットの SHA                                                       | コミットの SHA                          |
 
 - Terraform は Cloud Run の `image` を `ignore_changes` で無視します。デプロイでの差し替えを drift にしないためです。
-- GitHub Actions は検査だけを行い、デプロイには関わりません。長期のクレデンシャルをリポジトリに置かない構成です。
+- GitHub Actions は検査だけを行い、backend のデプロイには関わりません。デプロイの権限を GitHub 側に出さず、GCP の中で完結させるためです。
 - 接続 (Developer Connect) の作成手順は、設計ドキュメントの「5. Developer Connect の接続」にあります。

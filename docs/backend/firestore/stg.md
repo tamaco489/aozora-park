@@ -43,7 +43,7 @@ How it differs from `just run-api`:
 
 - If `FIRESTORE_EMULATOR_HOST` is left in your shell, the SDK connects to the emulator. The recipe unsets it before starting.
 - The quota project used for API billing is pinned to `stg-aozora-park` rather than the value recorded in ADC.
-- The port and the allowed origin (`http://localhost:5173`) are the same as `just run-api`, so the frontend's `just dev` can call it as is.
+- The port is the same as `just run-api`. The frontend's `just dev` reaches it through the Vite `server.proxy`, so the call is same-origin.
 
 ## Checking
 

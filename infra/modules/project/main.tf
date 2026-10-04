@@ -4,6 +4,8 @@ locals {
     "cloudbuild.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "developerconnect.googleapis.com",
+    "firebase.googleapis.com",
+    "firebasehosting.googleapis.com",
     "firestore.googleapis.com",
     "iam.googleapis.com",
     "identitytoolkit.googleapis.com",
@@ -14,7 +16,6 @@ locals {
 
 resource "google_project_service" "enabled" {
   for_each = local.services
-
-  project = var.project_id
-  service = each.value
+  project  = var.project_id
+  service  = each.value
 }

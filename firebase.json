@@ -1,4 +1,38 @@
 {
+  "hosting": {
+    "public": "frontend/dist",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      },
+      {
+        "regex": "^/(aozorapark|grpc\\.health)\\.[^/]+/[^/]+$",
+        "headers": [{ "key": "Cache-Control", "value": "private, no-store" }]
+      }
+    ],
+    "rewrites": [
+      {
+        "regex": "^/aozorapark\\.[^/]+/[^/]+$",
+        "run": {
+          "serviceId": "api",
+          "region": "asia-northeast1"
+        }
+      },
+      {
+        "regex": "^/grpc\\.health\\.[^/]+/[^/]+$",
+        "run": {
+          "serviceId": "api",
+          "region": "asia-northeast1"
+        }
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
   "emulators": {
     "singleProjectMode": true,
     "firestore": {
