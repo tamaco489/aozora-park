@@ -87,6 +87,18 @@ Serving on a tag push means matching the tag in GitHub Actions. Automating stg h
 | `.firebaserc`         | The default project, so running `firebase` directly cannot target the wrong one by accident                                                                                         |
 | firebase-tools        | Managed through `.tool-versions`. Used only for deployment                                                                                                                          |
 
+### Permissions the CD service account needs
+
+Hosting permissions alone are not enough for `sa-cd-frontend`.
+
+| Role                          | Granted on             | Why it is needed                                                                                                       |
+| ----------------------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `roles/firebasehosting.admin` | The project            | Hosting has no per-site IAM                                                                                            |
+| `roles/run.viewer`            | The `api` service only | **Hosting validates that the `rewrites` target exists when it finalizes a version**, which requires `run.services.get` |
+
+The second one is required by the Hosting API itself, not by the Firebase CLI.
+While deployments ran from a developer machine it was covered by that person's own permissions, so it only surfaced once CD was automated (#89).
+
 There are two default domains, and both point at the same site.
 
 | Domain                            | Purpose                                       |
