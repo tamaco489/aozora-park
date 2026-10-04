@@ -82,4 +82,4 @@ Cloud Run は `allUsers` に公開したままです。Hosting からの転送�
 | [frontend のデプロイの構成](../frontend/deploy/overview.ja.md) | rewrites とキャッシュ、採らなかった案                |
 | [frontend の stg へのデプロイ](../frontend/deploy/stg.ja.md)   | 手順、疎通確認、ロールバック                         |
 
-規約は `.claude/rules/ci/coding.md` の「CD」が持ちます。ここには現状と、その形を選んだ理由を置きます。
+規約は `.claude/rules/cd/coding.md` が持ちます。ここには現状と、その形を選んだ理由を置きます。

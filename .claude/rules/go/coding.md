@@ -340,7 +340,7 @@ var ErrSoldOut = apperr.New(apperr.KindConflict, "PURCHASE_SOLD_OUT", "在庫が
 
 ### ハンドラの形
 
-- **CORS を設定しない。** 画面からの呼び出しは Firebase Hosting の `rewrites` と Vite の `server.proxy` で同一オリジンになる (`.claude/rules/ci/coding.md`)
+- **CORS を設定しない。** 画面からの呼び出しは Firebase Hosting の `rewrites` と Vite の `server.proxy` で同一オリジンになる (`.claude/rules/cd/coding.md`)
 - 設定が必要になったら、connect の層より外側で `httpx` が `http.Handler` を包む。インターセプタには書かない。許可するメソッドとヘッダは `connectrpc.com/cors` から取る
 - connect のエラーはインターセプタが `apperr` から変換する。`handler` で `connect.NewError` を組み立てない
 - **Pub/Sub push と Cloud Tasks は at-least-once。** すべてのハンドラを冪等にし、対象が既に終端ステータスなら何もせず 2xx を返す

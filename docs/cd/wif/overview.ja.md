@@ -6,7 +6,7 @@
 
 GitHub Actions から長期クレデンシャルを置かずに Google Cloud へ入るための仕組みをまとめます。
 CD の全体像は[デプロイの構成](../overview.ja.md)にあります。
-実際の設定は `infra/modules/github_oidc/` にあり、規約は `.claude/rules/ci/coding.md` の「CD」が持ちます。
+実際の設定は `infra/modules/github_oidc/` にあり、規約は `.claude/rules/cd/coding.md` が持ちます。
 
 ## 1. 何を解決する仕組みか
 

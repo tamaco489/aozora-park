@@ -6,7 +6,7 @@ Back to the [documentation index](../../README.md).
 
 This page describes how the frontend reaches Firebase Hosting. The procedure itself is in [Deploying the frontend to stg](./stg.md).
 For an overview that also covers the backend, see [Deployment architecture](../../cd/overview.md).
-The conventions live in the "CD" section of `.claude/rules/ci/coding.md`. This page records the current shape and why it was chosen.
+The conventions live in `.claude/rules/cd/coding.md`. This page records the current shape and why it was chosen.
 
 ## Deployment path
 

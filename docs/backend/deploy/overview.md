@@ -6,7 +6,7 @@ Back to the [documentation index](../../README.md).
 
 This page describes how the api reaches Cloud Run. The procedure itself is in [Deploying the backend to stg](./stg.md).
 For an overview that also covers the frontend, see [Deployment architecture](../../cd/overview.md).
-The rules live in the "CD" section of `.claude/rules/ci/coding.md`; this page records the current shape and why it was chosen.
+The rules live in `.claude/rules/cd/coding.md`; this page records the current shape and why it was chosen.
 
 ## The deployment paths
 

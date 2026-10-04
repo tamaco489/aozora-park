@@ -6,7 +6,7 @@
 
 frontend を Firebase Hosting へ届ける経路をまとめます。手順は [frontend の stg へのデプロイ](./stg.ja.md)にあります。
 backend を含めた全体の俯瞰は[デプロイの構成](../../cd/overview.ja.md)にあります。
-規約は `.claude/rules/ci/coding.md` の「CD」が持ちます。ここには現状と、その形を選んだ理由を置きます。
+規約は `.claude/rules/cd/coding.md` が持ちます。ここには現状と、その形を選んだ理由を置きます。
 
 ## デプロイの経路
 
