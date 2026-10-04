@@ -118,9 +118,31 @@ concurrency:
 
 ## CD
 
-- **api のデプロイを GitHub Actions で行わない。** Cloud Build が GitHub のソースを取得してビルドし、Cloud Run を更新する
+**現時点では、デプロイを GitHub Actions で行わない。** stg は backend も frontend も手元からの `just deploy-stg` で起こす。
+自動デプロイ (`cd-frontend` / `cd-infra`) は設計にあるが未実装で、Workload Identity Federation の構築が前提になる。
+自動化する場合も、長期クレデンシャルを GitHub Secrets に置かない方針は変えず WIF を使う。
+
+### backend (Cloud Run)
+
+- Cloud Build が GitHub のソースを取得してビルドし、Cloud Run を更新する
 - stg は手元からの `just deploy-stg <ref>` で実行する。Developer Connect のリポジトリは手動のトリガを作れないため、`gcloud builds submit` を使う
 - prd は `api/v1.2.3` の形のタグの push で起動するトリガから実行する。トリガは承認を必須にする
 - ビルド定義は対象のディレクトリに置く (`backend/cloudbuild.yaml`)。イメージのタグにはコミットの SHA を使う
 - ビルドは `sa-deployer` で走らせる。ユーザー指定の SA ではログの保存先を選べないため `logging: CLOUD_LOGGING_ONLY` を指定する
-- frontend (Firebase Hosting) のデプロイはマイルストーン 7 以降に決める
+
+### frontend (Firebase Hosting)
+
+- **ビルドもデプロイも手元で実行する。** 静的ファイルを作るだけで Cloud Build を経由する利点が無い
+- stg は手元からの `just deploy-stg` で実行する。`build` に依存させ、古い `dist` を配信しない
+- **手元の作業ツリーがそのまま配信される。** backend と違い GitHub からソースを取得しない
+- `firebase deploy` には `--project` を明示する。`.firebaserc` の既定が変わっても配信先が動かないようにする
+- firebase-tools は `.tool-versions` で管理する。frontend の devDependency にしない
+- **stg の自動化と prd の配信方法はまだ決めていない。** 設計 (Notion の「9. CI/CD」) には `cd-frontend` があるが未実装で、GitHub Actions から GCP に入る WIF の構築が前提になる
+- prd は `spa/v1.2.3` の形のタグでの配信を想定する。backend の `api/v1.2.3` と接頭辞を揃える。ただし Hosting には Cloud Build のトリガに相当する仕組みが無く、タグを拾うには CI が要る
+
+### api を同一オリジンにする
+
+- **CORS を設定せず、Firebase Hosting の `rewrites` で Cloud Run へ転送する。** Connect の RPC は必ずプリフライトを伴い、そのキャッシュは URL ごとに効くため、`Access-Control-Max-Age` では往復が減らない
+- `rewrites` の照合には `regex` を使う。RPC のパスは 1 セグメント目にドットを含み、glob の `**` では挙動が一意に決まらない
+- ローカルも `frontend/vite.config.ts` の `server.proxy` で同一オリジンにする。本番と形を揃え、プリフライトを出さない
+- **`firebase.json` の `headers` で `Cache-Control` を指定する。** 既定の `max-age=3600` のままだと、デプロイしても最大 1 時間は古い `index.html` が配信され、そこが参照するハッシュ付きのファイルが新しいリリースに無いため画面が壊れる
