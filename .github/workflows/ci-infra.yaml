@@ -4,11 +4,13 @@ on:
   pull_request:
     paths:
       - "infra/**"
+      - ".tool-versions"
       - ".github/workflows/ci-infra.yaml"
   push:
     branches: [main]
     paths:
       - "infra/**"
+      - ".tool-versions"
       - ".github/workflows/ci-infra.yaml"
 
 permissions:

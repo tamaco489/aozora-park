@@ -4,11 +4,13 @@ on:
   pull_request:
     paths:
       - "backend/**"
+      - ".tool-versions"
       - ".github/workflows/ci-backend.yaml"
   push:
     branches: [main]
     paths:
       - "backend/**"
+      - ".tool-versions"
       - ".github/workflows/ci-backend.yaml"
 
 permissions:
