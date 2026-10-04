@@ -121,7 +121,7 @@ concurrency:
 ## CD
 
 **stg は `main` への push で GitHub Actions から配信する。** 手元からの `just deploy-stg` も残し、どちらからでも同じものが入る形にする。
-経路と、その形を選んだ理由は `docs/deploy/overview.ja.md` が持つ。
+経路と、その形を選んだ理由は `docs/cd/overview.ja.md` が持つ。
 
 - **GCP への認証は Workload Identity Federation で行う。** 長期クレデンシャルを GitHub Secrets に置かない
 - ワークフローに必要な権限は `contents: read` と `id-token: write` だけにする。`id-token: write` は GitHub の OIDC トークンを受け取るためのもので、GCP の権限ではない
@@ -129,7 +129,7 @@ concurrency:
 - **`concurrency` は `cancel-in-progress: false` にする。** 打ち切っても GCP 側の処理は止まらず、古い成果物が後から反映されうる
 - **`prd` には WIF を置いていない。** 配信方法が未定で、`attribute_condition` の絞り方を決められないため
 
-**`firebase.json` `backend/cloudbuild.yaml` デプロイのレシピを変更したら、`docs/backend/deploy/` `docs/frontend/deploy/` `docs/deploy/` を更新する。**
+**`firebase.json` `backend/cloudbuild.yaml` デプロイのレシピを変更したら、`docs/backend/deploy/` `docs/frontend/deploy/` `docs/cd/` を更新する。**
 手順書が古いまま実行されると事故につながる。
 
 ### backend (Cloud Run)
