@@ -1,10 +1,10 @@
-# Deploying to stg
+# Deploying the backend to stg
 
 [English](./stg.md) | [日本語](./stg.ja.md)
 
-Back to the [documentation index](../README.md).
+Back to the [documentation index](../../README.md).
 
-After merging into `main`, update the api on stg with a single command from your machine. The overall architecture is described in [Deployment architecture](./overview.md).
+After merging into `main`, update the api on stg with a single command from your machine. The overall architecture is described in [Backend deployment architecture](./overview.md).
 Cloud Build runs the build and the deployment inside GCP, and fetches the source from GitHub through Developer Connect.
 
 ## Prerequisites
@@ -116,5 +116,5 @@ gcloud run services update-traffic api \
 | Image tag  | The commit SHA                                                   | The commit SHA                                           |
 
 - Terraform ignores the `image` of the Cloud Run service with `ignore_changes`, so a deployment is not reported as drift.
-- GitHub Actions only runs the checks and takes no part in deployments, which keeps long-lived credentials out of the repository.
+- GitHub Actions only runs the checks and takes no part in deploying the backend, which keeps deployment permissions inside GCP rather than handing them to GitHub.
 - The steps for creating the Developer Connect connection are in the design document, under "5. Developer Connect の接続".

@@ -4,71 +4,67 @@
 
 Back to the [documentation index](../README.md).
 
-This page describes how the api reaches Cloud Run. The procedure itself is in [Deploying to stg](./stg.md).
-The rules live in the "CD" section of `.claude/rules/ci/coding.md`; this page records the current shape and why it was chosen.
+This project has two deployment paths that work in different ways. This page gives an overview of both.
+The details are in [Backend deployment architecture](../backend/deploy/overview.md) and [Frontend deployment architecture](../frontend/deploy/overview.md).
 
-## The deployment paths
+## The two paths
 
-![Deployment paths of the api](./images/deploy-flow.png)
+|                      | Backend (api)                                               | Frontend                               |
+| -------------------- | ----------------------------------------------------------- | -------------------------------------- |
+| Target               | Cloud Run                                                   | Firebase Hosting                       |
+| Where the build runs | **Cloud Build (inside GCP)**                                | **Your machine**                       |
+| Source of truth      | GitHub (through Developer Connect)                          | Your working tree                      |
+| Uncommitted changes  | Not included                                                | **Included**                           |
+| Trigger (stg)        | `cd backend && just deploy-stg <ref>`                       | `cd frontend && just deploy-stg`       |
+| Rollback             | `gcloud run services update-traffic`                        | Pick a release in the Firebase console |
+| prd                  | A tag push of the form `api/v1.2.3`, with approval required | Undecided                              |
 
-Cloud Build runs the build and the deployment inside GCP. The source is fetched from GitHub through Developer Connect, so your local working tree plays no part in it.
+In short: **the backend builds what is on GitHub inside GCP, while the frontend builds what is on your machine and uploads it.**
 
-## stg and prd
+The backend builds inside GCP because producing an image takes time and the build environment needs to be fixed.
+The frontend only produces static files in a few seconds, so it stays local.
 
-| Item          | stg                                       | prd                                                  |
-| ------------- | ----------------------------------------- | ---------------------------------------------------- |
-| Started by    | `just deploy-stg <ref>` from your machine | Pushing a tag shaped like `api/v1.2.3`               |
-| Trigger       | None                                      | A Cloud Build trigger, defined in Terraform          |
-| Approval      | Not required                              | Required                                             |
-| Default ref   | `main`                                    | The commit the tag points at                         |
-| Image tag     | The commit SHA                            | The commit SHA                                       |
-| Current state | Running                                   | The GCP project does not exist yet; definitions only |
+## Shared decisions
 
-stg has no trigger because Developer Connect repositories do not support manual triggers.
-Builds are submitted directly with `gcloud builds submit` instead.
+- **Deployment does not go through GitHub Actions today.** Actions only runs checks. Automated deployment (`cd-frontend` and `cd-infra`) is in the design but not implemented, and requires Workload Identity Federation first
+- Even once automated, no long-lived credentials will live in the repository or in GitHub Secrets. GCP access will use WIF
+- stg is deployed with one command from a developer machine. Both use a recipe named `just deploy-stg`
+- prd only exists as configuration, because the GCP project has not been created yet
 
-Tags are shaped like `api/v1.2.3` so that triggers can be split per service as more services appear.
-A tag name contains a slash and cannot be used as an image tag, so images are tagged with the commit SHA.
+## How the frontend reaches the api
 
-## The resources involved
+Traffic from the frontend to the api is **forwarded to Cloud Run by Firebase Hosting `rewrites`.**
 
-| Resource                        | Role                                                                       |
-| ------------------------------- | -------------------------------------------------------------------------- |
-| Developer Connect connection    | The connection to GitHub. The OAuth token is stored in Secret Manager      |
-| Git repository link             | Points at one repository under the connection; Cloud Build fetches from it |
-| Cloud Build                     | Runs build → push → deploy as defined in `backend/cloudbuild.yaml`         |
-| `sa-deployer`                   | The service account the build and the deployment run as                    |
-| Artifact Registry `aozora-park` | Stores the images and keeps the five most recent versions                  |
-| Cloud Run `api`                 | Runs the api as `sa-api`                                                   |
+```text
+Browser ──> Firebase Hosting ──rewrites──> Cloud Run (api)
+                   │
+                   └── Static files (frontend/dist)
+```
 
-The roles of `sa-deployer` are kept to what the deployment needs.
+From the browser's point of view the api is on the same origin, so no preflight (`OPTIONS`) is sent.
+CORS is not configured; the reasoning is in [Frontend deployment architecture](../frontend/deploy/overview.md).
 
-| Role                                       | Granted on                   |
-| ------------------------------------------ | ---------------------------- |
-| `roles/artifactregistry.writer`            | The `aozora-park` repository |
-| `roles/run.developer`                      | The Cloud Run service `api`  |
-| `roles/iam.serviceAccountUser`             | `sa-api`                     |
-| `roles/developerconnect.readTokenAccessor` | The project                  |
-| `roles/logging.logWriter`                  | The project                  |
+Cloud Run stays open to `allUsers`, because traffic forwarded from Hosting does not count as internal.
 
-The last two are granted on the project because Developer Connect connections and links have no resource-level IAM, and log writing cannot be granted below the project.
+## The diagrams
 
-## What Terraform owns
+Each diagram lives with the area it describes. Both are shown here side by side.
 
-| Subject                                            | Owned by                                                     |
-| -------------------------------------------------- | ------------------------------------------------------------ |
-| Cloud Run settings (service account, env, scaling) | Terraform                                                    |
-| The Cloud Run `image`                              | The deployment; Terraform ignores it with `ignore_changes`   |
-| The Developer Connect connection                   | Created and authorized by hand, then imported into Terraform |
-| The OAuth token secret                             | Created by Developer Connect; Terraform does not touch it    |
+### Backend
 
-The connection is created by hand because authorizing GitHub is only possible in a browser. The steps are in the design document, under "5. Developer Connect の接続".
+![Deployment paths of the api](../backend/deploy/images/flow.png)
 
-## Alternatives that were not taken
+### Frontend
 
-| Alternative                        | Why not                                                                                               |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| GitHub Actions with WIF            | It hands deployment permissions to GitHub. Cloud Build keeps everything inside GCP                    |
-| Deploying automatically on a merge | We want to decide what runs on stg; a deployment that starts with the merge leaves no room to stop it |
-| Cloud Deploy                       | With only stg and prd, staged delivery with approvals is more than this project needs                 |
-| Artifact Analysis                  | Vulnerability scanning does not pay for itself yet; it can be added when it does                      |
+![Deployment path of the frontend](../frontend/deploy/images/flow.png)
+
+## Details
+
+| Document                                                           | Contents                                                      |
+| ------------------------------------------------------------------ | ------------------------------------------------------------- |
+| [Backend deployment architecture](../backend/deploy/overview.md)   | Cloud Build and Developer Connect, and what Terraform owns    |
+| [Deploying the backend to stg](../backend/deploy/stg.md)           | Procedure, verification, rollback                             |
+| [Frontend deployment architecture](../frontend/deploy/overview.md) | Rewrites and caching, and the alternatives that were rejected |
+| [Deploying the frontend to stg](../frontend/deploy/stg.md)         | Procedure, verification, rollback                             |
+
+The conventions live in the "CD" section of `.claude/rules/ci/coding.md`. These pages record the current shape and why it was chosen.
