@@ -82,7 +82,7 @@ syntax → package → import (ソート済み) → file option → 定義
 - enum の値を削除したときも同じく `reserved` に残す
 - **フィールドの型を変更しない。** 番号の再利用と同じ問題が起きる
 - `repeated` と単数の相互変更をしない
-- 破壊的変更は `buf breaking` で検出する。CI への導入はサブ Issue #7
+- 破壊的変更は `buf breaking` で検出する
 - どうしても壊す必要があるなら `v2` のパッケージを新しく作成し、`v1` は残す
 
 ## コメント
