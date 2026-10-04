@@ -30,7 +30,7 @@ just deploy-stg              # main をデプロイする
 just deploy-stg <ref>        # ブランチ・タグ・SHA を指定する
 ```
 
-`<ref>` は `origin/<ref>` として解決し、無ければそのまま SHA として扱います。
+`<ref>` はまず `origin/<ref>` として解決し、無ければ `<ref>` をそのまま `git rev-parse` に渡します。ローカルのタグやブランチ名も指定できます。
 解決した SHA をイメージのタグに使うため、どのコミットが動いているかをイメージから追えます。
 
 処理の流れは次のとおりです。
@@ -64,7 +64,7 @@ terraform -chdir=envs/stg output -raw api_uri
 buf curl -d '{"service":""}' <api_uri>/grpc.health.v1.Health/Check
 ```
 
-`{"status":"SERVING"}` が返ればよいです。
+`{"status":"SERVING_STATUS_SERVING"}` が返ればよいです。
 
 > [!NOTE]
 > `buf curl` は `--schema` を渡さない場合、サーバのリフレクションで定義を取得します。
@@ -101,7 +101,7 @@ gcloud run services update-traffic api \
   --to-revisions=<戻す先のリビジョン>=100
 ```
 
-戻した後に、もう一度デプロイすると最新のリビジョンに切り替わります。
+戻した後は、次のコマンドで最新のリビジョンに戻せます。もう一度デプロイしても同じ状態になります。
 
 ```sh
 gcloud run services update-traffic api \

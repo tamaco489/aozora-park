@@ -62,7 +62,7 @@ Call the health check.
 buf curl -d '{"service":""}' <api_uri>/grpc.health.v1.Health/Check
 ```
 
-It should return `{"status":"SERVING"}`.
+It should return `{"status":"SERVING_STATUS_SERVING"}`.
 
 > [!NOTE]
 > Without `--schema`, `buf curl` discovers the RPC definitions through server reflection.
@@ -117,4 +117,4 @@ gcloud run services update-traffic api \
 
 - Terraform ignores the `image` of the Cloud Run service with `ignore_changes`, so a deployment is not reported as drift.
 - GitHub Actions only runs the checks and takes no part in deploying the backend, which keeps deployment permissions inside GCP rather than handing them to GitHub.
-- The steps for creating the Developer Connect connection are in the design document, under "5. Developer Connect の接続".
+- The steps for creating the Developer Connect connection live in the design notes, in the section titled "5. Developer Connect の接続" (Setting up the Developer Connect connection).

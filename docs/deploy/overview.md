@@ -13,11 +13,12 @@ The details are in [Backend deployment architecture](../backend/deploy/overview.
 | -------------------- | ----------------------------------------------------------- | -------------------------------------- |
 | Target               | Cloud Run                                                   | Firebase Hosting                       |
 | Where the build runs | **Cloud Build (inside GCP)**                                | **Your machine**                       |
-| Source of truth      | GitHub (through Developer Connect)                          | Your working tree                      |
+| Where the source comes from | GitHub (through Developer Connect)                          | Your working tree                      |
 | Uncommitted changes  | Not included                                                | **Included**                           |
 | Trigger (stg)        | `cd backend && just deploy-stg <ref>`                       | `cd frontend && just deploy-stg`       |
 | Rollback             | `gcloud run services update-traffic`                        | Pick a release in the Firebase console |
-| prd                  | A tag push of the form `api/v1.2.3`, with approval required | Undecided                              |
+| prd                  | A tag push of the form `api/v1.2.3`, with approval required | Undecided. A tag shaped like `spa/v1.2.3` is the expected direction, but Hosting has no trigger so CI is a prerequisite |
+| Current state        | stg is running. The prd GCP project does not exist yet | stg is running. The prd GCP project does not exist yet |
 
 In short: **the backend builds what is on GitHub inside GCP, while the frontend builds what is on your machine and uploads it.**
 

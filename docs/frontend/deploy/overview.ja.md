@@ -67,7 +67,7 @@ Firebase Hosting は既定で静的コンテンツに `Cache-Control: max-age=36
 | 承認       | 無し                         | 未定                       |
 | 現在の状態 | 稼働中                       | GCP のプロジェクトが未作成 |
 
-backend のタグは `api/v1.2.3` の形で、Cloud Build のトリガが `^api/v*` で拾います。
+backend のタグは `api/v1.2.3` の形で、Cloud Build のトリガが `^api/v[0-9]+\.[0-9]+\.[0-9]+$` で拾います。
 接頭辞を付けたのは配信の対象が増えたときにトリガを分けるためなので、frontend は `spa/v1.2.3` の形にします。
 
 ただし **Firebase Hosting には Cloud Build のトリガに相当する仕組みがありません。**
@@ -77,7 +77,7 @@ backend のタグは `api/v1.2.3` の形で、Cloud Build のトリガが `^api/
 
 | リソース                  | 役割                                                                           |
 | ------------------------- | ------------------------------------------------------------------------------ |
-| Firebase Hosting のサイト | 既定のサイト `stg-aozora-park`。Identity Platform の有効化で自動的に作成された |
+| Firebase Hosting のサイト | 既定のサイト `stg-aozora-park`。Firebase プロジェクト化で自動的に作成された (マイルストーン 3 で Identity Platform を有効化した際に連鎖した) |
 | `firebase.json`           | 公開するディレクトリ、`rewrites`、`headers`。エミュレータの設定と同居する      |
 | `.firebaserc`             | 既定のプロジェクト。`firebase` を直接実行したときの事故を防ぐ                  |
 | firebase-tools            | `.tool-versions` で管理する。デプロイにしか使わない                            |

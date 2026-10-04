@@ -104,7 +104,7 @@ Because `index.html` is served with `no-cache`, the rollback takes effect on the
 | Item                 | Frontend                      | Backend                              |
 | -------------------- | ----------------------------- | ------------------------------------ |
 | Where the build runs | Your machine                  | Cloud Build (inside GCP)             |
-| Source of truth      | Your working tree             | GitHub (through Developer Connect)   |
+| Where the source comes from | Your working tree             | GitHub (through Developer Connect)   |
 | Uncommitted changes  | **Included**                  | Not included                         |
 | Deployment target    | Firebase Hosting              | Cloud Run                            |
 | Rollback             | Pick a release in the console | `gcloud run services update-traffic` |

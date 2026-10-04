@@ -59,7 +59,7 @@
 
   <rect x="850" y="555" width="240" height="110" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
   <text x="970" y="587" font-size="18" font-weight="bold" text-anchor="middle" fill="#222">Cloud Build</text>
-  <text x="970" y="615" font-size="14" text-anchor="middle" fill="#555">タグのトリガ (^api/v*)</text>
+  <text x="970" y="615" font-size="14" text-anchor="middle" fill="#555">タグのトリガ (^api/v&lt;x.y.z&gt;$)</text>
   <text x="970" y="639" font-size="14" text-anchor="middle" fill="#555">build → push → deploy</text>
 
   <rect x="1150" y="565" width="180" height="90" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>

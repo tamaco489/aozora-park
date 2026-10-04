@@ -17,7 +17,8 @@
 | 未コミットの変更 | 反映されない                               | **反映される**                      |
 | 起こし方 (stg)   | `cd backend && just deploy-stg <ref>`      | `cd frontend && just deploy-stg`    |
 | ロールバック     | `gcloud run services update-traffic`       | Firebase コンソールでリリースを選ぶ |
-| prd              | `api/v1.2.3` の形のタグの push。承認が必須 | 未定                                |
+| prd              | `api/v1.2.3` の形のタグの push。承認が必須 | 未定。`spa/v1.2.3` の形のタグを想定しているが、Hosting にトリガが無く CI が前提 |
+| 現在の状態       | stg は稼働中。prd は GCP のプロジェクトが未作成 | stg は稼働中。prd は GCP のプロジェクトが未作成 |
 
 **backend は「GitHub にあるものを GCP がビルドする」、frontend は「手元のものを手元がビルドして置く」**という違いです。
 

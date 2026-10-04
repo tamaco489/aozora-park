@@ -63,7 +63,7 @@ The last two are granted on the project because Developer Connect connections an
 | The Developer Connect connection                   | Created and authorized by hand, then imported into Terraform |
 | The OAuth token secret                             | Created by Developer Connect; Terraform does not touch it    |
 
-The connection is created by hand because authorizing GitHub is only possible in a browser. The steps are in the design document, under "5. Developer Connect の接続".
+The connection is created by hand because authorizing GitHub is only possible in a browser. The steps live in the design notes, in the section titled "5. Developer Connect の接続" (Setting up the Developer Connect connection).
 
 ## Alternatives that were not taken
 
