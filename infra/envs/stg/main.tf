@@ -47,5 +47,7 @@ module "github_oidc" {
   source = "../../modules/github_oidc"
 
   project_id                     = module.project.project_id
+  region                         = var.region
+  api_service_name               = module.api.service_name
   deployer_service_account_email = module.cloud_build.deployer_email
 }

@@ -75,6 +75,16 @@ resource "google_project_iam_member" "cd_frontend_hosting_admin" {
   member  = google_service_account.cd_frontend.member
 }
 
+# Hosting は rewrites の転送先が実在するかを version の確定時に検証するため、api を参照できる必要がある
+# プロジェクト全体ではなく api のサービスだけに絞る
+resource "google_cloud_run_v2_service_iam_member" "cd_frontend_api_viewer" {
+  project  = var.project_id
+  location = var.region
+  name     = var.api_service_name
+  role     = "roles/run.viewer"
+  member   = google_service_account.cd_frontend.member
+}
+
 # 2 つの SA を、このリポジトリのワークフローからだけ借りられるようにする
 resource "google_service_account_iam_member" "cd_backend_workload_identity_user" {
   service_account_id = google_service_account.cd_backend.name
