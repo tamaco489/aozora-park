@@ -13,4 +13,5 @@ RUN firebase setup:emulators:firestore \
 
 WORKDIR /workspace
 
-CMD ["firebase", "emulators:start", "--project", "demo-aozora-park"]
+# firebase.json は Hosting のデプロイと共有しているため、--only で hosting のエミュレータを巻き込まないようにする
+CMD ["firebase", "emulators:start", "--only", "firestore", "--project", "demo-aozora-park"]
