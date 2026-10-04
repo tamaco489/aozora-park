@@ -118,9 +118,32 @@ concurrency:
 
 ## CD
 
-- **api のデプロイを GitHub Actions で行わない。** Cloud Build が GitHub のソースを取得してビルドし、Cloud Run を更新する
+**現時点では、デプロイを GitHub Actions で行わない。** stg は backend も frontend も手元から起こす。
+経路と、その形を選んだ理由は `docs/deploy/overview.ja.md` が持つ。
+
+**`firebase.json` `backend/cloudbuild.yaml` デプロイのレシピを変更したら、`docs/backend/deploy/` `docs/frontend/deploy/` `docs/deploy/` を更新する。**
+手順書が古いまま実行されると事故につながる。
+
+### backend (Cloud Run)
+
+- Cloud Build が GitHub のソースを取得してビルドし、Cloud Run を更新する。GitHub Actions を経由しない
 - stg は手元からの `just deploy-stg <ref>` で実行する。Developer Connect のリポジトリは手動のトリガを作れないため、`gcloud builds submit` を使う
 - prd は `api/v1.2.3` の形のタグの push で起動するトリガから実行する。トリガは承認を必須にする
 - ビルド定義は対象のディレクトリに置く (`backend/cloudbuild.yaml`)。イメージのタグにはコミットの SHA を使う
 - ビルドは `sa-deployer` で走らせる。ユーザー指定の SA ではログの保存先を選べないため `logging: CLOUD_LOGGING_ONLY` を指定する
-- frontend (Firebase Hosting) のデプロイはマイルストーン 7 以降に決める
+
+### frontend (Firebase Hosting)
+
+- **ビルドもデプロイも手元で実行する。** Cloud Build を経由しない
+- stg は手元からの `just deploy-stg` で実行する。`build` に依存させ、古い `dist` を配信しない
+- `firebase deploy` には `--project` を明示する。`.firebaserc` の既定が変わっても配信先が動かないようにする
+- firebase-tools は `.tool-versions` で管理する。frontend の devDependency にしない
+- prd のタグは `spa/v1.2.3` の形にする。backend の `api/v1.2.3` と接頭辞を揃える
+- **stg の自動化と prd の配信方法はまだ決めていない**
+
+### api を同一オリジンにする
+
+- **CORS を設定せず、Firebase Hosting の `rewrites` で Cloud Run へ転送する**
+- `rewrites` の照合には `regex` を使う。glob の `**` は RPC のパスで挙動が一意に決まらない
+- ローカルも `frontend/vite.config.ts` の `server.proxy` で同一オリジンにする
+- **`firebase.json` の `headers` で `Cache-Control` を指定する。** 既定のままではデプロイが反映されない

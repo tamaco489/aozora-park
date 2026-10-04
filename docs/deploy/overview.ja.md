@@ -4,71 +4,68 @@
 
 [ドキュメント一覧](../README.ja.md)に戻る。
 
-api を Cloud Run へ届ける経路をまとめます。手順は [stg へのデプロイ](./stg.ja.md)にあります。
+このプロジェクトには、仕組みの異なる 2 つのデプロイの経路があります。ここでは両方を俯瞰します。
+それぞれの詳細は [backend のデプロイの構成](../backend/deploy/overview.ja.md)と [frontend のデプロイの構成](../frontend/deploy/overview.ja.md)にあります。
+
+## 2 つの経路
+
+|                  | backend (api)                                   | frontend                                                                        |
+| ---------------- | ----------------------------------------------- | ------------------------------------------------------------------------------- |
+| 配信先           | Cloud Run                                       | Firebase Hosting                                                                |
+| ビルドの実行場所 | **Cloud Build (GCP の中)**                      | **手元**                                                                        |
+| ソースの取得元   | GitHub (Developer Connect 経由)                 | 手元の作業ツリー                                                                |
+| 未コミットの変更 | 反映されない                                    | **反映される**                                                                  |
+| 起こし方 (stg)   | `cd backend && just deploy-stg <ref>`           | `cd frontend && just deploy-stg`                                                |
+| ロールバック     | `gcloud run services update-traffic`            | Firebase コンソールでリリースを選ぶ                                             |
+| prd              | `api/v1.2.3` の形のタグの push。承認が必須      | 未定。`spa/v1.2.3` の形のタグを想定しているが、Hosting にトリガが無く CI が前提 |
+| 現在の状態       | stg は稼働中。prd は GCP のプロジェクトが未作成 | stg は稼働中。prd は GCP のプロジェクトが未作成                                 |
+
+**backend は「GitHub にあるものを GCP がビルドする」、frontend は「手元のものを手元がビルドして置く」**という違いです。
+
+backend を GCP の中でビルドするのは、イメージの作成に時間がかかり、実行環境を固定したいためです。
+frontend は静的ファイルを作るだけで数秒で終わるため、手元で完結させています。
+
+## 共通する方針
+
+- **現時点ではデプロイを GitHub Actions で行いません。** Actions は検査だけを行います。自動デプロイ (`cd-frontend` / `cd-infra`) は設計にありますが未実装で、Workload Identity Federation の構築が前提です
+- 自動化する場合も、長期のクレデンシャルをリポジトリと GitHub Secrets に置かない方針は変えません。GCP への認証は WIF を使います
+- stg は手元から 1 コマンドで起こします。どちらも `just deploy-stg` という同じ名前のレシピです
+- prd は GCP のプロジェクトが未作成のため、構成の定義だけを持ちます
+
+## api への経路
+
+frontend から api への通信は、**Firebase Hosting の `rewrites` が Cloud Run へ転送します。**
+
+```text
+ブラウザ ──> Firebase Hosting ──rewrites──> Cloud Run (api)
+                    │
+                    └── 静的ファイル (frontend/dist)
+```
+
+ブラウザから見ると api は同一オリジンにあるため、プリフライト (`OPTIONS`) が発生しません。
+CORS は設定していません。理由は [frontend のデプロイの構成](../frontend/deploy/overview.ja.md)にあります。
+
+Cloud Run は `allUsers` に公開したままです。Hosting からの転送は内部トラフィック扱いにならないためです。
+
+## それぞれの図
+
+図は各領域のドキュメントが持ちます。ここでは両方を並べます。
+
+### backend
+
+![api のデプロイ経路](../backend/deploy/images/flow.png)
+
+### frontend
+
+![frontend のデプロイ経路](../frontend/deploy/images/flow.png)
+
+## 詳細
+
+| ドキュメント                                                   | 内容                                                 |
+| -------------------------------------------------------------- | ---------------------------------------------------- |
+| [backend のデプロイの構成](../backend/deploy/overview.ja.md)   | Cloud Build と Developer Connect、Terraform との分担 |
+| [backend の stg へのデプロイ](../backend/deploy/stg.ja.md)     | 手順、疎通確認、ロールバック                         |
+| [frontend のデプロイの構成](../frontend/deploy/overview.ja.md) | rewrites とキャッシュ、採らなかった案                |
+| [frontend の stg へのデプロイ](../frontend/deploy/stg.ja.md)   | 手順、疎通確認、ロールバック                         |
+
 規約は `.claude/rules/ci/coding.md` の「CD」が持ちます。ここには現状と、その形を選んだ理由を置きます。
-
-## デプロイの経路
-
-![api のデプロイ経路](./images/deploy-flow.png)
-
-ビルドとデプロイは Cloud Build が GCP の中で実行します。ソースは GitHub から Developer Connect 経由で取得するため、手元の作業ツリーは関係しません。
-
-## stg と prd の違い
-
-| 項目           | stg                                | prd                                     |
-| -------------- | ---------------------------------- | --------------------------------------- |
-| 起こし方       | 手元からの `just deploy-stg <ref>` | `api/v1.2.3` の形のタグの push          |
-| トリガ         | 作らない                           | Cloud Build のトリガ (Terraform で定義) |
-| 承認           | 無し                               | 必須                                    |
-| ref の既定     | `main`                             | タグが指すコミット                      |
-| イメージのタグ | コミットの SHA                     | コミットの SHA                          |
-| 現在の状態     | 稼働中                             | GCP のプロジェクトは未作成。定義のみ    |
-
-stg にトリガを作らないのは、Developer Connect のリポジトリが手動のトリガに対応していないためです。
-代わりに `gcloud builds submit` でビルドを直接投げます。
-
-タグを `api/v1.2.3` の形にしたのは、サービスが増えたときにトリガを分けるためです。
-タグ名はスラッシュを含みイメージのタグに使えないため、イメージにはコミットの SHA を付けます。
-
-## 登場するリソース
-
-| リソース                        | 役割                                                                    |
-| ------------------------------- | ----------------------------------------------------------------------- |
-| Developer Connect の接続        | GitHub との接続。OAuth トークンは Secret Manager に保存される           |
-| git repository link             | 接続の下でリポジトリ 1 つを指す。Cloud Build はここからソースを取得する |
-| Cloud Build                     | `backend/cloudbuild.yaml` に沿って build → push → deploy を実行する     |
-| `sa-deployer`                   | ビルドとデプロイの実行 SA                                               |
-| Artifact Registry `aozora-park` | イメージの置き場所。最新 5 世代を残す                                   |
-| Cloud Run `api`                 | api の実行環境。実行 SA は `sa-api`                                     |
-
-`sa-deployer` の権限は必要な範囲に絞っています。
-
-| ロール                                     | 付与先                   |
-| ------------------------------------------ | ------------------------ |
-| `roles/artifactregistry.writer`            | リポジトリ `aozora-park` |
-| `roles/run.developer`                      | Cloud Run の `api`       |
-| `roles/iam.serviceAccountUser`             | `sa-api`                 |
-| `roles/developerconnect.readTokenAccessor` | プロジェクト             |
-| `roles/logging.logWriter`                  | プロジェクト             |
-
-最後の 2 つをプロジェクトに付けているのは、Developer Connect の接続とリンクがリソース単位の IAM を持たず、ログの書き込みもプロジェクトより下の単位で付けられないためです。
-
-## Terraform との分担
-
-| 対象                                      | 管理するもの                                       |
-| ----------------------------------------- | -------------------------------------------------- |
-| Cloud Run の設定 (SA・環境変数・スケール) | Terraform                                          |
-| Cloud Run の `image`                      | デプロイ。Terraform は `ignore_changes` で無視する |
-| Developer Connect の接続                  | 手作業で作成して認可し、Terraform に import する   |
-| OAuth トークンのシークレット              | Developer Connect が作成する。Terraform は触らない |
-
-接続を手作業で作るのは、GitHub の認可がブラウザでしか行えないためです。作成の手順は設計ドキュメントの「5. Developer Connect の接続」にあります。
-
-## 採らなかった案
-
-| 案                            | 採らなかった理由                                                                     |
-| ----------------------------- | ------------------------------------------------------------------------------------ |
-| GitHub Actions + WIF          | デプロイの権限を GitHub 側に出すことになる。Cloud Build なら GCP の中で完結する      |
-| main へのマージで自動デプロイ | stg に何が載っているかを意図して決めたい。マージと同時に動くと戻す判断が間に合わない |
-| Cloud Deploy                  | 環境が stg と prd の 2 つで、承認付きの段階的な配信までは要らない                    |
-| Artifact Analysis             | 脆弱性スキャンは費用に見合う段階ではない。必要になった時点で入れる                   |

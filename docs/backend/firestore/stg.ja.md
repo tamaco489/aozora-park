@@ -43,7 +43,7 @@ just run-api-stg
 
 - `FIRESTORE_EMULATOR_HOST` がシェルに残っていると、SDK はエミュレータに繋ぎます。レシピはこの変数を外してから起動します。
 - API の課金先 (quota project) は、ADC に記録された値ではなく `stg-aozora-park` に固定します。
-- 待ち受けるポートと、許可するオリジン (`http://localhost:5173`) は `just run-api` と同じです。そのため、frontend の `just dev` からそのまま呼べます。
+- 待ち受けるポートは `just run-api` と同じです。frontend の `just dev` からは Vite の `server.proxy` を経由して同一オリジンで呼べます。
 
 ## 確認
 

@@ -22,6 +22,7 @@ frontend/
 │   ├── features/         # 業務機能ごとの画面
 │   │   └── park/
 │   └── gen/              # buf generate の出力。手で編集しない
+├── vite.config.ts        # 開発サーバの proxy。api の接続先を決める
 └── .oxlintrc.json
 ```
 
@@ -62,7 +63,7 @@ export const parkClient = createClient(ParkService, transport);
 
 - `ConnectError.from(err)` で変換し、`Code` で振り分ける。エラーを文字列で比較しない
 - サーバは `apperr` の分類を connect のコードに変換して返すため、画面で扱う分類はコードで足りる
-- ネットワークに届かない場合と CORS で遮断された場合は、どちらも `Code.Unknown` になり区別できない。文言は両方の可能性を示す
+- `Code.Unknown` は api に届かなかったことを示す。文言は到達できない原因 (api が起動していない、プロキシや `rewrites` の設定崩れ) を案内する
 - 失敗の表示には `role="alert"` を付け、色だけに頼らない
 
 ### 入力の検証
