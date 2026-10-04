@@ -92,11 +92,12 @@ git diff --stat main...HEAD
 create_pull_request(owner, repo, title, body, head: <リリースブランチ>, base: "main")
 ```
 
-作成できたら、Step 2 で集めたサブ Issue のラベルを重複を除いてまとめ、PR とメイン Issue の両方に付ける。
+作成できたら、Step 2 で集めたサブ Issue のラベルを重複を除いてまとめ、PR に付ける。
+メイン Issue のラベルは `create-release-issues` の Step 8 で付いているが、**サブ Issue が後から増えていることがあるため突き合わせ、足りないものだけ追加する。**
 
 ```bash
 gh pr edit <PR 番号> --add-label "<ラベル>,<ラベル>,..."
-gh issue edit <メイン Issue の番号> --add-label "<ラベル>,<ラベル>,..."
+gh issue edit <メイン Issue の番号> --add-label "<不足しているラベル>,..."
 ```
 
 - ラベルはサブ Issue に付いているものを使う。**PR の差分から推測しない**
