@@ -6,7 +6,8 @@
 
 ### ファイルの分け方
 
-- 検査は `ci-<対象>.yaml`、デプロイは `cd-<対象>.yaml` にする。`labels.md` のラベルと同じ語を使う
+- 検査は `ci-<対象>.yaml`、デプロイは `cd-<対象>-<環境>.yaml` にする。`labels.md` のラベルと同じ語を使う
+- **デプロイはファイル名に環境を入れる。** 配信先が 1 つに決め打ちで、環境が増えたときに分かれる単位がファイルになるため
 - 対象は `backend` `proto` `frontend` `infra`。**1 ファイル 1 対象**にする
 - 1 ファイルに複数の対象を詰めない。`paths` での絞り込みが効かなくなり、関係のない変更で全部走る
 - `name` はファイル名から拡張子を外したものにする
@@ -39,6 +40,7 @@ on:
 - PR と `main` への push の 2 つにする。作業ブランチへの push だけでは動かさない
 - `pull_request` は base を問わず動くため、リリースブランチへのサブ PR も対象になる
 - `paths` には対象のディレクトリと**そのワークフロー自身**を入れる。ワークフローを修正したのに検査されない状態にしない
+- **`.tool-versions` も全ワークフローの `paths` に入れる。** ツールのバージョンは検査の結果そのものを変えるため、上げた PR でその検査が走らないと落ちるかどうかが分からない
 - 生成物が別のディレクトリに出る場合は出力先も入れる (`proto` の変更が `backend/gen/` と `frontend/src/gen/` に出る)
 - **`paths` で絞ったワークフローを必須チェックにしない。** 対象を触らない PR では報告が来ず、マージできなくなる
 
@@ -118,28 +120,38 @@ concurrency:
 
 ## CD
 
-**現時点では、デプロイを GitHub Actions で行わない。** stg は backend も frontend も手元から起こす。
+**stg は `main` への push で GitHub Actions から配信する。** 手元からの `just deploy-stg` も残し、どちらからでも同じものが入る形にする。
 経路と、その形を選んだ理由は `docs/deploy/overview.ja.md` が持つ。
+
+- **GCP への認証は Workload Identity Federation で行う。** 長期クレデンシャルを GitHub Secrets に置かない
+- ワークフローに必要な権限は `contents: read` と `id-token: write` だけにする。`id-token: write` は GitHub の OIDC トークンを受け取るためのもので、GCP の権限ではない
+- **`workflow_dispatch` を併記し、任意のブランチから手でも起こせるようにする。** 作業中のブランチの内容を stg で確かめるため。ファイルが既定ブランチに無いと選択肢に出ない点に注意する
+- **`concurrency` は `cancel-in-progress: false` にする。** 打ち切っても GCP 側の処理は止まらず、古い成果物が後から反映されうる
+- **`prd` には WIF を置いていない。** 配信方法が未定で、`attribute_condition` の絞り方を決められないため
 
 **`firebase.json` `backend/cloudbuild.yaml` デプロイのレシピを変更したら、`docs/backend/deploy/` `docs/frontend/deploy/` `docs/deploy/` を更新する。**
 手順書が古いまま実行されると事故につながる。
 
 ### backend (Cloud Run)
 
-- Cloud Build が GitHub のソースを取得してビルドし、Cloud Run を更新する。GitHub Actions を経由しない
-- stg は手元からの `just deploy-stg <ref>` で実行する。Developer Connect のリポジトリは手動のトリガを作れないため、`gcloud builds submit` を使う
+- Cloud Build が GitHub のソースを取得してビルドし、Cloud Run を更新する。**GitHub Actions が行うのは Cloud Build の起動だけ**で、ビルドとデプロイは GCP の中で完結する
+- stg は `cd-backend-stg.yaml` が `gcloud beta builds submit` を実行する。ビルドする ref は `github.sha` を使う
+- 手元からは `just deploy-stg <ref>` で同じことができる。Developer Connect のリポジトリは手動のトリガを作れないため、どちらも `gcloud builds submit` を使う
+- **`gcloud beta builds submit` の引数はワークフローとスクリプトの 2 か所にある。片方を変更したらもう片方も直す** (両方にコメントを残している)
 - prd は `api/v1.2.3` の形のタグの push で起動するトリガから実行する。トリガは承認を必須にする
 - ビルド定義は対象のディレクトリに置く (`backend/cloudbuild.yaml`)。イメージのタグにはコミットの SHA を使う
 - ビルドは `sa-deployer` で走らせる。ユーザー指定の SA ではログの保存先を選べないため `logging: CLOUD_LOGGING_ONLY` を指定する
 
 ### frontend (Firebase Hosting)
 
-- **ビルドもデプロイも手元で実行する。** Cloud Build を経由しない
-- stg は手元からの `just deploy-stg` で実行する。`build` に依存させ、古い `dist` を配信しない
+- **ビルドもデプロイも Cloud Build を経由しない。** `npm ci` からビルドと `firebase deploy` までを 1 か所で実行する
+- stg は `cd-frontend-stg.yaml` が実行する。`paths` には `frontend/**` に加えて `firebase.json` と `.firebaserc` を入れる。`rewrites` と `headers` の変更は frontend のファイルを触らずに起きるため
+- 手元からは `just deploy-stg` で同じことができる。`build` に依存させ、古い `dist` を配信しない
+- **`firebase deploy` の認証は ADC で行う。** 非推奨の `firebase login:ci` のトークンを使わない。firebase CLI は google-auth-library の ADC をそのまま使うため、WIF の資格情報でも通る
 - `firebase deploy` には `--project` を明示する。`.firebaserc` の既定が変わっても配信先が動かないようにする
 - firebase-tools は `.tool-versions` で管理する。frontend の devDependency にしない
 - prd のタグは `spa/v1.2.3` の形にする。backend の `api/v1.2.3` と接頭辞を揃える
-- **stg の自動化と prd の配信方法はまだ決めていない**
+- **prd の配信方法はまだ決めていない**
 
 ### api を同一オリジンにする
 

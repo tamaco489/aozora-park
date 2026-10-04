@@ -1,76 +1,86 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="760" viewBox="0 0 1600 760" font-family="'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="880" viewBox="0 0 1600 880" font-family="'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif">
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#333"/>
     </marker>
   </defs>
 
-  <rect width="1600" height="760" fill="#ffffff"/>
+  <rect width="1600" height="880" fill="#ffffff"/>
 
   <!-- タイトル -->
-  <text x="30" y="48" font-size="26" font-weight="bold" fill="#222">frontend のデプロイ経路 (手元でビルドして Firebase Hosting へ配信)</text>
+  <text x="30" y="48" font-size="26" font-weight="bold" fill="#222">frontend のデプロイ経路 (ビルドして Firebase Hosting へ配信する)</text>
 
-  <!-- 手元 -->
-  <rect x="30" y="90" width="430" height="300" rx="12" fill="#fafafa" stroke="#555" stroke-width="2" stroke-dasharray="8 5"/>
-  <text x="48" y="118" font-size="17" font-weight="bold" fill="#555">手元のマシン</text>
+  <!-- 起点 -->
+  <rect x="30" y="115" width="230" height="135" rx="8" fill="#eaf2fb" stroke="#1a4f8b" stroke-width="1.5"/>
+  <text x="145" y="143" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a4f8b">stg の起点</text>
+  <text x="145" y="172" font-size="13" text-anchor="middle" fill="#333">main への push (frontend/**</text>
+  <text x="145" y="194" font-size="13" text-anchor="middle" fill="#333">firebase.json / .firebaserc)</text>
+  <text x="145" y="220" font-size="14" text-anchor="middle" fill="#333">workflow_dispatch</text>
+  <text x="145" y="243" font-size="14" text-anchor="middle" fill="#333">手元の just deploy-stg</text>
 
-  <rect x="55" y="140" width="180" height="100" rx="8" fill="#eaf2fb" stroke="#1a4f8b" stroke-width="1.5"/>
-  <text x="145" y="172" font-size="18" font-weight="bold" text-anchor="middle" fill="#222">just deploy-stg</text>
-  <text x="145" y="198" font-size="14" text-anchor="middle" fill="#555">frontend/ で実行</text>
-  <text x="145" y="220" font-size="14" text-anchor="middle" fill="#555">build に依存</text>
+  <!-- 実行する側 -->
+  <rect x="305" y="95" width="275" height="135" rx="8" fill="#fff" stroke="#555" stroke-width="1.5"/>
+  <text x="442" y="125" font-size="17" font-weight="bold" text-anchor="middle" fill="#222">実行する側</text>
+  <line x1="325" y1="140" x2="560" y2="140" stroke="#ddd" stroke-width="1"/>
+  <text x="442" y="165" font-size="14" text-anchor="middle" fill="#333">GitHub Actions</text>
+  <text x="442" y="188" font-size="14" font-weight="bold" text-anchor="middle" fill="#222">cd-frontend-stg</text>
+  <text x="442" y="212" font-size="13" text-anchor="middle" fill="#555">WIF で sa-cd-frontend を借りる</text>
 
-  <rect x="275" y="140" width="160" height="100" rx="8" fill="#fff" stroke="#555" stroke-width="1.5"/>
-  <text x="355" y="172" font-size="17" font-weight="bold" text-anchor="middle" fill="#222">vite build</text>
-  <text x="355" y="198" font-size="14" text-anchor="middle" fill="#555">tsc -b を含む</text>
-  <text x="355" y="220" font-size="14" text-anchor="middle" fill="#555">frontend/dist</text>
-
-  <rect x="55" y="280" width="380" height="80" rx="8" fill="#fff" stroke="#555" stroke-width="1.5"/>
-  <text x="245" y="310" font-size="16" font-weight="bold" text-anchor="middle" fill="#222">作業ツリーがそのまま配信される</text>
-  <text x="245" y="336" font-size="14" text-anchor="middle" fill="#555">GitHub からソースを取得しない。未コミットの変更も含まれる</text>
+  <!-- ビルド -->
+  <rect x="305" y="275" width="275" height="115" rx="8" fill="#fff" stroke="#555" stroke-width="1.5"/>
+  <text x="442" y="306" font-size="17" font-weight="bold" text-anchor="middle" fill="#222">npm ci → vite build</text>
+  <text x="442" y="333" font-size="14" text-anchor="middle" fill="#555">tsc -b を含む</text>
+  <text x="442" y="357" font-size="14" text-anchor="middle" fill="#555">出力は frontend/dist</text>
+  <text x="442" y="380" font-size="13" text-anchor="middle" fill="#555">CI ではランナー、手元では手元</text>
 
   <!-- GCP プロジェクト -->
-  <rect x="520" y="90" width="1050" height="300" rx="12" fill="#f7f9ff" stroke="#4285f4" stroke-width="2" stroke-dasharray="8 5"/>
-  <text x="538" y="118" font-size="17" font-weight="bold" fill="#4285f4">GCP: stg-aozora-park</text>
+  <rect x="640" y="85" width="930" height="310" rx="12" fill="#f7f9ff" stroke="#4285f4" stroke-width="2" stroke-dasharray="8 5"/>
+  <text x="658" y="113" font-size="17" font-weight="bold" fill="#4285f4">GCP: stg-aozora-park</text>
 
-  <rect x="560" y="150" width="300" height="180" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
-  <text x="710" y="184" font-size="19" font-weight="bold" text-anchor="middle" fill="#222">Firebase Hosting</text>
-  <text x="710" y="210" font-size="14" text-anchor="middle" fill="#555">site: stg-aozora-park</text>
-  <line x1="580" y1="226" x2="840" y2="226" stroke="#ddd" stroke-width="1"/>
-  <text x="710" y="250" font-size="14" text-anchor="middle" fill="#333">静的ファイル (frontend/dist)</text>
-  <text x="710" y="276" font-size="14" text-anchor="middle" fill="#333">rewrites で api へ転送</text>
-  <text x="710" y="302" font-size="14" text-anchor="middle" fill="#333">headers で Cache-Control</text>
+  <rect x="690" y="145" width="320" height="200" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
+  <text x="850" y="180" font-size="19" font-weight="bold" text-anchor="middle" fill="#222">Firebase Hosting</text>
+  <text x="850" y="206" font-size="14" text-anchor="middle" fill="#555">site: stg-aozora-park</text>
+  <line x1="710" y1="222" x2="990" y2="222" stroke="#ddd" stroke-width="1"/>
+  <text x="850" y="248" font-size="14" text-anchor="middle" fill="#333">静的ファイル (frontend/dist)</text>
+  <text x="850" y="275" font-size="14" text-anchor="middle" fill="#333">rewrites で api へ転送</text>
+  <text x="850" y="302" font-size="14" text-anchor="middle" fill="#333">headers で Cache-Control</text>
+  <text x="850" y="328" font-size="13" text-anchor="middle" fill="#555">firebase.json が設定を持つ</text>
 
-  <rect x="1180" y="180" width="200" height="110" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
-  <text x="1280" y="218" font-size="18" font-weight="bold" text-anchor="middle" fill="#222">Cloud Run api</text>
-  <text x="1280" y="246" font-size="14" text-anchor="middle" fill="#555">asia-northeast1</text>
-  <text x="1280" y="270" font-size="14" text-anchor="middle" fill="#555">allUsers に公開</text>
+  <rect x="1310" y="190" width="210" height="110" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
+  <text x="1415" y="228" font-size="18" font-weight="bold" text-anchor="middle" fill="#222">Cloud Run api</text>
+  <text x="1415" y="256" font-size="14" text-anchor="middle" fill="#555">asia-northeast1</text>
+  <text x="1415" y="280" font-size="14" text-anchor="middle" fill="#555">allUsers に公開</text>
 
   <!-- ブラウザ -->
-  <rect x="640" y="440" width="320" height="100" rx="8" fill="#f4f4f4" stroke="#333" stroke-width="1.5"/>
-  <text x="800" y="474" font-size="18" font-weight="bold" text-anchor="middle" fill="#222">ブラウザ</text>
-  <text x="800" y="500" font-size="14" text-anchor="middle" fill="#555">https://stg-aozora-park.web.app</text>
-  <text x="800" y="524" font-size="14" text-anchor="middle" fill="#555">api も同一オリジンに見える</text>
+  <rect x="690" y="480" width="320" height="105" rx="8" fill="#f4f4f4" stroke="#333" stroke-width="1.5"/>
+  <text x="850" y="514" font-size="18" font-weight="bold" text-anchor="middle" fill="#222">ブラウザ</text>
+  <text x="850" y="541" font-size="14" text-anchor="middle" fill="#555">https://stg-aozora-park.web.app</text>
+  <text x="850" y="566" font-size="14" text-anchor="middle" fill="#555">api も同一オリジンに見える</text>
 
   <!-- 矢印 -->
   <g stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrow)">
-    <line x1="235" y1="178" x2="271" y2="178"/>
-    <line x1="435" y1="190" x2="556" y2="190"/>
-    <line x1="860" y1="235" x2="1176" y2="235"/>
-    <line x1="800" y1="436" x2="800" y2="336"/>
+    <line x1="260" y1="170" x2="301" y2="170"/>
+    <line x1="442" y1="230" x2="442" y2="271"/>
+    <path d="M 580 325 C 630 325, 640 250, 686 245"/>
+    <line x1="1010" y1="245" x2="1306" y2="245"/>
+    <line x1="850" y1="476" x2="850" y2="349"/>
   </g>
 
   <!-- 矢印のラベル -->
-  <text x="495" y="178" font-size="13" text-anchor="middle" fill="#333">firebase deploy</text>
-  <text x="495" y="212" font-size="13" text-anchor="middle" fill="#555">--only hosting</text>
-  <text x="1018" y="222" font-size="14" text-anchor="middle" fill="#333">rewrites</text>
-  <text x="1018" y="248" font-size="13" text-anchor="middle" fill="#555">/aozorapark.*/* と /grpc.health.*/*</text>
-  <text x="820" y="418" font-size="14" fill="#333">HTTPS</text>
+  <text x="600" y="425" font-size="14" fill="#333">firebase deploy --only hosting</text>
+  <text x="600" y="449" font-size="14" fill="#333">--project stg-aozora-park</text>
+  <text x="600" y="473" font-size="13" fill="#555">認証は ADC (CI では WIF)</text>
+  <text x="1158" y="212" font-size="14" text-anchor="middle" fill="#333">rewrites</text>
+  <text x="1158" y="234" font-size="13" text-anchor="middle" fill="#555">/aozorapark.*/* と /grpc.health.*/*</text>
+  <text x="868" y="430" font-size="14" fill="#333">HTTPS</text>
 
   <!-- 注記 -->
-  <line x1="30" y1="590" x2="1570" y2="590" stroke="#ccc" stroke-width="1"/>
-  <text x="30" y="622" font-size="15" fill="#333">・ビルドもデプロイも手元で実行する。backend と違い Cloud Build を経由せず、GitHub からソースを取得しない</text>
-  <text x="30" y="650" font-size="15" fill="#333">・api は rewrites で同一オリジンになるため、Connect の RPC にプリフライト (OPTIONS) が発生しない。CORS は設定していない</text>
-  <text x="30" y="678" font-size="15" fill="#333">・ローカルは vite.config.ts の server.proxy が同じ 2 つの接頭辞を localhost:8080 へ転送し、本番と同じ形にする</text>
-  <text x="30" y="706" font-size="15" fill="#333">・headers で全応答を no-cache にする。既定の max-age=3600 のままだと、デプロイ後も古い index.html が配信されて画面が壊れる</text>
-  <text x="30" y="734" font-size="15" fill="#333">・prd は spa/v1.2.3 の形のタグでの配信を想定するが、Hosting にはトリガが無く CI が要るため未定。現時点では GitHub Actions を使わない</text>
+  <line x1="30" y1="640" x2="1570" y2="640" stroke="#ccc" stroke-width="1"/>
+  <text x="30" y="672" font-size="15" fill="#333">・stg は main への push で cd-frontend-stg が起動する。workflow_dispatch と手元の just deploy-stg でも手順は同じで、実行する場所だけが違う</text>
+  <text x="30" y="700" font-size="15" fill="#333">・CI からはランナーの上でビルドするため未コミットの変更は反映されない。手元から起こしたときだけ作業ツリーがそのまま配信される</text>
+  <text x="30" y="728" font-size="15" fill="#333">・認証は Workload Identity Federation。非推奨の firebase login:ci のトークンを使わず、GitHub Secrets に長期クレデンシャルを置かない</text>
+  <text x="30" y="756" font-size="15" fill="#333">・api は rewrites で同一オリジンになるため、Connect の RPC にプリフライト (OPTIONS) が発生しない。CORS は設定していない</text>
+  <text x="30" y="784" font-size="15" fill="#333">・ローカルは vite.config.ts の server.proxy が同じ 2 つの接頭辞を localhost:8080 へ転送し、本番と同じ形にする</text>
+  <text x="30" y="812" font-size="15" fill="#333">・headers で全応答を no-cache にする。既定の max-age=3600 のままだと、デプロイ後も古い index.html が配信されて画面が壊れる</text>
+  <text x="30" y="840" font-size="15" fill="#333">・prd は spa/v1.2.3 の形のタグでの配信を想定するが未定。prd には WIF を置いていないため、配信方法を決めるところから行う</text>
 </svg>

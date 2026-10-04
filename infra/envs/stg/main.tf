@@ -42,3 +42,10 @@ module "cloud_build" {
   api_service_account_email       = module.api.service_account_email
   enable_tag_trigger              = false
 }
+
+module "github_oidc" {
+  source = "../../modules/github_oidc"
+
+  project_id                     = module.project.project_id
+  deployer_service_account_email = module.cloud_build.deployer_email
+}

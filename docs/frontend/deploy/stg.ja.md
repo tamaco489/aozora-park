@@ -104,12 +104,13 @@ open https://console.firebase.google.com/project/stg-aozora-park/hosting/sites
 
 | 項目             | frontend                     | backend                              |
 | ---------------- | ---------------------------- | ------------------------------------ |
-| ビルドの実行場所 | 手元                         | Cloud Build (GCP の中)               |
+| ビルドの実行場所 | 手元 (CI からはランナー)     | Cloud Build (GCP の中)               |
 | ソースの取得元   | 手元の作業ツリー             | GitHub (Developer Connect 経由)      |
 | 未コミットの変更 | **反映される**               | 反映されない                         |
 | デプロイ先       | Firebase Hosting             | Cloud Run                            |
 | ロールバック     | コンソールからリリースを選ぶ | `gcloud run services update-traffic` |
 | prd              | 未定                         | `api/v1.2.3` の形のタグの push       |
 
-- 現時点では GitHub Actions が検査だけを行い、デプロイには関わりません。自動化は WIF の構築とあわせて別途行います
+- ここに書いた手順は手元から起こす場合のものです。`main` に入った変更は `cd-frontend-stg` が自動で配信するため、通常は実行する必要がありません
+- CI から配信する場合はランナーの上でビルドするため、**未コミットの変更は反映されません。** 手元から起こしたときだけ作業ツリーがそのまま配信されます
 - `firebase.json` はエミュレータの設定と同居しています。`hosting` を足した影響で Hosting エミュレータが起動したため、`docker/firebase-emulator/Dockerfile` で `--only firestore` に限定しています

@@ -14,19 +14,27 @@ The rules live in the "CD" section of `.claude/rules/ci/coding.md`; this page re
 
 Cloud Build runs the build and the deployment inside GCP. The source is fetched from GitHub through Developer Connect, so your local working tree plays no part in it.
 
+**All GitHub Actions does is start the build.** `cd-backend-stg` impersonates `sa-cd-backend` and submits `gcloud beta builds submit`;
+the build and the deployment are still carried out by `sa-deployer` inside GCP. Running `just deploy-stg` locally takes exactly the same path, only started by a different principal.
+
 ## stg and prd
 
-| Item          | stg                                       | prd                                                  |
-| ------------- | ----------------------------------------- | ---------------------------------------------------- |
-| Started by    | `just deploy-stg <ref>` from your machine | Pushing a tag shaped like `api/v1.2.3`               |
-| Trigger       | None                                      | A Cloud Build trigger, defined in Terraform          |
-| Approval      | Not required                              | Required                                             |
-| Default ref   | `main`                                    | The commit the tag points at                         |
-| Image tag     | The commit SHA                            | The commit SHA                                       |
-| Current state | Running                                   | The GCP project does not exist yet; definitions only |
+| Item               | stg                                                                    | prd                                                  |
+| ------------------ | ---------------------------------------------------------------------- | ---------------------------------------------------- |
+| Automatic trigger  | A push to `main` under `backend/**`                                    | Pushing a tag shaped like `api/v1.2.3`               |
+| Manual trigger     | `workflow_dispatch`, or `just deploy-stg <ref>`                        | None                                                 |
+| Who starts it      | `sa-cd-backend` from `cd-backend-stg`, or you                          | A Cloud Build trigger                                |
+| Who runs the build | `sa-deployer`                                                          | `sa-deployer`                                        |
+| Approval           | Not required                                                           | Required                                             |
+| Ref                | `github.sha`, or the argument to `just deploy-stg` (`main` by default) | The commit the tag points at                         |
+| Image tag          | The commit SHA                                                         | The commit SHA                                       |
+| Current state      | Running                                                                | The GCP project does not exist yet; definitions only |
 
-stg has no trigger because Developer Connect repositories do not support manual triggers.
-Builds are submitted directly with `gcloud builds submit` instead.
+stg has no Cloud Build trigger because Developer Connect repositories do not support manual triggers.
+Builds are submitted directly with `gcloud builds submit` instead, and GitHub Actions uses the same command.
+
+**The arguments to `gcloud beta builds submit` therefore exist in two places:** `.github/workflows/cd-backend-stg.yaml` and `backend/scripts/deploy-stg.sh`.
+Changing one means changing the other, and both files carry a comment saying so.
 
 Tags are shaped like `api/v1.2.3` so that triggers can be split per service as more services appear.
 A tag name contains a slash and cannot be used as an image tag, so images are tagged with the commit SHA.
@@ -67,9 +75,18 @@ The connection is created by hand because authorizing GitHub is only possible in
 
 ## Alternatives that were not taken
 
-| Alternative                        | Why not                                                                                               |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| GitHub Actions with WIF            | It hands deployment permissions to GitHub. Cloud Build keeps everything inside GCP                    |
-| Deploying automatically on a merge | We want to decide what runs on stg; a deployment that starts with the merge leaves no room to stop it |
-| Cloud Deploy                       | With only stg and prd, staged delivery with approvals is more than this project needs                 |
-| Artifact Analysis                  | Vulnerability scanning does not pay for itself yet; it can be added when it does                      |
+| Alternative                            | Why not                                                                                                 |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Deploying directly from GitHub Actions | It would hand the build and deployment permissions to GitHub. Letting it only start the build is enough |
+| Cloud Deploy                           | With only stg and prd, staged delivery with approvals is more than this project needs                   |
+| Artifact Analysis                      | Vulnerability scanning does not pay for itself yet; it can be added when it does                        |
+
+### Two previously rejected options were adopted
+
+"GitHub Actions with WIF" and "deploying automatically on a merge" were both rejected at first.
+Each concern has since been addressed.
+
+| The original concern                      | Why it no longer applies                                                                                                                                                                                                                         |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| It hands deployment permissions to GitHub | **It does not.** `sa-cd-backend` only holds `cloudbuild.builds.editor` and log viewing; `sa-deployer` still performs the build and the deployment inside GCP. The credential is a short-lived WIF token, and nothing is stored in GitHub Secrets |
+| We want to decide what runs on stg        | **We still can.** `just deploy-stg <ref>` and `workflow_dispatch` both remain, so something other than `main` can be placed on stg. What changed is the default, which is now "the same as `main`"                                               |

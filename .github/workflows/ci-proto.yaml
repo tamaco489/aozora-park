@@ -6,6 +6,7 @@ on:
       - "proto/**"
       - "backend/gen/**"
       - "frontend/src/gen/**"
+      - ".tool-versions"
       - ".github/workflows/ci-proto.yaml"
   push:
     branches: [main]
@@ -13,6 +14,7 @@ on:
       - "proto/**"
       - "backend/gen/**"
       - "frontend/src/gen/**"
+      - ".tool-versions"
       - ".github/workflows/ci-proto.yaml"
 
 permissions:
@@ -20,7 +22,7 @@ permissions:
 
 env:
   # .tool-versions の buf と揃える
-  BUF_VERSION: 1.72.0
+  BUF_VERSION: 1.73.0
 
 concurrency:
   group: ci-proto-${{ github.ref }}

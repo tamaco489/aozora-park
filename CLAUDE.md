@@ -48,12 +48,13 @@
 - 生成コードの手動編集禁止 — `backend/gen/` と `frontend/src/gen/` は `buf generate` で再生成する
 - 機密情報のハードコーディング禁止 (API キー、fincode の認証情報、Slack Webhook URL、接続情報)
   - 秘匿値は Secret Manager に置く。Terraform はシークレットの入れ物と参照だけを定義し、値の投入はユーザーが行う
-  - リポジトリと GitHub Secrets に長期クレデンシャルを置かない。デプロイは GitHub Actions を経由しない (backend は Cloud Build、frontend は手元から実行する)
+  - リポジトリと GitHub Secrets に長期クレデンシャルを置かない。GCP への認証は Workload Identity Federation で行い、サービスアカウントキーを発行しない
 - **インフラのコマンド実行・GCP リソース操作の禁止** — 以下はユーザーのみが実行する。Claude が実行してはならない:
   - `terraform` のすべてのコマンド (`init` `fmt` `validate` `plan` `apply` `destroy` など)、`tflint`、`trivy`。`just` 経由でも同じ
   - `gcloud run deploy` / `gcloud run jobs update` / `gcloud run jobs execute`
   - `firebase deploy` (`frontend/` の `just deploy-stg` を含む)
   - `gcloud builds submit` / `gcloud beta builds submit` (`backend/` の `just deploy-stg` を含む)
+  - CD ワークフロー (`cd-*-stg.yaml`) の手動実行 (`workflow_dispatch`) と、その起動条件 (`on:`) を広げる変更の push。実行するのが GitHub Actions でも stg への実デプロイになる
   - Pub/Sub への publish、Cloud Tasks へのタスク投入、Firestore への書き込み
   - GCP の読み取り (`gcloud ... list` / `describe`) は確認目的で行ってよい
 - **外部サービスの実呼び出し禁止** — fincode と Slack はユーザーの承認を得てから実行する。fincode は検証環境のみを使い、GCP の `prd` からも本番環境には繋がない。テストはフェイクとエミュレータで行う

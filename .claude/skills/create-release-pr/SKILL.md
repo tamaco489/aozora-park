@@ -92,11 +92,12 @@ git diff --stat main...HEAD
 create_pull_request(owner, repo, title, body, head: <リリースブランチ>, base: "main")
 ```
 
-作成できたら、Step 2 で集めたサブ Issue のラベルを重複を除いてまとめ、PR とメイン Issue の両方に付ける。
+作成できたら、Step 2 で集めたサブ Issue のラベルを重複を除いてまとめ、PR に付ける。
+メイン Issue のラベルは `create-release-issues` の Step 8 で付いているが、**サブ Issue が後から増えていることがあるため突き合わせ、足りないものだけ追加する。**
 
 ```bash
 gh pr edit <PR 番号> --add-label "<ラベル>,<ラベル>,..."
-gh issue edit <メイン Issue の番号> --add-label "<ラベル>,<ラベル>,..."
+gh issue edit <メイン Issue の番号> --add-label "<不足しているラベル>,..."
 ```
 
 - ラベルはサブ Issue に付いているものを使う。**PR の差分から推測しない**
@@ -114,7 +115,7 @@ gh issue edit <メイン Issue の番号> --add-label "<ラベル>,<ラベル>,.
 
 **このスキルを実行した過程を振り返り、次に同じ作業をするときに効率が上がる点があれば提案する。**
 
-観点と進め方は `create-release-issues` の Step 9 と同じ。
+観点と進め方は `create-release-issues` の「振り返り」の節と同じ。
 
 - 改善案が無ければ「なし」と伝えて終了する
 - 提案は多くても 3 件。「観察した事実 → 何が困るか → どのファイルをどう修正するか」の形で書く
