@@ -39,11 +39,18 @@ func NewApp(logger *slog.Logger) *App {
 //
 // 登録の逆順に実行する。依存される側を先に生成し後に閉じるため
 func (a *App) Cleanup(name string, fn func(context.Context) error) {
-	a.cleanups = append(a.cleanups, cleanup{name: name, fn: fn})
+	a.cleanups = append(a.cleanups, cleanup{
+		name: name,
+		fn:   fn,
+	})
 }
 
 // Serve は SIGTERM か割り込みを受けるまでリクエストを受け付ける
-func (a *App) Serve(ctx context.Context, addr string, h http.Handler) error {
+func (a *App) Serve(
+	ctx context.Context,
+	addr string,
+	h http.Handler,
+) error {
 	// gRPC は HTTP/2 を要求するが Cloud Run との通信に TLS を張らないため、平文の HTTP/2 (h2c) を許可する
 	// リフレクションとヘルスチェックはこれが無いと繋がらない
 	protocols := new(http.Protocols)
@@ -58,13 +65,21 @@ func (a *App) Serve(ctx context.Context, addr string, h http.Handler) error {
 	}
 
 	// Cloud Run は終了時に SIGTERM を送る (ctx が閉じることで停止処理へ進む)
-	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(
+		ctx,
+		os.Interrupt,
+		syscall.SIGTERM,
+	)
 	defer stop()
 
 	// ListenAndServe は塞がるため別の goroutine で動かし、起動時の失敗だけをここへ返す
 	listenErr := make(chan error, 1)
 	go func() {
-		a.logger.InfoContext(ctx, "listening", slog.String("addr", addr))
+		a.logger.InfoContext(
+			ctx,
+			"listening",
+			slog.String("addr", addr),
+		)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			listenErr <- err
 		}

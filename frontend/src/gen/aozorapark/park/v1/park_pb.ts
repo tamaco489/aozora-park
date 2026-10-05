@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file aozorapark/park/v1/park.proto.
  */
 export const file_aozorapark_park_v1_park: GenFile = /*@__PURE__*/
-  fileDesc("Ch1hb3pvcmFwYXJrL3BhcmsvdjEvcGFyay5wcm90bxISYW96b3JhcGFyay5wYXJrLnYxIl0KBFBhcmsSDwoHcGFya19pZBgBIAEoCRIMCgRuYW1lGAIgASgJEh4KFmRlZmF1bHRfZGFpbHlfY2FwYWNpdHkYAyABKAUSFgoOaW52ZW50b3J5X2RheXMYBCABKAVC1QEKFmNvbS5hb3pvcmFwYXJrLnBhcmsudjFCCVBhcmtQcm90b1ABWkZnaXRodWIuY29tL3RhbWFjbzQ4OS9hb3pvcmEtcGFyay9iYWNrZW5kL2dlbi9hb3pvcmFwYXJrL3BhcmsvdjE7cGFya3YxogIDQVBYqgISQW96b3JhcGFyay5QYXJrLlYxygISQW96b3JhcGFya1xQYXJrXFYx4gIeQW96b3JhcGFya1xQYXJrXFYxXEdQQk1ldGFkYXRh6gIUQW96b3JhcGFyazo6UGFyazo6VjFiBnByb3RvMw");
+  fileDesc("Ch1hb3pvcmFwYXJrL3BhcmsvdjEvcGFyay5wcm90bxISYW96b3JhcGFyay5wYXJrLnYxIl0KBFBhcmsSDwoHcGFya19pZBgBIAEoCRIMCgRuYW1lGAIgASgJEh4KFmRlZmF1bHRfZGFpbHlfY2FwYWNpdHkYAyABKAUSFgoOaW52ZW50b3J5X2RheXMYBCABKAUigAEKElByaW9yaXR5UGFzc0NvbmZpZxIPCgdlbmFibGVkGAEgASgIEhIKCnN0YXJ0X3RpbWUYAiABKAkSEAoIZW5kX3RpbWUYAyABKAkSGAoQaW50ZXJ2YWxfbWludXRlcxgEIAEoBRIZChFjYXBhY2l0eV9wZXJfc2xvdBgFIAEoBSKIAQoKQXR0cmFjdGlvbhIVCg1hdHRyYWN0aW9uX2lkGAEgASgJEg8KB3BhcmtfaWQYAiABKAkSDAoEbmFtZRgDIAEoCRJEChRwcmlvcml0eV9wYXNzX2NvbmZpZxgEIAEoCzImLmFvem9yYXBhcmsucGFyay52MS5Qcmlvcml0eVBhc3NDb25maWciggEKClRpY2tldFR5cGUSFgoOdGlja2V0X3R5cGVfaWQYASABKAkSDwoHcGFya19pZBgCIAEoCRIMCgRuYW1lGAMgASgJEg0KBXByaWNlGAQgASgDEhcKD2VudHJ5X3RpbWVfZnJvbRgFIAEoCRIVCg1lbnRyeV90aW1lX3RvGAYgASgJQtUBChZjb20uYW96b3JhcGFyay5wYXJrLnYxQglQYXJrUHJvdG9QAVpGZ2l0aHViLmNvbS90YW1hY280ODkvYW96b3JhLXBhcmsvYmFja2VuZC9nZW4vYW96b3JhcGFyay9wYXJrL3YxO3Bhcmt2MaICA0FQWKoCEkFvem9yYXBhcmsuUGFyay5WMcoCEkFvem9yYXBhcmtcUGFya1xWMeICHkFvem9yYXBhcmtcUGFya1xWMVxHUEJNZXRhZGF0YeoCFEFvem9yYXBhcms6OlBhcms6OlYxYgZwcm90bzM");
 
 /**
  * Park は来園予約の最上位となるパーク
@@ -53,4 +53,151 @@ export type Park = Message<"aozorapark.park.v1.Park"> & {
  */
 export const ParkSchema: GenMessage<Park> = /*@__PURE__*/
   messageDesc(file_aozorapark_park_v1_park, 0);
+
+/**
+ * PriorityPassConfig は優先パスの時間帯枠を生成する条件
+ *
+ * @generated from message aozorapark.park.v1.PriorityPassConfig
+ */
+export type PriorityPassConfig = Message<"aozorapark.park.v1.PriorityPassConfig"> & {
+  /**
+   * enabled はアトラクションが優先パスの対象かどうか
+   *
+   * @generated from field: bool enabled = 1;
+   */
+  enabled: boolean;
+
+  /**
+   * start_time は時間帯枠を生成しはじめる時刻、HH:MM の 24 時間表記
+   *
+   * @generated from field: string start_time = 2;
+   */
+  startTime: string;
+
+  /**
+   * end_time は時間帯枠の生成を終える時刻、HH:MM の 24 時間表記で start_time より後
+   *
+   * @generated from field: string end_time = 3;
+   */
+  endTime: string;
+
+  /**
+   * interval_minutes は時間帯枠を刻む間隔、単位は分
+   *
+   * @generated from field: int32 interval_minutes = 4;
+   */
+  intervalMinutes: number;
+
+  /**
+   * capacity_per_slot は時間帯枠 1 つあたりに発行できる優先パスの上限、単位は枚
+   *
+   * @generated from field: int32 capacity_per_slot = 5;
+   */
+  capacityPerSlot: number;
+};
+
+/**
+ * Describes the message aozorapark.park.v1.PriorityPassConfig.
+ * Use `create(PriorityPassConfigSchema)` to create a new message.
+ */
+export const PriorityPassConfigSchema: GenMessage<PriorityPassConfig> = /*@__PURE__*/
+  messageDesc(file_aozorapark_park_v1_park, 1);
+
+/**
+ * Attraction はパークに属するアトラクション
+ *
+ * @generated from message aozorapark.park.v1.Attraction
+ */
+export type Attraction = Message<"aozorapark.park.v1.Attraction"> & {
+  /**
+   * attraction_id はアトラクションの識別子
+   *
+   * @generated from field: string attraction_id = 1;
+   */
+  attractionId: string;
+
+  /**
+   * park_id は属するパークの識別子
+   *
+   * @generated from field: string park_id = 2;
+   */
+  parkId: string;
+
+  /**
+   * name はアトラクションの表示名
+   *
+   * @generated from field: string name = 3;
+   */
+  name: string;
+
+  /**
+   * priority_pass_config は優先パスの時間帯枠を生成する条件
+   *
+   * @generated from field: aozorapark.park.v1.PriorityPassConfig priority_pass_config = 4;
+   */
+  priorityPassConfig?: PriorityPassConfig | undefined;
+};
+
+/**
+ * Describes the message aozorapark.park.v1.Attraction.
+ * Use `create(AttractionSchema)` to create a new message.
+ */
+export const AttractionSchema: GenMessage<Attraction> = /*@__PURE__*/
+  messageDesc(file_aozorapark_park_v1_park, 2);
+
+/**
+ * TicketType はパークが販売する券種
+ *
+ * @generated from message aozorapark.park.v1.TicketType
+ */
+export type TicketType = Message<"aozorapark.park.v1.TicketType"> & {
+  /**
+   * ticket_type_id は券種の識別子
+   *
+   * @generated from field: string ticket_type_id = 1;
+   */
+  ticketTypeId: string;
+
+  /**
+   * park_id は属するパークの識別子
+   *
+   * @generated from field: string park_id = 2;
+   */
+  parkId: string;
+
+  /**
+   * name は券種の表示名
+   *
+   * @generated from field: string name = 3;
+   */
+  name: string;
+
+  /**
+   * price は販売価格、単位は円
+   *
+   * @generated from field: int64 price = 4;
+   */
+  price: bigint;
+
+  /**
+   * entry_time_from は入場できる時間帯の開始時刻、HH:MM の 24 時間表記
+   *
+   * @generated from field: string entry_time_from = 5;
+   */
+  entryTimeFrom: string;
+
+  /**
+   * entry_time_to は入場できる時間帯の終了時刻、HH:MM の 24 時間表記で entry_time_from より後
+   *
+   * @generated from field: string entry_time_to = 6;
+   */
+  entryTimeTo: string;
+};
+
+/**
+ * Describes the message aozorapark.park.v1.TicketType.
+ * Use `create(TicketTypeSchema)` to create a new message.
+ */
+export const TicketTypeSchema: GenMessage<TicketType> = /*@__PURE__*/
+  messageDesc(file_aozorapark_park_v1_park, 3);
 

@@ -39,6 +39,18 @@ const (
 	ParkServiceGetParkProcedure = "/aozorapark.park.v1.ParkService/GetPark"
 	// ParkServiceUpdateParkProcedure is the fully-qualified name of the ParkService's UpdatePark RPC.
 	ParkServiceUpdateParkProcedure = "/aozorapark.park.v1.ParkService/UpdatePark"
+	// ParkServiceCreateAttractionProcedure is the fully-qualified name of the ParkService's
+	// CreateAttraction RPC.
+	ParkServiceCreateAttractionProcedure = "/aozorapark.park.v1.ParkService/CreateAttraction"
+	// ParkServiceUpdateAttractionProcedure is the fully-qualified name of the ParkService's
+	// UpdateAttraction RPC.
+	ParkServiceUpdateAttractionProcedure = "/aozorapark.park.v1.ParkService/UpdateAttraction"
+	// ParkServiceCreateTicketTypeProcedure is the fully-qualified name of the ParkService's
+	// CreateTicketType RPC.
+	ParkServiceCreateTicketTypeProcedure = "/aozorapark.park.v1.ParkService/CreateTicketType"
+	// ParkServiceUpdateTicketTypeProcedure is the fully-qualified name of the ParkService's
+	// UpdateTicketType RPC.
+	ParkServiceUpdateTicketTypeProcedure = "/aozorapark.park.v1.ParkService/UpdateTicketType"
 )
 
 // ParkServiceClient is a client for the aozorapark.park.v1.ParkService service.
@@ -49,6 +61,14 @@ type ParkServiceClient interface {
 	GetPark(context.Context, *connect.Request[v1.GetParkRequest]) (*connect.Response[v1.GetParkResponse], error)
 	// UpdatePark は表示名と枠の生成に使う初期値を更新する
 	UpdatePark(context.Context, *connect.Request[v1.UpdateParkRequest]) (*connect.Response[v1.UpdateParkResponse], error)
+	// CreateAttraction はパークにアトラクションを新しく登録する
+	CreateAttraction(context.Context, *connect.Request[v1.CreateAttractionRequest]) (*connect.Response[v1.CreateAttractionResponse], error)
+	// UpdateAttraction は表示名と優先パスの条件を更新する
+	UpdateAttraction(context.Context, *connect.Request[v1.UpdateAttractionRequest]) (*connect.Response[v1.UpdateAttractionResponse], error)
+	// CreateTicketType はパークに券種を新しく登録する
+	CreateTicketType(context.Context, *connect.Request[v1.CreateTicketTypeRequest]) (*connect.Response[v1.CreateTicketTypeResponse], error)
+	// UpdateTicketType は表示名と価格と入場できる時間帯を更新する
+	UpdateTicketType(context.Context, *connect.Request[v1.UpdateTicketTypeRequest]) (*connect.Response[v1.UpdateTicketTypeResponse], error)
 }
 
 // NewParkServiceClient constructs a client for the aozorapark.park.v1.ParkService service. By
@@ -80,14 +100,42 @@ func NewParkServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(parkServiceMethods.ByName("UpdatePark")),
 			connect.WithClientOptions(opts...),
 		),
+		createAttraction: connect.NewClient[v1.CreateAttractionRequest, v1.CreateAttractionResponse](
+			httpClient,
+			baseURL+ParkServiceCreateAttractionProcedure,
+			connect.WithSchema(parkServiceMethods.ByName("CreateAttraction")),
+			connect.WithClientOptions(opts...),
+		),
+		updateAttraction: connect.NewClient[v1.UpdateAttractionRequest, v1.UpdateAttractionResponse](
+			httpClient,
+			baseURL+ParkServiceUpdateAttractionProcedure,
+			connect.WithSchema(parkServiceMethods.ByName("UpdateAttraction")),
+			connect.WithClientOptions(opts...),
+		),
+		createTicketType: connect.NewClient[v1.CreateTicketTypeRequest, v1.CreateTicketTypeResponse](
+			httpClient,
+			baseURL+ParkServiceCreateTicketTypeProcedure,
+			connect.WithSchema(parkServiceMethods.ByName("CreateTicketType")),
+			connect.WithClientOptions(opts...),
+		),
+		updateTicketType: connect.NewClient[v1.UpdateTicketTypeRequest, v1.UpdateTicketTypeResponse](
+			httpClient,
+			baseURL+ParkServiceUpdateTicketTypeProcedure,
+			connect.WithSchema(parkServiceMethods.ByName("UpdateTicketType")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // parkServiceClient implements ParkServiceClient.
 type parkServiceClient struct {
-	createPark *connect.Client[v1.CreateParkRequest, v1.CreateParkResponse]
-	getPark    *connect.Client[v1.GetParkRequest, v1.GetParkResponse]
-	updatePark *connect.Client[v1.UpdateParkRequest, v1.UpdateParkResponse]
+	createPark       *connect.Client[v1.CreateParkRequest, v1.CreateParkResponse]
+	getPark          *connect.Client[v1.GetParkRequest, v1.GetParkResponse]
+	updatePark       *connect.Client[v1.UpdateParkRequest, v1.UpdateParkResponse]
+	createAttraction *connect.Client[v1.CreateAttractionRequest, v1.CreateAttractionResponse]
+	updateAttraction *connect.Client[v1.UpdateAttractionRequest, v1.UpdateAttractionResponse]
+	createTicketType *connect.Client[v1.CreateTicketTypeRequest, v1.CreateTicketTypeResponse]
+	updateTicketType *connect.Client[v1.UpdateTicketTypeRequest, v1.UpdateTicketTypeResponse]
 }
 
 // CreatePark calls aozorapark.park.v1.ParkService.CreatePark.
@@ -105,6 +153,26 @@ func (c *parkServiceClient) UpdatePark(ctx context.Context, req *connect.Request
 	return c.updatePark.CallUnary(ctx, req)
 }
 
+// CreateAttraction calls aozorapark.park.v1.ParkService.CreateAttraction.
+func (c *parkServiceClient) CreateAttraction(ctx context.Context, req *connect.Request[v1.CreateAttractionRequest]) (*connect.Response[v1.CreateAttractionResponse], error) {
+	return c.createAttraction.CallUnary(ctx, req)
+}
+
+// UpdateAttraction calls aozorapark.park.v1.ParkService.UpdateAttraction.
+func (c *parkServiceClient) UpdateAttraction(ctx context.Context, req *connect.Request[v1.UpdateAttractionRequest]) (*connect.Response[v1.UpdateAttractionResponse], error) {
+	return c.updateAttraction.CallUnary(ctx, req)
+}
+
+// CreateTicketType calls aozorapark.park.v1.ParkService.CreateTicketType.
+func (c *parkServiceClient) CreateTicketType(ctx context.Context, req *connect.Request[v1.CreateTicketTypeRequest]) (*connect.Response[v1.CreateTicketTypeResponse], error) {
+	return c.createTicketType.CallUnary(ctx, req)
+}
+
+// UpdateTicketType calls aozorapark.park.v1.ParkService.UpdateTicketType.
+func (c *parkServiceClient) UpdateTicketType(ctx context.Context, req *connect.Request[v1.UpdateTicketTypeRequest]) (*connect.Response[v1.UpdateTicketTypeResponse], error) {
+	return c.updateTicketType.CallUnary(ctx, req)
+}
+
 // ParkServiceHandler is an implementation of the aozorapark.park.v1.ParkService service.
 type ParkServiceHandler interface {
 	// CreatePark はパークを新しく登録する
@@ -113,6 +181,14 @@ type ParkServiceHandler interface {
 	GetPark(context.Context, *connect.Request[v1.GetParkRequest]) (*connect.Response[v1.GetParkResponse], error)
 	// UpdatePark は表示名と枠の生成に使う初期値を更新する
 	UpdatePark(context.Context, *connect.Request[v1.UpdateParkRequest]) (*connect.Response[v1.UpdateParkResponse], error)
+	// CreateAttraction はパークにアトラクションを新しく登録する
+	CreateAttraction(context.Context, *connect.Request[v1.CreateAttractionRequest]) (*connect.Response[v1.CreateAttractionResponse], error)
+	// UpdateAttraction は表示名と優先パスの条件を更新する
+	UpdateAttraction(context.Context, *connect.Request[v1.UpdateAttractionRequest]) (*connect.Response[v1.UpdateAttractionResponse], error)
+	// CreateTicketType はパークに券種を新しく登録する
+	CreateTicketType(context.Context, *connect.Request[v1.CreateTicketTypeRequest]) (*connect.Response[v1.CreateTicketTypeResponse], error)
+	// UpdateTicketType は表示名と価格と入場できる時間帯を更新する
+	UpdateTicketType(context.Context, *connect.Request[v1.UpdateTicketTypeRequest]) (*connect.Response[v1.UpdateTicketTypeResponse], error)
 }
 
 // NewParkServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -140,6 +216,30 @@ func NewParkServiceHandler(svc ParkServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(parkServiceMethods.ByName("UpdatePark")),
 		connect.WithHandlerOptions(opts...),
 	)
+	parkServiceCreateAttractionHandler := connect.NewUnaryHandler(
+		ParkServiceCreateAttractionProcedure,
+		svc.CreateAttraction,
+		connect.WithSchema(parkServiceMethods.ByName("CreateAttraction")),
+		connect.WithHandlerOptions(opts...),
+	)
+	parkServiceUpdateAttractionHandler := connect.NewUnaryHandler(
+		ParkServiceUpdateAttractionProcedure,
+		svc.UpdateAttraction,
+		connect.WithSchema(parkServiceMethods.ByName("UpdateAttraction")),
+		connect.WithHandlerOptions(opts...),
+	)
+	parkServiceCreateTicketTypeHandler := connect.NewUnaryHandler(
+		ParkServiceCreateTicketTypeProcedure,
+		svc.CreateTicketType,
+		connect.WithSchema(parkServiceMethods.ByName("CreateTicketType")),
+		connect.WithHandlerOptions(opts...),
+	)
+	parkServiceUpdateTicketTypeHandler := connect.NewUnaryHandler(
+		ParkServiceUpdateTicketTypeProcedure,
+		svc.UpdateTicketType,
+		connect.WithSchema(parkServiceMethods.ByName("UpdateTicketType")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/aozorapark.park.v1.ParkService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ParkServiceCreateParkProcedure:
@@ -148,6 +248,14 @@ func NewParkServiceHandler(svc ParkServiceHandler, opts ...connect.HandlerOption
 			parkServiceGetParkHandler.ServeHTTP(w, r)
 		case ParkServiceUpdateParkProcedure:
 			parkServiceUpdateParkHandler.ServeHTTP(w, r)
+		case ParkServiceCreateAttractionProcedure:
+			parkServiceCreateAttractionHandler.ServeHTTP(w, r)
+		case ParkServiceUpdateAttractionProcedure:
+			parkServiceUpdateAttractionHandler.ServeHTTP(w, r)
+		case ParkServiceCreateTicketTypeProcedure:
+			parkServiceCreateTicketTypeHandler.ServeHTTP(w, r)
+		case ParkServiceUpdateTicketTypeProcedure:
+			parkServiceUpdateTicketTypeHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -167,4 +275,20 @@ func (UnimplementedParkServiceHandler) GetPark(context.Context, *connect.Request
 
 func (UnimplementedParkServiceHandler) UpdatePark(context.Context, *connect.Request[v1.UpdateParkRequest]) (*connect.Response[v1.UpdateParkResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aozorapark.park.v1.ParkService.UpdatePark is not implemented"))
+}
+
+func (UnimplementedParkServiceHandler) CreateAttraction(context.Context, *connect.Request[v1.CreateAttractionRequest]) (*connect.Response[v1.CreateAttractionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aozorapark.park.v1.ParkService.CreateAttraction is not implemented"))
+}
+
+func (UnimplementedParkServiceHandler) UpdateAttraction(context.Context, *connect.Request[v1.UpdateAttractionRequest]) (*connect.Response[v1.UpdateAttractionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aozorapark.park.v1.ParkService.UpdateAttraction is not implemented"))
+}
+
+func (UnimplementedParkServiceHandler) CreateTicketType(context.Context, *connect.Request[v1.CreateTicketTypeRequest]) (*connect.Response[v1.CreateTicketTypeResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aozorapark.park.v1.ParkService.CreateTicketType is not implemented"))
+}
+
+func (UnimplementedParkServiceHandler) UpdateTicketType(context.Context, *connect.Request[v1.UpdateTicketTypeRequest]) (*connect.Response[v1.UpdateTicketTypeResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("aozorapark.park.v1.ParkService.UpdateTicketType is not implemented"))
 }

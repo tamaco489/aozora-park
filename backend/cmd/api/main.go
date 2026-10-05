@@ -62,5 +62,9 @@ func run() error {
 	mux.Handle(grpcreflect.NewHandlerV1(reflector))
 	mux.Handle(grpcreflect.NewHandlerV1Alpha(reflector))
 
-	return app.Serve(ctx, ":"+cfg.Port, mux)
+	return app.Serve(
+		ctx,
+		":"+cfg.Port,
+		mux,
+	)
 }
