@@ -14,15 +14,35 @@ import (
 //
 // 入出力の変換だけを行い、エラーはインターセプタが変換するのでそのまま返す
 type Connect struct {
-	create *parkusecase.Create
-	get    *parkusecase.Get
-	update *parkusecase.Update
+	create           *parkusecase.Create
+	get              *parkusecase.Get
+	update           *parkusecase.Update
+	createAttraction *parkusecase.CreateAttraction
+	updateAttraction *parkusecase.UpdateAttraction
+	createTicketType *parkusecase.CreateTicketType
+	updateTicketType *parkusecase.UpdateTicketType
 }
 
 var _ parkv1connect.ParkServiceHandler = (*Connect)(nil)
 
-func NewConnect(create *parkusecase.Create, get *parkusecase.Get, update *parkusecase.Update) *Connect {
-	return &Connect{create: create, get: get, update: update}
+func NewConnect(
+	create *parkusecase.Create,
+	get *parkusecase.Get,
+	update *parkusecase.Update,
+	createAttraction *parkusecase.CreateAttraction,
+	updateAttraction *parkusecase.UpdateAttraction,
+	createTicketType *parkusecase.CreateTicketType,
+	updateTicketType *parkusecase.UpdateTicketType,
+) *Connect {
+	return &Connect{
+		create:           create,
+		get:              get,
+		update:           update,
+		createAttraction: createAttraction,
+		updateAttraction: updateAttraction,
+		createTicketType: createTicketType,
+		updateTicketType: updateTicketType,
+	}
 }
 
 func toProto(park *parkmodel.Park) *parkv1.Park {
@@ -31,5 +51,33 @@ func toProto(park *parkmodel.Park) *parkv1.Park {
 		Name:                 park.Name(),
 		DefaultDailyCapacity: park.DefaultDailyCapacity(),
 		InventoryDays:        park.InventoryDays(),
+	}
+}
+
+func toAttractionProto(attraction *parkmodel.Attraction) *parkv1.Attraction {
+	config := attraction.PriorityPassConfig()
+
+	return &parkv1.Attraction{
+		AttractionId: attraction.ID().String(),
+		ParkId:       attraction.ParkID().String(),
+		Name:         attraction.Name(),
+		PriorityPassConfig: &parkv1.PriorityPassConfig{
+			Enabled:         config.Enabled(),
+			StartTime:       config.StartTime(),
+			EndTime:         config.EndTime(),
+			IntervalMinutes: config.IntervalMinutes(),
+			CapacityPerSlot: config.CapacityPerSlot(),
+		},
+	}
+}
+
+func toTicketTypeProto(ticketType *parkmodel.TicketType) *parkv1.TicketType {
+	return &parkv1.TicketType{
+		TicketTypeId:  ticketType.ID().String(),
+		ParkId:        ticketType.ParkID().String(),
+		Name:          ticketType.Name(),
+		Price:         ticketType.Price(),
+		EntryTimeFrom: ticketType.EntryTimeFrom(),
+		EntryTimeTo:   ticketType.EntryTimeTo(),
 	}
 }
