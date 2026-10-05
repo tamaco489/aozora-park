@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -28,7 +27,7 @@ func TestConnectUpdateAttraction(t *testing.T) {
 		CapacityPerSlot: 20,
 	}
 
-	res, err := handler.UpdateAttraction(context.Background(), connect.NewRequest(in))
+	res, err := handler.UpdateAttraction(t.Context(), connect.NewRequest(in))
 	if err != nil {
 		t.Fatalf("Connect.UpdateAttraction(%v) = %v, want nil",
 			in,
@@ -82,7 +81,7 @@ func TestConnectUpdateAttractionNotFound(t *testing.T) {
 		CapacityPerSlot: 20,
 	}
 
-	_, err := handler.UpdateAttraction(context.Background(), connect.NewRequest(in))
+	_, err := handler.UpdateAttraction(t.Context(), connect.NewRequest(in))
 	if !errors.Is(err, parkmodel.ErrAttractionNotFound) {
 		t.Fatalf("Connect.UpdateAttraction(%v) = %v, want %v",
 			in,

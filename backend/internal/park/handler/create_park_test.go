@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"testing"
 
 	"connectrpc.com/connect"
@@ -21,7 +20,7 @@ func TestConnectCreatePark(t *testing.T) {
 		InventoryDays:        30,
 	}
 
-	res, err := handler.CreatePark(context.Background(), connect.NewRequest(in))
+	res, err := handler.CreatePark(t.Context(), connect.NewRequest(in))
 	if err != nil {
 		t.Fatalf("Connect.CreatePark(%v) = %v, want nil",
 			in,

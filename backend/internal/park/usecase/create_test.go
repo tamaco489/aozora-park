@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -45,7 +44,7 @@ func TestCreateDo(t *testing.T) {
 			repo := newFakeRepository()
 			repo.createErr = tt.createErr
 
-			got, err := NewCreate(repo).Do(context.Background(), tt.in)
+			got, err := NewCreate(repo).Do(t.Context(), tt.in)
 
 			if !errors.Is(err, tt.wantErr) {
 				t.Fatalf("Create.Do(%+v) のエラー = %v, want %v",

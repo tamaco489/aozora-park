@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -67,7 +66,7 @@ func TestUpdateTicketTypeDo(t *testing.T) {
 				storeTicketType(t, repo)
 			}
 
-			got, err := NewUpdateTicketType(repo, repo).Do(context.Background(), tt.in)
+			got, err := NewUpdateTicketType(repo, repo).Do(t.Context(), tt.in)
 
 			if !errors.Is(err, tt.wantErr) {
 				t.Fatalf("UpdateTicketType.Do(%+v) のエラー = %v, want %v",

@@ -15,11 +15,12 @@ func TestMain(m *testing.M) {
 // New が生成したクライアントでエミュレータに読み書きできることを確かめる
 func TestNew(t *testing.T) {
 	client := firestoretest.Client(t)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	doc := client.Collection("connectivity").Doc(t.Name())
 	t.Cleanup(func() {
-		if _, err := doc.Delete(ctx); err != nil {
+		// t.Context() は Cleanup の直前に取り消されるため、後始末は取り消されないものを使う
+		if _, err := doc.Delete(context.Background()); err != nil {
 			t.Errorf("doc.Delete() = %v, want nil", err)
 		}
 	})

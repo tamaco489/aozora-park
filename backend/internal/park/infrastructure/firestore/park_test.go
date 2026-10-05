@@ -46,7 +46,7 @@ func cleanup(
 
 func TestRepositoryCreateAndGet(t *testing.T) {
 	repo, client := newRepository(t)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	park, err := parkmodel.New(
 		"Aozora Park",
@@ -95,7 +95,7 @@ func TestRepositoryCreateAndGet(t *testing.T) {
 
 func TestRepositoryCreateAlreadyExists(t *testing.T) {
 	repo, client := newRepository(t)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	park, err := parkmodel.New(
 		"Aozora Park",
@@ -132,7 +132,7 @@ func TestRepositoryGetNotFound(t *testing.T) {
 
 	const id = parkmodel.ParkID("park-does-not-exist")
 
-	if _, err := repo.Get(context.Background(), id); !errors.Is(err, parkmodel.ErrNotFound) {
+	if _, err := repo.Get(t.Context(), id); !errors.Is(err, parkmodel.ErrNotFound) {
 		t.Errorf("Repository.Get(%q) = %v, want %v",
 			id,
 			err,
@@ -143,7 +143,7 @@ func TestRepositoryGetNotFound(t *testing.T) {
 
 func TestRepositoryUpdate(t *testing.T) {
 	repo, client := newRepository(t)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	park, err := parkmodel.New(
 		"Aozora Park",
@@ -211,7 +211,7 @@ func TestRepositoryUpdateNotFound(t *testing.T) {
 		t.Fatalf("Restore() = %v, want nil", err)
 	}
 
-	if err := repo.Update(context.Background(), park); !errors.Is(err, parkmodel.ErrNotFound) {
+	if err := repo.Update(t.Context(), park); !errors.Is(err, parkmodel.ErrNotFound) {
 		t.Errorf("Repository.Update(%q) = %v, want %v",
 			park.ID(),
 			err,

@@ -62,7 +62,7 @@ func TestError(t *testing.T) {
 				return nil, tt.err
 			}
 
-			_, err := Error(discardLogger())(next)(context.Background(), connect.NewRequest(&parkv1.GetParkRequest{}))
+			_, err := Error(discardLogger())(next)(t.Context(), connect.NewRequest(&parkv1.GetParkRequest{}))
 
 			got, ok := errors.AsType[*connect.Error](err)
 			if !ok {
@@ -100,7 +100,7 @@ func TestErrorPassesThroughSuccess(t *testing.T) {
 		return want, nil
 	}
 
-	got, err := Error(discardLogger())(next)(context.Background(), connect.NewRequest(&parkv1.GetParkRequest{}))
+	got, err := Error(discardLogger())(next)(t.Context(), connect.NewRequest(&parkv1.GetParkRequest{}))
 	if err != nil {
 		t.Fatalf("Error()(next)(...) = %v, want nil", err)
 	}

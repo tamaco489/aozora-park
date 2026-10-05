@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -54,7 +53,7 @@ func TestUpdateDo(t *testing.T) {
 				store(t, repo)
 			}
 
-			got, err := NewUpdate(repo, repo).Do(context.Background(), tt.in)
+			got, err := NewUpdate(repo, repo).Do(t.Context(), tt.in)
 
 			if !errors.Is(err, tt.wantErr) {
 				t.Fatalf("Update.Do(%+v) のエラー = %v, want %v",

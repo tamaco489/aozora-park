@@ -51,7 +51,7 @@ func cleanupAttraction(
 
 func TestRepositoryCreateAndGetAttraction(t *testing.T) {
 	repo, client := newRepository(t)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	attraction, err := parkmodel.NewAttraction(
 		attractionParkID,
@@ -108,7 +108,7 @@ func TestRepositoryCreateAndGetAttraction(t *testing.T) {
 
 func TestRepositoryCreateAttractionAlreadyExists(t *testing.T) {
 	repo, client := newRepository(t)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	attraction, err := parkmodel.NewAttraction(
 		attractionParkID,
@@ -146,7 +146,7 @@ func TestRepositoryGetAttractionNotFound(t *testing.T) {
 	const id = parkmodel.AttractionID("attraction-does-not-exist")
 
 	_, err := repo.GetAttraction(
-		context.Background(),
+		t.Context(),
 		attractionParkID,
 		id,
 	)
@@ -161,7 +161,7 @@ func TestRepositoryGetAttractionNotFound(t *testing.T) {
 
 func TestRepositoryUpdateAttraction(t *testing.T) {
 	repo, client := newRepository(t)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	attraction, err := parkmodel.NewAttraction(
 		attractionParkID,
@@ -242,7 +242,7 @@ func TestRepositoryUpdateAttractionNotFound(t *testing.T) {
 		t.Fatalf("RestoreAttraction() = %v, want nil", err)
 	}
 
-	if err := repo.UpdateAttraction(context.Background(), attraction); !errors.Is(err, parkmodel.ErrAttractionNotFound) {
+	if err := repo.UpdateAttraction(t.Context(), attraction); !errors.Is(err, parkmodel.ErrAttractionNotFound) {
 		t.Errorf("Repository.UpdateAttraction(%q) = %v, want %v",
 			attraction.ID(),
 			err,

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -26,7 +25,7 @@ func TestConnectCreateAttraction(t *testing.T) {
 		CapacityPerSlot: 10,
 	}
 
-	res, err := handler.CreateAttraction(context.Background(), connect.NewRequest(in))
+	res, err := handler.CreateAttraction(t.Context(), connect.NewRequest(in))
 	if err != nil {
 		t.Fatalf("Connect.CreateAttraction(%v) = %v, want nil",
 			in,
@@ -78,7 +77,7 @@ func TestConnectCreateAttractionParkNotFound(t *testing.T) {
 	}
 
 	// ハンドラはエラーを素通しする、connect の形への変換はインターセプタが行う
-	_, err := handler.CreateAttraction(context.Background(), connect.NewRequest(in))
+	_, err := handler.CreateAttraction(t.Context(), connect.NewRequest(in))
 	if !errors.Is(err, parkmodel.ErrNotFound) {
 		t.Fatalf("Connect.CreateAttraction(%v) = %v, want %v",
 			in,

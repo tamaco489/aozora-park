@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -24,7 +23,7 @@ func TestConnectCreateTicketType(t *testing.T) {
 		EntryTimeTo:   "21:00",
 	}
 
-	res, err := handler.CreateTicketType(context.Background(), connect.NewRequest(in))
+	res, err := handler.CreateTicketType(t.Context(), connect.NewRequest(in))
 	if err != nil {
 		t.Fatalf("Connect.CreateTicketType(%v) = %v, want nil",
 			in,
@@ -70,7 +69,7 @@ func TestConnectCreateTicketTypeParkNotFound(t *testing.T) {
 	}
 
 	// ハンドラはエラーを素通しする、connect の形への変換はインターセプタが行う
-	_, err := handler.CreateTicketType(context.Background(), connect.NewRequest(in))
+	_, err := handler.CreateTicketType(t.Context(), connect.NewRequest(in))
 	if !errors.Is(err, parkmodel.ErrNotFound) {
 		t.Fatalf("Connect.CreateTicketType(%v) = %v, want %v",
 			in,

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"testing"
 
 	"connectrpc.com/connect"
@@ -21,7 +20,7 @@ func TestConnectUpdatePark(t *testing.T) {
 		InventoryDays:        60,
 	}
 
-	res, err := handler.UpdatePark(context.Background(), connect.NewRequest(in))
+	res, err := handler.UpdatePark(t.Context(), connect.NewRequest(in))
 	if err != nil {
 		t.Fatalf("Connect.UpdatePark(%v) = %v, want nil",
 			in,

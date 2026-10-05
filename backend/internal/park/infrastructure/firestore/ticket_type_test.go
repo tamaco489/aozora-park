@@ -34,7 +34,7 @@ func cleanupTicketType(
 
 func TestRepositoryCreateAndGetTicketType(t *testing.T) {
 	repo, client := newRepository(t)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	ticketType, err := parkmodel.NewTicketType(
 		ticketTypeParkID,
@@ -94,7 +94,7 @@ func TestRepositoryCreateAndGetTicketType(t *testing.T) {
 
 func TestRepositoryCreateTicketTypeAlreadyExists(t *testing.T) {
 	repo, client := newRepository(t)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	ticketType, err := parkmodel.NewTicketType(
 		ticketTypeParkID,
@@ -134,7 +134,7 @@ func TestRepositoryGetTicketTypeNotFound(t *testing.T) {
 	const id = parkmodel.TicketTypeID("ticket-type-does-not-exist")
 
 	_, err := repo.GetTicketType(
-		context.Background(),
+		t.Context(),
 		ticketTypeParkID,
 		id,
 	)
@@ -149,7 +149,7 @@ func TestRepositoryGetTicketTypeNotFound(t *testing.T) {
 
 func TestRepositoryUpdateTicketType(t *testing.T) {
 	repo, client := newRepository(t)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	ticketType, err := parkmodel.NewTicketType(
 		ticketTypeParkID,
@@ -228,7 +228,7 @@ func TestRepositoryUpdateTicketTypeNotFound(t *testing.T) {
 		t.Fatalf("RestoreTicketType() = %v, want nil", err)
 	}
 
-	if err := repo.UpdateTicketType(context.Background(), ticketType); !errors.Is(err, parkmodel.ErrTicketTypeNotFound) {
+	if err := repo.UpdateTicketType(t.Context(), ticketType); !errors.Is(err, parkmodel.ErrTicketTypeNotFound) {
 		t.Errorf("Repository.UpdateTicketType(%q) = %v, want %v",
 			ticketType.ID(),
 			err,

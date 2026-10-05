@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -26,7 +25,7 @@ func TestConnectUpdateTicketType(t *testing.T) {
 		EntryTimeTo:   "20:00",
 	}
 
-	res, err := handler.UpdateTicketType(context.Background(), connect.NewRequest(in))
+	res, err := handler.UpdateTicketType(t.Context(), connect.NewRequest(in))
 	if err != nil {
 		t.Fatalf("Connect.UpdateTicketType(%v) = %v, want nil",
 			in,
@@ -74,7 +73,7 @@ func TestConnectUpdateTicketTypeNotFound(t *testing.T) {
 		EntryTimeTo:   "20:00",
 	}
 
-	_, err := handler.UpdateTicketType(context.Background(), connect.NewRequest(in))
+	_, err := handler.UpdateTicketType(t.Context(), connect.NewRequest(in))
 	if !errors.Is(err, parkmodel.ErrTicketTypeNotFound) {
 		t.Fatalf("Connect.UpdateTicketType(%v) = %v, want %v",
 			in,

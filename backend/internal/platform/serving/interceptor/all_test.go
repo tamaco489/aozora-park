@@ -104,7 +104,7 @@ func TestAll(t *testing.T) {
 			svc := &stubParkService{err: tt.handlerErr}
 			client := newTestClient(t, svc)
 
-			_, err := client.CreatePark(context.Background(), connect.NewRequest(tt.req))
+			_, err := client.CreatePark(t.Context(), connect.NewRequest(tt.req))
 
 			if tt.wantCode == 0 {
 				if err != nil {
