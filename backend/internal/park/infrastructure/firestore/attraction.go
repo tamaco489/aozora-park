@@ -37,7 +37,11 @@ var (
 	_ parkrepository.AttractionWriter = (*Repository)(nil)
 )
 
-func (r *Repository) GetAttraction(ctx context.Context, parkID parkmodel.ParkID, id parkmodel.AttractionID) (*parkmodel.Attraction, error) {
+func (r *Repository) GetAttraction(
+	ctx context.Context,
+	parkID parkmodel.ParkID,
+	id parkmodel.AttractionID,
+) (*parkmodel.Attraction, error) {
 	snapshot, err := r.attractionDoc(parkID, id).Get(ctx)
 	if err != nil {
 		if status.Code(err) == codes.NotFound {

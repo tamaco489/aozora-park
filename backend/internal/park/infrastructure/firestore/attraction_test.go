@@ -24,7 +24,11 @@ func newAttractionConfig(tb testing.TB) parkmodel.PriorityPassConfig {
 	return config
 }
 
-func cleanupAttraction(tb testing.TB, client *gcpfirestore.Client, attraction *parkmodel.Attraction) {
+func cleanupAttraction(
+	tb testing.TB,
+	client *gcpfirestore.Client,
+	attraction *parkmodel.Attraction,
+) {
 	tb.Helper()
 
 	tb.Cleanup(func() {

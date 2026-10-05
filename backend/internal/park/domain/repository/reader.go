@@ -16,11 +16,19 @@ type Reader interface {
 // AttractionReader はアトラクションを参照する
 type AttractionReader interface {
 	// GetAttraction は識別子でアトラクションを 1 件返す、見つからないときは model.ErrAttractionNotFound を返す
-	GetAttraction(ctx context.Context, parkID parkmodel.ParkID, id parkmodel.AttractionID) (*parkmodel.Attraction, error)
+	GetAttraction(
+		ctx context.Context,
+		parkID parkmodel.ParkID,
+		id parkmodel.AttractionID,
+	) (*parkmodel.Attraction, error)
 }
 
 // TicketTypeReader は券種を参照する
 type TicketTypeReader interface {
 	// GetTicketType は識別子で券種を 1 件返す、見つからないときは model.ErrTicketTypeNotFound を返す
-	GetTicketType(ctx context.Context, parkID parkmodel.ParkID, id parkmodel.TicketTypeID) (*parkmodel.TicketType, error)
+	GetTicketType(
+		ctx context.Context,
+		parkID parkmodel.ParkID,
+		id parkmodel.TicketTypeID,
+	) (*parkmodel.TicketType, error)
 }

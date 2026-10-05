@@ -27,7 +27,13 @@ type TicketType struct {
 // NewTicketType は券種を新しく生成する
 //
 // 識別子は UUID v7 で採番する、生成順に並ぶので一覧の並びが安定する
-func NewTicketType(parkID ParkID, name string, price int64, entryTimeFrom, entryTimeTo string) (*TicketType, error) {
+func NewTicketType(
+	parkID ParkID,
+	name string,
+	price int64,
+	entryTimeFrom string,
+	entryTimeTo string,
+) (*TicketType, error) {
 	return newTicketType(
 		parkID,
 		TicketTypeID(uuid.NewV7().String()),
@@ -41,14 +47,28 @@ func NewTicketType(parkID ParkID, name string, price int64, entryTimeFrom, entry
 // RestoreTicketType は保存済みの券種を組み立てる
 //
 // infrastructure が読み出した値を入れる、保存されている値も検証を通す
-func RestoreTicketType(parkID ParkID, id TicketTypeID, name string, price int64, entryTimeFrom, entryTimeTo string) (*TicketType, error) {
+func RestoreTicketType(
+	parkID ParkID,
+	id TicketTypeID,
+	name string,
+	price int64,
+	entryTimeFrom string,
+	entryTimeTo string,
+) (*TicketType, error) {
 	if id == "" {
 		return nil, ErrTicketTypeInvalidID
 	}
 	return newTicketType(parkID, id, name, price, entryTimeFrom, entryTimeTo)
 }
 
-func newTicketType(parkID ParkID, id TicketTypeID, name string, price int64, entryTimeFrom, entryTimeTo string) (*TicketType, error) {
+func newTicketType(
+	parkID ParkID,
+	id TicketTypeID,
+	name string,
+	price int64,
+	entryTimeFrom string,
+	entryTimeTo string,
+) (*TicketType, error) {
 	if parkID == "" {
 		return nil, ErrInvalidID
 	}
@@ -64,11 +84,21 @@ func newTicketType(parkID ParkID, id TicketTypeID, name string, price int64, ent
 // Update は表示名と価格と入場できる時間帯を差し替える
 //
 // 検証に失敗したときは元の値を保つ
-func (t *TicketType) Update(name string, price int64, entryTimeFrom, entryTimeTo string) error {
+func (t *TicketType) Update(
+	name string,
+	price int64,
+	entryTimeFrom string,
+	entryTimeTo string,
+) error {
 	return t.apply(name, price, entryTimeFrom, entryTimeTo)
 }
 
-func (t *TicketType) apply(name string, price int64, entryTimeFrom, entryTimeTo string) error {
+func (t *TicketType) apply(
+	name string,
+	price int64,
+	entryTimeFrom string,
+	entryTimeTo string,
+) error {
 	err := validateTicketType(name, price, entryTimeFrom, entryTimeTo)
 	if err != nil {
 		return err
@@ -82,7 +112,12 @@ func (t *TicketType) apply(name string, price int64, entryTimeFrom, entryTimeTo 
 	return nil
 }
 
-func validateTicketType(name string, price int64, entryTimeFrom, entryTimeTo string) error {
+func validateTicketType(
+	name string,
+	price int64,
+	entryTimeFrom string,
+	entryTimeTo string,
+) error {
 	if !isValidName(name) {
 		return ErrTicketTypeInvalidName
 	}

@@ -13,7 +13,11 @@ import (
 // ticketTypeParkID は券種のテストが使う親のパーク、他のテストとドキュメントを分ける
 const ticketTypeParkID = parkmodel.ParkID("park-for-ticket-type-test")
 
-func cleanupTicketType(tb testing.TB, client *gcpfirestore.Client, ticketType *parkmodel.TicketType) {
+func cleanupTicketType(
+	tb testing.TB,
+	client *gcpfirestore.Client,
+	ticketType *parkmodel.TicketType,
+) {
 	tb.Helper()
 
 	tb.Cleanup(func() {

@@ -95,7 +95,11 @@ func store(tb testing.TB, repo *fakeRepository) *parkmodel.Park {
 	return park
 }
 
-func (r *fakeRepository) GetAttraction(_ context.Context, parkID parkmodel.ParkID, id parkmodel.AttractionID) (*parkmodel.Attraction, error) {
+func (r *fakeRepository) GetAttraction(
+	_ context.Context,
+	parkID parkmodel.ParkID,
+	id parkmodel.AttractionID,
+) (*parkmodel.Attraction, error) {
 	attraction, ok := r.attractions[attractionKey{parkID: parkID, id: id}]
 	if !ok {
 		return nil, parkmodel.ErrAttractionNotFound
@@ -131,7 +135,11 @@ func (r *fakeRepository) UpdateAttraction(_ context.Context, attraction *parkmod
 	return nil
 }
 
-func (r *fakeRepository) GetTicketType(_ context.Context, parkID parkmodel.ParkID, id parkmodel.TicketTypeID) (*parkmodel.TicketType, error) {
+func (r *fakeRepository) GetTicketType(
+	_ context.Context,
+	parkID parkmodel.ParkID,
+	id parkmodel.TicketTypeID,
+) (*parkmodel.TicketType, error) {
 	ticketType, ok := r.ticketTypes[ticketTypeKey{parkID: parkID, id: id}]
 	if !ok {
 		return nil, parkmodel.ErrTicketTypeNotFound

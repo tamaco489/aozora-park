@@ -30,7 +30,11 @@ var (
 	_ parkrepository.TicketTypeWriter = (*Repository)(nil)
 )
 
-func (r *Repository) GetTicketType(ctx context.Context, parkID parkmodel.ParkID, id parkmodel.TicketTypeID) (*parkmodel.TicketType, error) {
+func (r *Repository) GetTicketType(
+	ctx context.Context,
+	parkID parkmodel.ParkID,
+	id parkmodel.TicketTypeID,
+) (*parkmodel.TicketType, error) {
 	snapshot, err := r.ticketTypeDoc(parkID, id).Get(ctx)
 	if err != nil {
 		if status.Code(err) == codes.NotFound {

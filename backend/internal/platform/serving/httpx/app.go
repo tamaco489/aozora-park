@@ -43,7 +43,11 @@ func (a *App) Cleanup(name string, fn func(context.Context) error) {
 }
 
 // Serve は SIGTERM か割り込みを受けるまでリクエストを受け付ける
-func (a *App) Serve(ctx context.Context, addr string, h http.Handler) error {
+func (a *App) Serve(
+	ctx context.Context,
+	addr string,
+	h http.Handler,
+) error {
 	// gRPC は HTTP/2 を要求するが Cloud Run との通信に TLS を張らないため、平文の HTTP/2 (h2c) を許可する
 	// リフレクションとヘルスチェックはこれが無いと繋がらない
 	protocols := new(http.Protocols)

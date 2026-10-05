@@ -31,7 +31,13 @@ type PriorityPassConfig struct {
 // NewPriorityPassConfig は優先パスの条件を組み立てる
 //
 // 無効にしていても後から有効にするため、時刻と枠の条件は enabled によらず検証する
-func NewPriorityPassConfig(enabled bool, startTime, endTime string, intervalMinutes, capacityPerSlot int32) (PriorityPassConfig, error) {
+func NewPriorityPassConfig(
+	enabled bool,
+	startTime string,
+	endTime string,
+	intervalMinutes int32,
+	capacityPerSlot int32,
+) (PriorityPassConfig, error) {
 	c := PriorityPassConfig{
 		enabled:         enabled,
 		startTime:       startTime,
@@ -88,21 +94,35 @@ type Attraction struct {
 // NewAttraction はアトラクションを新しく生成する
 //
 // 識別子は UUID v7 で採番する、生成順に並ぶので一覧の並びが安定する
-func NewAttraction(parkID ParkID, name string, config PriorityPassConfig) (*Attraction, error) {
+func NewAttraction(
+	parkID ParkID,
+	name string,
+	config PriorityPassConfig,
+) (*Attraction, error) {
 	return newAttraction(parkID, AttractionID(uuid.NewV7().String()), name, config)
 }
 
 // RestoreAttraction は保存済みのアトラクションを組み立てる
 //
 // infrastructure が読み出した値を入れる、保存されている値も検証を通す
-func RestoreAttraction(parkID ParkID, id AttractionID, name string, config PriorityPassConfig) (*Attraction, error) {
+func RestoreAttraction(
+	parkID ParkID,
+	id AttractionID,
+	name string,
+	config PriorityPassConfig,
+) (*Attraction, error) {
 	if id == "" {
 		return nil, ErrAttractionInvalidID
 	}
 	return newAttraction(parkID, id, name, config)
 }
 
-func newAttraction(parkID ParkID, id AttractionID, name string, config PriorityPassConfig) (*Attraction, error) {
+func newAttraction(
+	parkID ParkID,
+	id AttractionID,
+	name string,
+	config PriorityPassConfig,
+) (*Attraction, error) {
 	if parkID == "" {
 		return nil, ErrInvalidID
 	}

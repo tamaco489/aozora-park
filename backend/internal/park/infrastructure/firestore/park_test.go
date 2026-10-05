@@ -27,7 +27,11 @@ func newRepository(tb testing.TB) (*Repository, *gcpfirestore.Client) {
 	return NewRepository(client), client
 }
 
-func cleanup(tb testing.TB, client *gcpfirestore.Client, id parkmodel.ParkID) {
+func cleanup(
+	tb testing.TB,
+	client *gcpfirestore.Client,
+	id parkmodel.ParkID,
+) {
 	tb.Helper()
 
 	tb.Cleanup(func() {

@@ -33,7 +33,11 @@ type Park struct {
 //
 // 識別子は UUID v7 で採番する、生成順に並ぶので一覧の並びが安定する
 // 呼び出し側は戻り値から識別子を取れるため、採番の差し替えは用意しない
-func New(name string, defaultDailyCapacity, inventoryDays int32) (*Park, error) {
+func New(
+	name string,
+	defaultDailyCapacity int32,
+	inventoryDays int32,
+) (*Park, error) {
 	return newPark(
 		ParkID(uuid.NewV7().String()),
 		name,
@@ -45,14 +49,24 @@ func New(name string, defaultDailyCapacity, inventoryDays int32) (*Park, error) 
 // Restore は保存済みのパークを組み立てる
 //
 // infrastructure が読み出した値を入れる、保存されている値も検証を通す
-func Restore(id ParkID, name string, defaultDailyCapacity, inventoryDays int32) (*Park, error) {
+func Restore(
+	id ParkID,
+	name string,
+	defaultDailyCapacity int32,
+	inventoryDays int32,
+) (*Park, error) {
 	if id == "" {
 		return nil, ErrInvalidID
 	}
 	return newPark(id, name, defaultDailyCapacity, inventoryDays)
 }
 
-func newPark(id ParkID, name string, defaultDailyCapacity, inventoryDays int32) (*Park, error) {
+func newPark(
+	id ParkID,
+	name string,
+	defaultDailyCapacity int32,
+	inventoryDays int32,
+) (*Park, error) {
 	p := &Park{id: id}
 	if err := p.apply(name, defaultDailyCapacity, inventoryDays); err != nil {
 		return nil, err
@@ -63,11 +77,19 @@ func newPark(id ParkID, name string, defaultDailyCapacity, inventoryDays int32) 
 // Update は表示名と枠の生成に使う初期値を差し替える
 //
 // 検証に失敗したときは元の値を保つ
-func (p *Park) Update(name string, defaultDailyCapacity, inventoryDays int32) error {
+func (p *Park) Update(
+	name string,
+	defaultDailyCapacity int32,
+	inventoryDays int32,
+) error {
 	return p.apply(name, defaultDailyCapacity, inventoryDays)
 }
 
-func (p *Park) apply(name string, defaultDailyCapacity, inventoryDays int32) error {
+func (p *Park) apply(
+	name string,
+	defaultDailyCapacity int32,
+	inventoryDays int32,
+) error {
 	err := validate(
 		name,
 		defaultDailyCapacity,
@@ -84,7 +106,11 @@ func (p *Park) apply(name string, defaultDailyCapacity, inventoryDays int32) err
 	return nil
 }
 
-func validate(name string, defaultDailyCapacity, inventoryDays int32) error {
+func validate(
+	name string,
+	defaultDailyCapacity int32,
+	inventoryDays int32,
+) error {
 	// 文字数で数えるのは、上限が表示の崩れを防ぐための歯止めでバイト数に意味がないため
 	if l := utf8.RuneCountInString(name); l < 1 || l > nameMaxLen {
 		return ErrInvalidName
