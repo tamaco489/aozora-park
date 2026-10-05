@@ -37,7 +37,7 @@ export function ParkCreate() {
 
   return (
     <section>
-      <h2>登録する</h2>
+      <h3>登録する</h3>
 
       <form onSubmit={handleSubmit}>
         <ParkFields idPrefix="create" values={values} onChange={setValues} />

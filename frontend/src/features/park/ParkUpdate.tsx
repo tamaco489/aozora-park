@@ -60,7 +60,7 @@ export function ParkUpdate() {
 
   return (
     <section>
-      <h2>更新する</h2>
+      <h3>更新する</h3>
 
       <form onSubmit={handleSubmit}>
         <div className="field">

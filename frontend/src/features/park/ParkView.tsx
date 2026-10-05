@@ -30,7 +30,7 @@ export function ParkView() {
 
   return (
     <section>
-      <h2>参照する</h2>
+      <h3>参照する</h3>
 
       <form onSubmit={handleSubmit}>
         <div className="field">
