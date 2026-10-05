@@ -29,7 +29,11 @@ var (
 	_ inventoryrepository.Writer = (*fakeRepository)(nil)
 )
 
-func (r *fakeRepository) GetDateInventory(_ context.Context, _ inventorymodel.ParkID, date inventorymodel.Date) (*inventorymodel.DateInventory, error) {
+func (r *fakeRepository) GetDateInventory(
+	_ context.Context,
+	_ inventorymodel.ParkID,
+	date inventorymodel.Date,
+) (*inventorymodel.DateInventory, error) {
 	inventory, ok := r.inventories[date]
 	if !ok {
 		return nil, inventorymodel.ErrDateInventoryNotFound
@@ -37,7 +41,12 @@ func (r *fakeRepository) GetDateInventory(_ context.Context, _ inventorymodel.Pa
 	return inventory, nil
 }
 
-func (r *fakeRepository) ListTimeSlots(_ context.Context, _ inventorymodel.ParkID, _ inventorymodel.AttractionID, _ inventorymodel.Date) ([]*inventorymodel.TimeSlot, error) {
+func (r *fakeRepository) ListTimeSlots(
+	_ context.Context,
+	_ inventorymodel.ParkID,
+	_ inventorymodel.AttractionID,
+	_ inventorymodel.Date,
+) ([]*inventorymodel.TimeSlot, error) {
 	return r.slots, nil
 }
 
@@ -68,7 +77,12 @@ func newEmptyRepository() *fakeRepository {
 func newStoredRepository(tb testing.TB) *fakeRepository {
 	tb.Helper()
 
-	inventory, err := inventorymodel.RestoreDateInventory(storedParkID, storedDate, 1000, 800)
+	inventory, err := inventorymodel.RestoreDateInventory(
+		storedParkID,
+		storedDate,
+		1000,
+		800,
+	)
 	if err != nil {
 		tb.Fatalf("RestoreDateInventory() = %v, want nil", err)
 	}
@@ -76,19 +90,42 @@ func newStoredRepository(tb testing.TB) *fakeRepository {
 	repo := newEmptyRepository()
 	repo.inventories[storedDate] = inventory
 	repo.slots = []*inventorymodel.TimeSlot{
-		restoreTimeSlot(tb, "20261005_1000", "10:00"),
-		restoreTimeSlot(tb, "20261005_1100", "11:00"),
+		restoreTimeSlot(
+			tb,
+			"20261005_1000",
+			"10:00",
+		),
+		restoreTimeSlot(
+			tb,
+			"20261005_1100",
+			"11:00",
+		),
 	}
 
 	return repo
 }
 
-func restoreTimeSlot(tb testing.TB, id inventorymodel.TimeSlotID, startTime string) *inventorymodel.TimeSlot {
+func restoreTimeSlot(
+	tb testing.TB,
+	id inventorymodel.TimeSlotID,
+	startTime string,
+) *inventorymodel.TimeSlot {
 	tb.Helper()
 
-	slot, err := inventorymodel.RestoreTimeSlot(storedParkID, storedAttractionID, id, storedDate, startTime, 60, 30)
+	slot, err := inventorymodel.RestoreTimeSlot(
+		storedParkID,
+		storedAttractionID,
+		id,
+		storedDate,
+		startTime,
+		60,
+		30,
+	)
 	if err != nil {
-		tb.Fatalf("RestoreTimeSlot(%q) = %v, want nil", id, err)
+		tb.Fatalf("RestoreTimeSlot(%q) = %v, want nil",
+			id,
+			err,
+		)
 	}
 
 	return slot

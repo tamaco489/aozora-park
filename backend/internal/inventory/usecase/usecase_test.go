@@ -40,11 +40,19 @@ func dateKey(parkID inventorymodel.ParkID, date inventorymodel.Date) string {
 	return parkID.String() + "/" + date.String()
 }
 
-func slotKey(parkID inventorymodel.ParkID, attractionID inventorymodel.AttractionID, date inventorymodel.Date) string {
+func slotKey(
+	parkID inventorymodel.ParkID,
+	attractionID inventorymodel.AttractionID,
+	date inventorymodel.Date,
+) string {
 	return parkID.String() + "/" + attractionID.String() + "/" + date.String()
 }
 
-func (r *fakeRepository) GetDateInventory(_ context.Context, parkID inventorymodel.ParkID, date inventorymodel.Date) (*inventorymodel.DateInventory, error) {
+func (r *fakeRepository) GetDateInventory(
+	_ context.Context,
+	parkID inventorymodel.ParkID,
+	date inventorymodel.Date,
+) (*inventorymodel.DateInventory, error) {
 	inventory, ok := r.inventories[dateKey(parkID, date)]
 	if !ok {
 		return nil, inventorymodel.ErrDateInventoryNotFound
@@ -60,7 +68,12 @@ func (r *fakeRepository) GetDateInventory(_ context.Context, parkID inventorymod
 	)
 }
 
-func (r *fakeRepository) ListTimeSlots(_ context.Context, parkID inventorymodel.ParkID, attractionID inventorymodel.AttractionID, date inventorymodel.Date) ([]*inventorymodel.TimeSlot, error) {
+func (r *fakeRepository) ListTimeSlots(
+	_ context.Context,
+	parkID inventorymodel.ParkID,
+	attractionID inventorymodel.AttractionID,
+	date inventorymodel.Date,
+) ([]*inventorymodel.TimeSlot, error) {
 	return r.slots[slotKey(parkID, attractionID, date)], nil
 }
 
@@ -82,7 +95,12 @@ func (r *fakeRepository) UpdateDateInventory(_ context.Context, inventory *inven
 func storeDateInventory(tb testing.TB, repo *fakeRepository) *inventorymodel.DateInventory {
 	tb.Helper()
 
-	inventory, err := inventorymodel.RestoreDateInventory(storedParkID, storedDate, storedCapacity, storedRemaining)
+	inventory, err := inventorymodel.RestoreDateInventory(
+		storedParkID,
+		storedDate,
+		storedCapacity,
+		storedRemaining,
+	)
 	if err != nil {
 		tb.Fatalf("RestoreDateInventory() = %v, want nil", err)
 	}
@@ -96,20 +114,43 @@ func storeTimeSlots(tb testing.TB, repo *fakeRepository) []*inventorymodel.TimeS
 	tb.Helper()
 
 	slots := []*inventorymodel.TimeSlot{
-		restoreTimeSlot(tb, "20261005_1000", "10:00"),
-		restoreTimeSlot(tb, "20261005_1100", "11:00"),
+		restoreTimeSlot(
+			tb,
+			"20261005_1000",
+			"10:00",
+		),
+		restoreTimeSlot(
+			tb,
+			"20261005_1100",
+			"11:00",
+		),
 	}
 	repo.slots[slotKey(storedParkID, storedAttractionID, storedDate)] = slots
 
 	return slots
 }
 
-func restoreTimeSlot(tb testing.TB, id inventorymodel.TimeSlotID, startTime string) *inventorymodel.TimeSlot {
+func restoreTimeSlot(
+	tb testing.TB,
+	id inventorymodel.TimeSlotID,
+	startTime string,
+) *inventorymodel.TimeSlot {
 	tb.Helper()
 
-	slot, err := inventorymodel.RestoreTimeSlot(storedParkID, storedAttractionID, id, storedDate, startTime, 60, 30)
+	slot, err := inventorymodel.RestoreTimeSlot(
+		storedParkID,
+		storedAttractionID,
+		id,
+		storedDate,
+		startTime,
+		60,
+		30,
+	)
 	if err != nil {
-		tb.Fatalf("RestoreTimeSlot(%q) = %v, want nil", id, err)
+		tb.Fatalf("RestoreTimeSlot(%q) = %v, want nil",
+			id,
+			err,
+		)
 	}
 
 	return slot

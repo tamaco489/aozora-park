@@ -24,5 +24,10 @@ func NewListTimeSlots(inventories inventoryrepository.Reader) *ListTimeSlots {
 }
 
 func (u *ListTimeSlots) Do(ctx context.Context, in ListTimeSlotsInput) ([]*inventorymodel.TimeSlot, error) {
-	return u.inventories.ListTimeSlots(ctx, in.ParkID, in.AttractionID, in.Date)
+	return u.inventories.ListTimeSlots(
+		ctx,
+		in.ParkID,
+		in.AttractionID,
+		in.Date,
+	)
 }

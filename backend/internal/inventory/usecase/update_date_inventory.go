@@ -35,7 +35,11 @@ func NewUpdateDateInventory(
 //
 // 読んでから書くのは、上書き後の値が不変条件を満たすかを DateInventory 自身に判断させるため
 func (u *UpdateDateInventory) Do(ctx context.Context, in UpdateDateInventoryInput) (*inventorymodel.DateInventory, error) {
-	inventory, err := u.reader.GetDateInventory(ctx, in.ParkID, in.Date)
+	inventory, err := u.reader.GetDateInventory(
+		ctx,
+		in.ParkID,
+		in.Date,
+	)
 	if err != nil {
 		return nil, err
 	}

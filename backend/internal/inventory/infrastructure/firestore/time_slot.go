@@ -20,7 +20,12 @@ type timeSlotDocument struct {
 	Remaining    int32  `firestore:"remaining"`
 }
 
-func (r *Repository) ListTimeSlots(ctx context.Context, parkID inventorymodel.ParkID, attractionID inventorymodel.AttractionID, date inventorymodel.Date) ([]*inventorymodel.TimeSlot, error) {
+func (r *Repository) ListTimeSlots(
+	ctx context.Context,
+	parkID inventorymodel.ParkID,
+	attractionID inventorymodel.AttractionID,
+	date inventorymodel.Date,
+) ([]*inventorymodel.TimeSlot, error) {
 	// ドキュメント ID の範囲ではなく date の等価で絞る、問い合わせを ID の組み立て規則に依存させないため
 	query := r.timeSlots(parkID, attractionID).
 		Where("date", "==", date.String()).
@@ -28,14 +33,26 @@ func (r *Repository) ListTimeSlots(ctx context.Context, parkID inventorymodel.Pa
 
 	snapshots, err := query.Documents(ctx).GetAll()
 	if err != nil {
-		return nil, fmt.Errorf("list time slots %q %q %q: %w", parkID, attractionID, date, err)
+		return nil, fmt.Errorf("list time slots %q %q %q: %w",
+			parkID,
+			attractionID,
+			date,
+			err,
+		)
 	}
 
-	slots := make([]*inventorymodel.TimeSlot, 0, len(snapshots))
+	slots := make(
+		[]*inventorymodel.TimeSlot,
+		0,
+		len(snapshots),
+	)
 	for _, snapshot := range snapshots {
 		var doc timeSlotDocument
 		if err := snapshot.DataTo(&doc); err != nil {
-			return nil, fmt.Errorf("decode time slot %q: %w", snapshot.Ref.ID, err)
+			return nil, fmt.Errorf("decode time slot %q: %w",
+				snapshot.Ref.ID,
+				err,
+			)
 		}
 
 		slot, err := inventorymodel.RestoreTimeSlot(
@@ -48,7 +65,10 @@ func (r *Repository) ListTimeSlots(ctx context.Context, parkID inventorymodel.Pa
 			doc.Remaining,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("restore time slot %q: %w", snapshot.Ref.ID, err)
+			return nil, fmt.Errorf("restore time slot %q: %w",
+				snapshot.Ref.ID,
+				err,
+			)
 		}
 
 		slots = append(slots, slot)

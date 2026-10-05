@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"testing"
 
 	"connectrpc.com/connect"
@@ -14,11 +13,18 @@ import (
 func TestConnectListTimeSlots(t *testing.T) {
 	handler := newHandler(t, newStoredRepository(t))
 
-	in := &inventoryv1.ListTimeSlotsRequest{ParkId: "park-1", AttractionId: "attraction-1", Date: "2026-10-05"}
+	in := &inventoryv1.ListTimeSlotsRequest{
+		ParkId:       "park-1",
+		AttractionId: "attraction-1",
+		Date:         "2026-10-05",
+	}
 
-	res, err := handler.ListTimeSlots(context.Background(), connect.NewRequest(in))
+	res, err := handler.ListTimeSlots(t.Context(), connect.NewRequest(in))
 	if err != nil {
-		t.Fatalf("Connect.ListTimeSlots(%v) = %v, want nil", in, err)
+		t.Fatalf("Connect.ListTimeSlots(%v) = %v, want nil",
+			in,
+			err,
+		)
 	}
 
 	want := []*inventoryv1.TimeSlot{
@@ -42,21 +48,35 @@ func TestConnectListTimeSlots(t *testing.T) {
 		},
 	}
 	if diff := cmp.Diff(want, res.Msg.GetTimeSlots(), protocmp.Transform()); diff != "" {
-		t.Errorf("Connect.ListTimeSlots(%v) の差分 (-want +got):\n%s", in, diff)
+		t.Errorf("Connect.ListTimeSlots(%v) の差分 (-want +got):\n%s",
+			in,
+			diff,
+		)
 	}
 }
 
 func TestConnectListTimeSlotsEmpty(t *testing.T) {
 	handler := newHandler(t, newEmptyRepository())
 
-	in := &inventoryv1.ListTimeSlotsRequest{ParkId: "park-1", AttractionId: "attraction-1", Date: "2026-10-05"}
+	in := &inventoryv1.ListTimeSlotsRequest{
+		ParkId:       "park-1",
+		AttractionId: "attraction-1",
+		Date:         "2026-10-05",
+	}
 
-	res, err := handler.ListTimeSlots(context.Background(), connect.NewRequest(in))
+	res, err := handler.ListTimeSlots(t.Context(), connect.NewRequest(in))
 	if err != nil {
-		t.Fatalf("Connect.ListTimeSlots(%v) = %v, want nil", in, err)
+		t.Fatalf("Connect.ListTimeSlots(%v) = %v, want nil",
+			in,
+			err,
+		)
 	}
 
 	if got := len(res.Msg.GetTimeSlots()); got != 0 {
-		t.Errorf("Connect.ListTimeSlots(%v) の件数 = %d, want %d", in, got, 0)
+		t.Errorf("Connect.ListTimeSlots(%v) の件数 = %d, want %d",
+			in,
+			got,
+			0,
+		)
 	}
 }

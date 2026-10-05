@@ -27,7 +27,14 @@ func newRepository(tb testing.TB) (*Repository, *gcpfirestore.Client) {
 }
 
 // seedDateInventory は枠を作成するジョブの代わりに入場枠を 1 件置く
-func seedDateInventory(tb testing.TB, client *gcpfirestore.Client, parkID inventorymodel.ParkID, date inventorymodel.Date, capacity, remaining int32) {
+func seedDateInventory(
+	tb testing.TB,
+	client *gcpfirestore.Client,
+	parkID inventorymodel.ParkID,
+	date inventorymodel.Date,
+	capacity int32,
+	remaining int32,
+) {
 	tb.Helper()
 
 	doc := client.Collection(parkCollection).
@@ -35,14 +42,26 @@ func seedDateInventory(tb testing.TB, client *gcpfirestore.Client, parkID invent
 		Collection(dateInventoryCollection).
 		Doc(date.String())
 
-	data := dateInventoryDocument{Date: date.String(), Capacity: capacity, Remaining: remaining}
-	if _, err := doc.Set(context.Background(), data); err != nil {
-		tb.Fatalf("Set(%q %q) = %v, want nil", parkID, date, err)
+	data := dateInventoryDocument{
+		Date:      date.String(),
+		Capacity:  capacity,
+		Remaining: remaining,
+	}
+	if _, err := doc.Set(tb.Context(), data); err != nil {
+		tb.Fatalf("Set(%q %q) = %v, want nil",
+			parkID,
+			date,
+			err,
+		)
 	}
 
 	tb.Cleanup(func() {
 		if _, err := doc.Delete(context.Background()); err != nil {
-			tb.Errorf("Delete(%q %q) = %v, want nil", parkID, date, err)
+			tb.Errorf("Delete(%q %q) = %v, want nil",
+				parkID,
+				date,
+				err,
+			)
 		}
 	})
 }
@@ -73,13 +92,19 @@ func seedTimeSlot(
 		Capacity:     60,
 		Remaining:    30,
 	}
-	if _, err := doc.Set(context.Background(), data); err != nil {
-		tb.Fatalf("Set(%q) = %v, want nil", id, err)
+	if _, err := doc.Set(tb.Context(), data); err != nil {
+		tb.Fatalf("Set(%q) = %v, want nil",
+			id,
+			err,
+		)
 	}
 
 	tb.Cleanup(func() {
 		if _, err := doc.Delete(context.Background()); err != nil {
-			tb.Errorf("Delete(%q) = %v, want nil", id, err)
+			tb.Errorf("Delete(%q) = %v, want nil",
+				id,
+				err,
+			)
 		}
 	})
 }

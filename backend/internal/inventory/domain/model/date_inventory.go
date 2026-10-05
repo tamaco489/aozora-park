@@ -12,7 +12,12 @@ type DateInventory struct {
 //
 // 枠の作成は専用のジョブが行うため、この機能パッケージは新規生成を持たない
 // infrastructure が読み出した値を入れる、保存されている値も検証を通す
-func RestoreDateInventory(parkID ParkID, date Date, capacity, remaining int32) (*DateInventory, error) {
+func RestoreDateInventory(
+	parkID ParkID,
+	date Date,
+	capacity int32,
+	remaining int32,
+) (*DateInventory, error) {
 	if parkID == "" {
 		return nil, ErrInvalidParkID
 	}
@@ -21,7 +26,10 @@ func RestoreDateInventory(parkID ParkID, date Date, capacity, remaining int32) (
 		return nil, err
 	}
 
-	d := &DateInventory{parkID: parkID, date: date}
+	d := &DateInventory{
+		parkID: parkID,
+		date:   date,
+	}
 	if err := d.Overwrite(capacity, remaining); err != nil {
 		return nil, err
 	}

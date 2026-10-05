@@ -20,18 +20,30 @@ type dateInventoryDocument struct {
 	Remaining int32  `firestore:"remaining"`
 }
 
-func (r *Repository) GetDateInventory(ctx context.Context, parkID inventorymodel.ParkID, date inventorymodel.Date) (*inventorymodel.DateInventory, error) {
+func (r *Repository) GetDateInventory(
+	ctx context.Context,
+	parkID inventorymodel.ParkID,
+	date inventorymodel.Date,
+) (*inventorymodel.DateInventory, error) {
 	snapshot, err := r.dateInventories(parkID).Doc(date.String()).Get(ctx)
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			return nil, inventorymodel.ErrDateInventoryNotFound
 		}
-		return nil, fmt.Errorf("get date inventory %q %q: %w", parkID, date, err)
+		return nil, fmt.Errorf("get date inventory %q %q: %w",
+			parkID,
+			date,
+			err,
+		)
 	}
 
 	var doc dateInventoryDocument
 	if err := snapshot.DataTo(&doc); err != nil {
-		return nil, fmt.Errorf("decode date inventory %q %q: %w", parkID, date, err)
+		return nil, fmt.Errorf("decode date inventory %q %q: %w",
+			parkID,
+			date,
+			err,
+		)
 	}
 
 	inventory, err := inventorymodel.RestoreDateInventory(
@@ -41,7 +53,11 @@ func (r *Repository) GetDateInventory(ctx context.Context, parkID inventorymodel
 		doc.Remaining,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("restore date inventory %q %q: %w", parkID, date, err)
+		return nil, fmt.Errorf("restore date inventory %q %q: %w",
+			parkID,
+			date,
+			err,
+		)
 	}
 
 	return inventory, nil
@@ -59,7 +75,11 @@ func (r *Repository) UpdateDateInventory(ctx context.Context, inventory *invento
 		if status.Code(err) == codes.NotFound {
 			return inventorymodel.ErrDateInventoryNotFound
 		}
-		return fmt.Errorf("update date inventory %q %q: %w", inventory.ParkID(), inventory.Date(), err)
+		return fmt.Errorf("update date inventory %q %q: %w",
+			inventory.ParkID(),
+			inventory.Date(),
+			err,
+		)
 	}
 
 	return nil

@@ -70,17 +70,33 @@ func TestRestoreDateInventory(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := RestoreDateInventory(tt.parkID, tt.date, tt.capacity, tt.remaining)
+			got, err := RestoreDateInventory(
+				tt.parkID,
+				tt.date,
+				tt.capacity,
+				tt.remaining,
+			)
 
 			if !errors.Is(err, tt.wantErr) {
 				t.Fatalf("RestoreDateInventory(%q, %q, %d, %d) のエラー = %v, want %v",
-					tt.parkID, tt.date, tt.capacity, tt.remaining, err, tt.wantErr)
+					tt.parkID,
+					tt.date,
+					tt.capacity,
+					tt.remaining,
+					err,
+					tt.wantErr,
+				)
 			}
 
 			if tt.wantErr != nil {
 				if got != nil {
 					t.Errorf("RestoreDateInventory(%q, %q, %d, %d) = %v, want nil",
-						tt.parkID, tt.date, tt.capacity, tt.remaining, got)
+						tt.parkID,
+						tt.date,
+						tt.capacity,
+						tt.remaining,
+						got,
+					)
 				}
 				return
 			}
@@ -88,9 +104,19 @@ func TestRestoreDateInventory(t *testing.T) {
 			if got.ParkID() != tt.parkID || got.Date() != tt.date ||
 				got.Capacity() != tt.capacity || got.Remaining() != tt.remaining {
 				t.Errorf("RestoreDateInventory(%q, %q, %d, %d) = (%q, %q, %d, %d), want (%q, %q, %d, %d)",
-					tt.parkID, tt.date, tt.capacity, tt.remaining,
-					got.ParkID(), got.Date(), got.Capacity(), got.Remaining(),
-					tt.parkID, tt.date, tt.capacity, tt.remaining)
+					tt.parkID,
+					tt.date,
+					tt.capacity,
+					tt.remaining,
+					got.ParkID(),
+					got.Date(),
+					got.Capacity(),
+					got.Remaining(),
+					tt.parkID,
+					tt.date,
+					tt.capacity,
+					tt.remaining,
+				)
 			}
 		})
 	}
@@ -129,7 +155,12 @@ func TestDateInventoryOverwrite(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			inventory, err := RestoreDateInventory("park-1", "2026-10-05", 1000, 800)
+			inventory, err := RestoreDateInventory(
+				"park-1",
+				"2026-10-05",
+				1000,
+				800,
+			)
 			if err != nil {
 				t.Fatalf("RestoreDateInventory() = %v, want nil", err)
 			}
@@ -137,7 +168,11 @@ func TestDateInventoryOverwrite(t *testing.T) {
 			err = inventory.Overwrite(tt.capacity, tt.remaining)
 			if !errors.Is(err, tt.wantErr) {
 				t.Fatalf("DateInventory.Overwrite(%d, %d) = %v, want %v",
-					tt.capacity, tt.remaining, err, tt.wantErr)
+					tt.capacity,
+					tt.remaining,
+					err,
+					tt.wantErr,
+				)
 			}
 
 			wantCapacity, wantRemaining := tt.capacity, tt.remaining
@@ -148,8 +183,13 @@ func TestDateInventoryOverwrite(t *testing.T) {
 
 			if inventory.Capacity() != wantCapacity || inventory.Remaining() != wantRemaining {
 				t.Errorf("DateInventory.Overwrite(%d, %d) の後 = (%d, %d), want (%d, %d)",
-					tt.capacity, tt.remaining,
-					inventory.Capacity(), inventory.Remaining(), wantCapacity, wantRemaining)
+					tt.capacity,
+					tt.remaining,
+					inventory.Capacity(),
+					inventory.Remaining(),
+					wantCapacity,
+					wantRemaining,
+				)
 			}
 		})
 	}

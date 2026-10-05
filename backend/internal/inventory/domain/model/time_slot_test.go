@@ -105,17 +105,42 @@ func TestRestoreTimeSlot(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := RestoreTimeSlot(tt.parkID, tt.attractionID, tt.id, tt.date, tt.startTime, tt.capacity, tt.remaining)
+			got, err := RestoreTimeSlot(
+				tt.parkID,
+				tt.attractionID,
+				tt.id,
+				tt.date,
+				tt.startTime,
+				tt.capacity,
+				tt.remaining,
+			)
 
 			if !errors.Is(err, tt.wantErr) {
 				t.Fatalf("RestoreTimeSlot(%q, %q, %q, %q, %q, %d, %d) のエラー = %v, want %v",
-					tt.parkID, tt.attractionID, tt.id, tt.date, tt.startTime, tt.capacity, tt.remaining, err, tt.wantErr)
+					tt.parkID,
+					tt.attractionID,
+					tt.id,
+					tt.date,
+					tt.startTime,
+					tt.capacity,
+					tt.remaining,
+					err,
+					tt.wantErr,
+				)
 			}
 
 			if tt.wantErr != nil {
 				if got != nil {
 					t.Errorf("RestoreTimeSlot(%q, %q, %q, %q, %q, %d, %d) = %v, want nil",
-						tt.parkID, tt.attractionID, tt.id, tt.date, tt.startTime, tt.capacity, tt.remaining, got)
+						tt.parkID,
+						tt.attractionID,
+						tt.id,
+						tt.date,
+						tt.startTime,
+						tt.capacity,
+						tt.remaining,
+						got,
+					)
 				}
 				return
 			}
@@ -124,8 +149,21 @@ func TestRestoreTimeSlot(t *testing.T) {
 				got.Date() != tt.date || got.StartTime() != tt.startTime ||
 				got.Capacity() != tt.capacity || got.Remaining() != tt.remaining {
 				t.Errorf("RestoreTimeSlot(%q, %q, %q, %q, %q, %d, %d) = (%q, %q, %q, %q, %q, %d, %d), want 入力と同じ値",
-					tt.parkID, tt.attractionID, tt.id, tt.date, tt.startTime, tt.capacity, tt.remaining,
-					got.ParkID(), got.AttractionID(), got.ID(), got.Date(), got.StartTime(), got.Capacity(), got.Remaining())
+					tt.parkID,
+					tt.attractionID,
+					tt.id,
+					tt.date,
+					tt.startTime,
+					tt.capacity,
+					tt.remaining,
+					got.ParkID(),
+					got.AttractionID(),
+					got.ID(),
+					got.Date(),
+					got.StartTime(),
+					got.Capacity(),
+					got.Remaining(),
+				)
 			}
 		})
 	}

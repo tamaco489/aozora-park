@@ -24,5 +24,9 @@ func NewGetDateInventory(inventories inventoryrepository.Reader) *GetDateInvento
 }
 
 func (u *GetDateInventory) Do(ctx context.Context, in GetDateInventoryInput) (*inventorymodel.DateInventory, error) {
-	return u.inventories.GetDateInventory(ctx, in.ParkID, in.Date)
+	return u.inventories.GetDateInventory(
+		ctx,
+		in.ParkID,
+		in.Date,
+	)
 }

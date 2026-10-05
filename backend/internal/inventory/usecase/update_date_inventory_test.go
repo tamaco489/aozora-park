@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -17,34 +16,69 @@ func TestUpdateDateInventoryDo(t *testing.T) {
 	}{
 		"正常系_保存済みの場合_上限と残りが入れ替わること": {
 			stored: true,
-			in:     UpdateDateInventoryInput{ParkID: storedParkID, Date: storedDate, Capacity: 2000, Remaining: 1500},
+			in: UpdateDateInventoryInput{
+				ParkID:    storedParkID,
+				Date:      storedDate,
+				Capacity:  2000,
+				Remaining: 1500,
+			},
 		},
 		"境界値_残りが上限と等しい場合_入れ替わること": {
 			stored: true,
-			in:     UpdateDateInventoryInput{ParkID: storedParkID, Date: storedDate, Capacity: 2000, Remaining: 2000},
+			in: UpdateDateInventoryInput{
+				ParkID:    storedParkID,
+				Date:      storedDate,
+				Capacity:  2000,
+				Remaining: 2000,
+			},
 		},
 		"境界値_残りが上限を1超える場合_ErrInvalidRemainingになること": {
-			stored:  true,
-			in:      UpdateDateInventoryInput{ParkID: storedParkID, Date: storedDate, Capacity: 2000, Remaining: 2001},
+			stored: true,
+			in: UpdateDateInventoryInput{
+				ParkID:    storedParkID,
+				Date:      storedDate,
+				Capacity:  2000,
+				Remaining: 2001,
+			},
 			wantErr: inventorymodel.ErrInvalidRemaining,
 		},
 		"異常系_残りが負の場合_ErrInvalidRemainingになること": {
-			stored:  true,
-			in:      UpdateDateInventoryInput{ParkID: storedParkID, Date: storedDate, Capacity: 2000, Remaining: -1},
+			stored: true,
+			in: UpdateDateInventoryInput{
+				ParkID:    storedParkID,
+				Date:      storedDate,
+				Capacity:  2000,
+				Remaining: -1,
+			},
 			wantErr: inventorymodel.ErrInvalidRemaining,
 		},
 		"境界値_上限が0の場合_ErrInvalidCapacityになること": {
-			stored:  true,
-			in:      UpdateDateInventoryInput{ParkID: storedParkID, Date: storedDate, Capacity: 0, Remaining: 0},
+			stored: true,
+			in: UpdateDateInventoryInput{
+				ParkID:    storedParkID,
+				Date:      storedDate,
+				Capacity:  0,
+				Remaining: 0,
+			},
 			wantErr: inventorymodel.ErrInvalidCapacity,
 		},
 		"異常系_保存されていない場合_ErrDateInventoryNotFoundになること": {
-			in:      UpdateDateInventoryInput{ParkID: storedParkID, Date: storedDate, Capacity: 2000, Remaining: 1500},
+			in: UpdateDateInventoryInput{
+				ParkID:    storedParkID,
+				Date:      storedDate,
+				Capacity:  2000,
+				Remaining: 1500,
+			},
 			wantErr: inventorymodel.ErrDateInventoryNotFound,
 		},
 		"異常系_保存に失敗した場合_そのエラーが返ること": {
-			stored:    true,
-			in:        UpdateDateInventoryInput{ParkID: storedParkID, Date: storedDate, Capacity: 2000, Remaining: 1500},
+			stored: true,
+			in: UpdateDateInventoryInput{
+				ParkID:    storedParkID,
+				Date:      storedDate,
+				Capacity:  2000,
+				Remaining: 1500,
+			},
 			updateErr: inventorymodel.ErrDateInventoryNotFound,
 			wantErr:   inventorymodel.ErrDateInventoryNotFound,
 		},
@@ -59,10 +93,14 @@ func TestUpdateDateInventoryDo(t *testing.T) {
 				storeDateInventory(t, repo)
 			}
 
-			got, err := NewUpdateDateInventory(repo, repo).Do(context.Background(), tt.in)
+			got, err := NewUpdateDateInventory(repo, repo).Do(t.Context(), tt.in)
 
 			if !errors.Is(err, tt.wantErr) {
-				t.Fatalf("UpdateDateInventory.Do(%+v) のエラー = %v, want %v", tt.in, err, tt.wantErr)
+				t.Fatalf("UpdateDateInventory.Do(%+v) のエラー = %v, want %v",
+					tt.in,
+					err,
+					tt.wantErr,
+				)
 			}
 
 			if tt.wantErr != nil {
@@ -73,20 +111,35 @@ func TestUpdateDateInventoryDo(t *testing.T) {
 				stored := repo.inventories[dateKey(storedParkID, storedDate)]
 				if stored.Capacity() != storedCapacity || stored.Remaining() != storedRemaining {
 					t.Errorf("UpdateDateInventory.Do(%+v) の失敗後 = (%d, %d), want (%d, %d)",
-						tt.in, stored.Capacity(), stored.Remaining(), storedCapacity, storedRemaining)
+						tt.in,
+						stored.Capacity(),
+						stored.Remaining(),
+						storedCapacity,
+						storedRemaining,
+					)
 				}
 				return
 			}
 
 			if got.Capacity() != tt.in.Capacity || got.Remaining() != tt.in.Remaining {
 				t.Errorf("UpdateDateInventory.Do(%+v) = (%d, %d), want (%d, %d)",
-					tt.in, got.Capacity(), got.Remaining(), tt.in.Capacity, tt.in.Remaining)
+					tt.in,
+					got.Capacity(),
+					got.Remaining(),
+					tt.in.Capacity,
+					tt.in.Remaining,
+				)
 			}
 
 			stored := repo.inventories[dateKey(storedParkID, storedDate)]
 			if stored.Capacity() != tt.in.Capacity || stored.Remaining() != tt.in.Remaining {
 				t.Errorf("UpdateDateInventory.Do(%+v) の保存後 = (%d, %d), want (%d, %d)",
-					tt.in, stored.Capacity(), stored.Remaining(), tt.in.Capacity, tt.in.Remaining)
+					tt.in,
+					stored.Capacity(),
+					stored.Remaining(),
+					tt.in.Capacity,
+					tt.in.Remaining,
+				)
 			}
 		})
 	}

@@ -23,7 +23,11 @@ func (h *Connect) ListTimeSlots(ctx context.Context, req *connect.Request[invent
 	}
 
 	res := &inventoryv1.ListTimeSlotsResponse{
-		TimeSlots: make([]*inventoryv1.TimeSlot, 0, len(slots)),
+		TimeSlots: make(
+			[]*inventoryv1.TimeSlot,
+			0,
+			len(slots),
+		),
 	}
 	for _, slot := range slots {
 		res.TimeSlots = append(res.TimeSlots, toTimeSlotProto(slot))

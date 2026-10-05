@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -16,11 +15,17 @@ import (
 func TestConnectGetDateInventory(t *testing.T) {
 	handler := newHandler(t, newStoredRepository(t))
 
-	in := &inventoryv1.GetDateInventoryRequest{ParkId: "park-1", Date: "2026-10-05"}
+	in := &inventoryv1.GetDateInventoryRequest{
+		ParkId: "park-1",
+		Date:   "2026-10-05",
+	}
 
-	res, err := handler.GetDateInventory(context.Background(), connect.NewRequest(in))
+	res, err := handler.GetDateInventory(t.Context(), connect.NewRequest(in))
 	if err != nil {
-		t.Fatalf("Connect.GetDateInventory(%v) = %v, want nil", in, err)
+		t.Fatalf("Connect.GetDateInventory(%v) = %v, want nil",
+			in,
+			err,
+		)
 	}
 
 	want := &inventoryv1.DateInventory{
@@ -30,18 +35,28 @@ func TestConnectGetDateInventory(t *testing.T) {
 		Remaining: 800,
 	}
 	if diff := cmp.Diff(want, res.Msg.GetDateInventory(), protocmp.Transform()); diff != "" {
-		t.Errorf("Connect.GetDateInventory(%v) の差分 (-want +got):\n%s", in, diff)
+		t.Errorf("Connect.GetDateInventory(%v) の差分 (-want +got):\n%s",
+			in,
+			diff,
+		)
 	}
 }
 
 func TestConnectGetDateInventoryNotFound(t *testing.T) {
 	handler := newHandler(t, newEmptyRepository())
 
-	in := &inventoryv1.GetDateInventoryRequest{ParkId: "park-1", Date: "2026-10-05"}
+	in := &inventoryv1.GetDateInventoryRequest{
+		ParkId: "park-1",
+		Date:   "2026-10-05",
+	}
 
 	// ハンドラはエラーを素通しする、connect の形への変換はインターセプタが行う
-	_, err := handler.GetDateInventory(context.Background(), connect.NewRequest(in))
+	_, err := handler.GetDateInventory(t.Context(), connect.NewRequest(in))
 	if !errors.Is(err, inventorymodel.ErrDateInventoryNotFound) {
-		t.Fatalf("Connect.GetDateInventory(%v) = %v, want %v", in, err, inventorymodel.ErrDateInventoryNotFound)
+		t.Fatalf("Connect.GetDateInventory(%v) = %v, want %v",
+			in,
+			err,
+			inventorymodel.ErrDateInventoryNotFound,
+		)
 	}
 }

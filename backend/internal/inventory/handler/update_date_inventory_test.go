@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -23,9 +22,12 @@ func TestConnectUpdateDateInventory(t *testing.T) {
 		Remaining: 1500,
 	}
 
-	res, err := handler.UpdateDateInventory(context.Background(), connect.NewRequest(in))
+	res, err := handler.UpdateDateInventory(t.Context(), connect.NewRequest(in))
 	if err != nil {
-		t.Fatalf("Connect.UpdateDateInventory(%v) = %v, want nil", in, err)
+		t.Fatalf("Connect.UpdateDateInventory(%v) = %v, want nil",
+			in,
+			err,
+		)
 	}
 
 	want := &inventoryv1.DateInventory{
@@ -35,7 +37,10 @@ func TestConnectUpdateDateInventory(t *testing.T) {
 		Remaining: 1500,
 	}
 	if diff := cmp.Diff(want, res.Msg.GetDateInventory(), protocmp.Transform()); diff != "" {
-		t.Errorf("Connect.UpdateDateInventory(%v) の差分 (-want +got):\n%s", in, diff)
+		t.Errorf("Connect.UpdateDateInventory(%v) の差分 (-want +got):\n%s",
+			in,
+			diff,
+		)
 	}
 }
 
@@ -50,9 +55,13 @@ func TestConnectUpdateDateInventoryInvalidRemaining(t *testing.T) {
 		Remaining: 2001,
 	}
 
-	_, err := handler.UpdateDateInventory(context.Background(), connect.NewRequest(in))
+	_, err := handler.UpdateDateInventory(t.Context(), connect.NewRequest(in))
 	if !errors.Is(err, inventorymodel.ErrInvalidRemaining) {
-		t.Fatalf("Connect.UpdateDateInventory(%v) = %v, want %v", in, err, inventorymodel.ErrInvalidRemaining)
+		t.Fatalf("Connect.UpdateDateInventory(%v) = %v, want %v",
+			in,
+			err,
+			inventorymodel.ErrInvalidRemaining,
+		)
 	}
 }
 
@@ -66,8 +75,12 @@ func TestConnectUpdateDateInventoryNotFound(t *testing.T) {
 		Remaining: 1500,
 	}
 
-	_, err := handler.UpdateDateInventory(context.Background(), connect.NewRequest(in))
+	_, err := handler.UpdateDateInventory(t.Context(), connect.NewRequest(in))
 	if !errors.Is(err, inventorymodel.ErrDateInventoryNotFound) {
-		t.Fatalf("Connect.UpdateDateInventory(%v) = %v, want %v", in, err, inventorymodel.ErrDateInventoryNotFound)
+		t.Fatalf("Connect.UpdateDateInventory(%v) = %v, want %v",
+			in,
+			err,
+			inventorymodel.ErrDateInventoryNotFound,
+		)
 	}
 }

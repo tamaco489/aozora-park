@@ -41,7 +41,11 @@ func TestValidateDate(t *testing.T) {
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 			if err := validateDate(tt.date); !errors.Is(err, tt.wantErr) {
-				t.Errorf("validateDate(%q) = %v, want %v", tt.date, err, tt.wantErr)
+				t.Errorf("validateDate(%q) = %v, want %v",
+					tt.date,
+					err,
+					tt.wantErr,
+				)
 			}
 		})
 	}
@@ -82,7 +86,11 @@ func TestValidateStartTime(t *testing.T) {
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 			if err := validateStartTime(tt.startTime); !errors.Is(err, tt.wantErr) {
-				t.Errorf("validateStartTime(%q) = %v, want %v", tt.startTime, err, tt.wantErr)
+				t.Errorf("validateStartTime(%q) = %v, want %v",
+					tt.startTime,
+					err,
+					tt.wantErr,
+				)
 			}
 		})
 	}
