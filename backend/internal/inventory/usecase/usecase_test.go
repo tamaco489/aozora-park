@@ -49,7 +49,15 @@ func (r *fakeRepository) GetDateInventory(_ context.Context, parkID inventorymod
 	if !ok {
 		return nil, inventorymodel.ErrDateInventoryNotFound
 	}
-	return inventory, nil
+
+	// infrastructure は読み出すたびにドキュメントから組み立て直すため、フェイクも保存済みの実体を渡さない
+	// そのまま渡すと呼び出し側の書き換えが保存先に及び、保存に失敗した場合でも値が戻らなくなる
+	return inventorymodel.RestoreDateInventory(
+		inventory.ParkID(),
+		inventory.Date(),
+		inventory.Capacity(),
+		inventory.Remaining(),
+	)
 }
 
 func (r *fakeRepository) ListTimeSlots(_ context.Context, parkID inventorymodel.ParkID, attractionID inventorymodel.AttractionID, date inventorymodel.Date) ([]*inventorymodel.TimeSlot, error) {
