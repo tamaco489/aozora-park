@@ -26,7 +26,10 @@ func TestNew(t *testing.T) {
 
 	want := map[string]any{"name": "Aozora Park"}
 	if _, err := doc.Set(ctx, want); err != nil {
-		t.Fatalf("doc.Set(%v) = %v, want nil", want, err)
+		t.Fatalf("doc.Set(%v) = %v, want nil",
+			want,
+			err,
+		)
 	}
 
 	snapshot, err := doc.Get(ctx)
@@ -35,6 +38,9 @@ func TestNew(t *testing.T) {
 	}
 
 	if got := snapshot.Data()["name"]; got != want["name"] {
-		t.Errorf("doc.Get() の name = %v, want %v", got, want["name"])
+		t.Errorf("doc.Get() の name = %v, want %v",
+			got,
+			want["name"],
+		)
 	}
 }

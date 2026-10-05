@@ -58,7 +58,14 @@ func RestoreTicketType(
 	if id == "" {
 		return nil, ErrTicketTypeInvalidID
 	}
-	return newTicketType(parkID, id, name, price, entryTimeFrom, entryTimeTo)
+	return newTicketType(
+		parkID,
+		id,
+		name,
+		price,
+		entryTimeFrom,
+		entryTimeTo,
+	)
 }
 
 func newTicketType(
@@ -73,7 +80,10 @@ func newTicketType(
 		return nil, ErrInvalidID
 	}
 
-	t := &TicketType{parkID: parkID, id: id}
+	t := &TicketType{
+		parkID: parkID,
+		id:     id,
+	}
 	if err := t.apply(name, price, entryTimeFrom, entryTimeTo); err != nil {
 		return nil, err
 	}
@@ -90,7 +100,12 @@ func (t *TicketType) Update(
 	entryTimeFrom string,
 	entryTimeTo string,
 ) error {
-	return t.apply(name, price, entryTimeFrom, entryTimeTo)
+	return t.apply(
+		name,
+		price,
+		entryTimeFrom,
+		entryTimeTo,
+	)
 }
 
 func (t *TicketType) apply(
@@ -99,7 +114,12 @@ func (t *TicketType) apply(
 	entryTimeFrom string,
 	entryTimeTo string,
 ) error {
-	err := validateTicketType(name, price, entryTimeFrom, entryTimeTo)
+	err := validateTicketType(
+		name,
+		price,
+		entryTimeFrom,
+		entryTimeTo,
+	)
 	if err != nil {
 		return err
 	}

@@ -40,17 +40,36 @@ func (r *Repository) GetTicketType(
 		if status.Code(err) == codes.NotFound {
 			return nil, parkmodel.ErrTicketTypeNotFound
 		}
-		return nil, fmt.Errorf("get ticket type %q of park %q: %w", id, parkID, err)
+		return nil, fmt.Errorf("get ticket type %q of park %q: %w",
+			id,
+			parkID,
+			err,
+		)
 	}
 
 	var doc ticketTypeDocument
 	if err := snapshot.DataTo(&doc); err != nil {
-		return nil, fmt.Errorf("decode ticket type %q of park %q: %w", id, parkID, err)
+		return nil, fmt.Errorf("decode ticket type %q of park %q: %w",
+			id,
+			parkID,
+			err,
+		)
 	}
 
-	ticketType, err := parkmodel.RestoreTicketType(parkID, id, doc.Name, doc.Price, doc.EntryTimeFrom, doc.EntryTimeTo)
+	ticketType, err := parkmodel.RestoreTicketType(
+		parkID,
+		id,
+		doc.Name,
+		doc.Price,
+		doc.EntryTimeFrom,
+		doc.EntryTimeTo,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("restore ticket type %q of park %q: %w", id, parkID, err)
+		return nil, fmt.Errorf("restore ticket type %q of park %q: %w",
+			id,
+			parkID,
+			err,
+		)
 	}
 
 	return ticketType, nil
@@ -64,7 +83,11 @@ func (r *Repository) CreateTicketType(ctx context.Context, ticketType *parkmodel
 		if status.Code(err) == codes.AlreadyExists {
 			return parkmodel.ErrTicketTypeAlreadyExists
 		}
-		return fmt.Errorf("create ticket type %q of park %q: %w", ticketType.ID(), ticketType.ParkID(), err)
+		return fmt.Errorf("create ticket type %q of park %q: %w",
+			ticketType.ID(),
+			ticketType.ParkID(),
+			err,
+		)
 	}
 
 	return nil
@@ -84,7 +107,11 @@ func (r *Repository) UpdateTicketType(ctx context.Context, ticketType *parkmodel
 		if status.Code(err) == codes.NotFound {
 			return parkmodel.ErrTicketTypeNotFound
 		}
-		return fmt.Errorf("update ticket type %q of park %q: %w", ticketType.ID(), ticketType.ParkID(), err)
+		return fmt.Errorf("update ticket type %q of park %q: %w",
+			ticketType.ID(),
+			ticketType.ParkID(),
+			err,
+		)
 	}
 
 	return nil

@@ -86,7 +86,12 @@ func (r *fakeRepository) Update(_ context.Context, park *parkmodel.Park) error {
 func store(tb testing.TB, repo *fakeRepository) *parkmodel.Park {
 	tb.Helper()
 
-	park, err := parkmodel.Restore("park-1", "Aozora Park", 1000, 30)
+	park, err := parkmodel.Restore(
+		"park-1",
+		"Aozora Park",
+		1000,
+		30,
+	)
 	if err != nil {
 		tb.Fatalf("Restore() = %v, want nil", err)
 	}
@@ -100,7 +105,10 @@ func (r *fakeRepository) GetAttraction(
 	parkID parkmodel.ParkID,
 	id parkmodel.AttractionID,
 ) (*parkmodel.Attraction, error) {
-	attraction, ok := r.attractions[attractionKey{parkID: parkID, id: id}]
+	attraction, ok := r.attractions[attractionKey{
+		parkID: parkID,
+		id:     id,
+	}]
 	if !ok {
 		return nil, parkmodel.ErrAttractionNotFound
 	}
@@ -112,7 +120,10 @@ func (r *fakeRepository) CreateAttraction(_ context.Context, attraction *parkmod
 		return r.createAttractionErr
 	}
 
-	key := attractionKey{parkID: attraction.ParkID(), id: attraction.ID()}
+	key := attractionKey{
+		parkID: attraction.ParkID(),
+		id:     attraction.ID(),
+	}
 	if _, ok := r.attractions[key]; ok {
 		return parkmodel.ErrAttractionAlreadyExists
 	}
@@ -126,7 +137,10 @@ func (r *fakeRepository) UpdateAttraction(_ context.Context, attraction *parkmod
 		return r.updateAttractionErr
 	}
 
-	key := attractionKey{parkID: attraction.ParkID(), id: attraction.ID()}
+	key := attractionKey{
+		parkID: attraction.ParkID(),
+		id:     attraction.ID(),
+	}
 	if _, ok := r.attractions[key]; !ok {
 		return parkmodel.ErrAttractionNotFound
 	}
@@ -140,7 +154,10 @@ func (r *fakeRepository) GetTicketType(
 	parkID parkmodel.ParkID,
 	id parkmodel.TicketTypeID,
 ) (*parkmodel.TicketType, error) {
-	ticketType, ok := r.ticketTypes[ticketTypeKey{parkID: parkID, id: id}]
+	ticketType, ok := r.ticketTypes[ticketTypeKey{
+		parkID: parkID,
+		id:     id,
+	}]
 	if !ok {
 		return nil, parkmodel.ErrTicketTypeNotFound
 	}
@@ -152,7 +169,10 @@ func (r *fakeRepository) CreateTicketType(_ context.Context, ticketType *parkmod
 		return r.createTicketTypeErr
 	}
 
-	key := ticketTypeKey{parkID: ticketType.ParkID(), id: ticketType.ID()}
+	key := ticketTypeKey{
+		parkID: ticketType.ParkID(),
+		id:     ticketType.ID(),
+	}
 	if _, ok := r.ticketTypes[key]; ok {
 		return parkmodel.ErrTicketTypeAlreadyExists
 	}
@@ -166,7 +186,10 @@ func (r *fakeRepository) UpdateTicketType(_ context.Context, ticketType *parkmod
 		return r.updateTicketTypeErr
 	}
 
-	key := ticketTypeKey{parkID: ticketType.ParkID(), id: ticketType.ID()}
+	key := ticketTypeKey{
+		parkID: ticketType.ParkID(),
+		id:     ticketType.ID(),
+	}
 	if _, ok := r.ticketTypes[key]; !ok {
 		return parkmodel.ErrTicketTypeNotFound
 	}
@@ -179,7 +202,13 @@ func (r *fakeRepository) UpdateTicketType(_ context.Context, ticketType *parkmod
 func priorityPassConfig(tb testing.TB) parkmodel.PriorityPassConfig {
 	tb.Helper()
 
-	config, err := parkmodel.NewPriorityPassConfig(true, "09:00", "18:00", 30, 10)
+	config, err := parkmodel.NewPriorityPassConfig(
+		true,
+		"09:00",
+		"18:00",
+		30,
+		10,
+	)
 	if err != nil {
 		tb.Fatalf("NewPriorityPassConfig() = %v, want nil", err)
 	}
@@ -191,11 +220,19 @@ func priorityPassConfig(tb testing.TB) parkmodel.PriorityPassConfig {
 func storeAttraction(tb testing.TB, repo *fakeRepository) *parkmodel.Attraction {
 	tb.Helper()
 
-	attraction, err := parkmodel.RestoreAttraction("park-1", "attraction-1", "ジェットコースター", priorityPassConfig(tb))
+	attraction, err := parkmodel.RestoreAttraction(
+		"park-1",
+		"attraction-1",
+		"ジェットコースター",
+		priorityPassConfig(tb),
+	)
 	if err != nil {
 		tb.Fatalf("RestoreAttraction() = %v, want nil", err)
 	}
-	repo.attractions[attractionKey{parkID: attraction.ParkID(), id: attraction.ID()}] = attraction
+	repo.attractions[attractionKey{
+		parkID: attraction.ParkID(),
+		id:     attraction.ID(),
+	}] = attraction
 
 	return attraction
 }
@@ -204,11 +241,21 @@ func storeAttraction(tb testing.TB, repo *fakeRepository) *parkmodel.Attraction 
 func storeTicketType(tb testing.TB, repo *fakeRepository) *parkmodel.TicketType {
 	tb.Helper()
 
-	ticketType, err := parkmodel.RestoreTicketType("park-1", "ticket-type-1", "1 デーパスポート", 8000, "09:00", "21:00")
+	ticketType, err := parkmodel.RestoreTicketType(
+		"park-1",
+		"ticket-type-1",
+		"1 デーパスポート",
+		8000,
+		"09:00",
+		"21:00",
+	)
 	if err != nil {
 		tb.Fatalf("RestoreTicketType() = %v, want nil", err)
 	}
-	repo.ticketTypes[ticketTypeKey{parkID: ticketType.ParkID(), id: ticketType.ID()}] = ticketType
+	repo.ticketTypes[ticketTypeKey{
+		parkID: ticketType.ParkID(),
+		id:     ticketType.ID(),
+	}] = ticketType
 
 	return ticketType
 }

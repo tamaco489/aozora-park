@@ -53,7 +53,11 @@ func (u *CreateAttraction) Do(ctx context.Context, in CreateAttractionInput) (*p
 		return nil, err
 	}
 
-	attraction, err := parkmodel.NewAttraction(in.ParkID, in.Name, config)
+	attraction, err := parkmodel.NewAttraction(
+		in.ParkID,
+		in.Name,
+		config,
+	)
 	if err != nil {
 		return nil, err
 	}

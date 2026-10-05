@@ -62,10 +62,12 @@ func (c PriorityPassConfig) validate() error {
 		return ErrAttractionInvalidTimeRange
 	}
 
+	// 0 以下だと generate-inventory が開始時刻から先に進めず、枠を刻み終えられない
 	if c.intervalMinutes < intervalMinutesMin {
 		return ErrAttractionInvalidIntervalMinutes
 	}
 
+	// 0 だと 1 枚も出せない枠ができ、申込が必ず sold_out になる
 	if c.capacityPerSlot < capacityPerSlotMin {
 		return ErrAttractionInvalidCapacityPerSlot
 	}
@@ -99,7 +101,12 @@ func NewAttraction(
 	name string,
 	config PriorityPassConfig,
 ) (*Attraction, error) {
-	return newAttraction(parkID, AttractionID(uuid.NewV7().String()), name, config)
+	return newAttraction(
+		parkID,
+		AttractionID(uuid.NewV7().String()),
+		name,
+		config,
+	)
 }
 
 // RestoreAttraction は保存済みのアトラクションを組み立てる
@@ -114,7 +121,12 @@ func RestoreAttraction(
 	if id == "" {
 		return nil, ErrAttractionInvalidID
 	}
-	return newAttraction(parkID, id, name, config)
+	return newAttraction(
+		parkID,
+		id,
+		name,
+		config,
+	)
 }
 
 func newAttraction(
@@ -127,7 +139,10 @@ func newAttraction(
 		return nil, ErrInvalidID
 	}
 
-	a := &Attraction{parkID: parkID, id: id}
+	a := &Attraction{
+		parkID: parkID,
+		id:     id,
+	}
 	if err := a.apply(name, config); err != nil {
 		return nil, err
 	}

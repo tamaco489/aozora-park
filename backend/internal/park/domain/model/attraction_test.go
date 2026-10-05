@@ -10,7 +10,13 @@ import (
 func validConfig(tb testing.TB) PriorityPassConfig {
 	tb.Helper()
 
-	config, err := NewPriorityPassConfig(true, "09:00", "18:00", 30, 10)
+	config, err := NewPriorityPassConfig(
+		true,
+		"09:00",
+		"18:00",
+		30,
+		10,
+	)
 	if err != nil {
 		tb.Fatalf("NewPriorityPassConfig() = %v, want nil", err)
 	}
@@ -116,11 +122,24 @@ func TestNewPriorityPassConfig(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := NewPriorityPassConfig(tt.enabled, tt.startTime, tt.endTime, tt.intervalMinutes, tt.capacityPerSlot)
+			got, err := NewPriorityPassConfig(
+				tt.enabled,
+				tt.startTime,
+				tt.endTime,
+				tt.intervalMinutes,
+				tt.capacityPerSlot,
+			)
 
 			if !errors.Is(err, tt.wantErr) {
 				t.Fatalf("NewPriorityPassConfig(%t, %q, %q, %d, %d) のエラー = %v, want %v",
-					tt.enabled, tt.startTime, tt.endTime, tt.intervalMinutes, tt.capacityPerSlot, err, tt.wantErr)
+					tt.enabled,
+					tt.startTime,
+					tt.endTime,
+					tt.intervalMinutes,
+					tt.capacityPerSlot,
+					err,
+					tt.wantErr,
+				)
 			}
 
 			if tt.wantErr != nil {
@@ -131,19 +150,34 @@ func TestNewPriorityPassConfig(t *testing.T) {
 			}
 
 			if got.Enabled() != tt.enabled {
-				t.Errorf("NewPriorityPassConfig(...) の Enabled = %t, want %t", got.Enabled(), tt.enabled)
+				t.Errorf("NewPriorityPassConfig(...) の Enabled = %t, want %t",
+					got.Enabled(),
+					tt.enabled,
+				)
 			}
 			if got.StartTime() != tt.startTime {
-				t.Errorf("NewPriorityPassConfig(...) の StartTime = %q, want %q", got.StartTime(), tt.startTime)
+				t.Errorf("NewPriorityPassConfig(...) の StartTime = %q, want %q",
+					got.StartTime(),
+					tt.startTime,
+				)
 			}
 			if got.EndTime() != tt.endTime {
-				t.Errorf("NewPriorityPassConfig(...) の EndTime = %q, want %q", got.EndTime(), tt.endTime)
+				t.Errorf("NewPriorityPassConfig(...) の EndTime = %q, want %q",
+					got.EndTime(),
+					tt.endTime,
+				)
 			}
 			if got.IntervalMinutes() != tt.intervalMinutes {
-				t.Errorf("NewPriorityPassConfig(...) の IntervalMinutes = %d, want %d", got.IntervalMinutes(), tt.intervalMinutes)
+				t.Errorf("NewPriorityPassConfig(...) の IntervalMinutes = %d, want %d",
+					got.IntervalMinutes(),
+					tt.intervalMinutes,
+				)
 			}
 			if got.CapacityPerSlot() != tt.capacityPerSlot {
-				t.Errorf("NewPriorityPassConfig(...) の CapacityPerSlot = %d, want %d", got.CapacityPerSlot(), tt.capacityPerSlot)
+				t.Errorf("NewPriorityPassConfig(...) の CapacityPerSlot = %d, want %d",
+					got.CapacityPerSlot(),
+					tt.capacityPerSlot,
+				)
 			}
 		})
 	}
@@ -182,15 +216,28 @@ func TestNewAttraction(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := NewAttraction(tt.parkID, tt.name, validConfig(t))
+			got, err := NewAttraction(
+				tt.parkID,
+				tt.name,
+				validConfig(t),
+			)
 
 			if !errors.Is(err, tt.wantErr) {
-				t.Fatalf("NewAttraction(%q, %q, ...) のエラー = %v, want %v", tt.parkID, tt.name, err, tt.wantErr)
+				t.Fatalf("NewAttraction(%q, %q, ...) のエラー = %v, want %v",
+					tt.parkID,
+					tt.name,
+					err,
+					tt.wantErr,
+				)
 			}
 
 			if tt.wantErr != nil {
 				if got != nil {
-					t.Errorf("NewAttraction(%q, %q, ...) = %v, want nil", tt.parkID, tt.name, got)
+					t.Errorf("NewAttraction(%q, %q, ...) = %v, want nil",
+						tt.parkID,
+						tt.name,
+						got,
+					)
 				}
 				return
 			}
@@ -199,10 +246,16 @@ func TestNewAttraction(t *testing.T) {
 				t.Error("NewAttraction() の ID が空、採番されていない")
 			}
 			if got.ParkID() != tt.parkID {
-				t.Errorf("NewAttraction() の ParkID = %q, want %q", got.ParkID(), tt.parkID)
+				t.Errorf("NewAttraction() の ParkID = %q, want %q",
+					got.ParkID(),
+					tt.parkID,
+				)
 			}
 			if got.Name() != tt.name {
-				t.Errorf("NewAttraction() の Name = %q, want %q", got.Name(), tt.name)
+				t.Errorf("NewAttraction() の Name = %q, want %q",
+					got.Name(),
+					tt.name,
+				)
 			}
 		})
 	}
@@ -210,10 +263,17 @@ func TestNewAttraction(t *testing.T) {
 
 func TestNewAttractionRejectsZeroConfig(t *testing.T) {
 	// ゼロ値の条件は検証を通っていないため、Attraction が受け取った時点で弾く
-	got, err := NewAttraction("park-1", "ジェットコースター", PriorityPassConfig{})
+	got, err := NewAttraction(
+		"park-1",
+		"ジェットコースター",
+		PriorityPassConfig{},
+	)
 
 	if !errors.Is(err, ErrAttractionInvalidTime) {
-		t.Fatalf("NewAttraction(..., PriorityPassConfig{}) のエラー = %v, want %v", err, ErrAttractionInvalidTime)
+		t.Fatalf("NewAttraction(..., PriorityPassConfig{}) のエラー = %v, want %v",
+			err,
+			ErrAttractionInvalidTime,
+		)
 	}
 	if got != nil {
 		t.Errorf("NewAttraction(..., PriorityPassConfig{}) = %v, want nil", got)
@@ -223,12 +283,20 @@ func TestNewAttractionRejectsZeroConfig(t *testing.T) {
 func TestNewAttractionGeneratesDistinctIDs(t *testing.T) {
 	config := validConfig(t)
 
-	first, err := NewAttraction("park-1", "ジェットコースター", config)
+	first, err := NewAttraction(
+		"park-1",
+		"ジェットコースター",
+		config,
+	)
 	if err != nil {
 		t.Fatalf("NewAttraction() = %v, want nil", err)
 	}
 
-	second, err := NewAttraction("park-1", "ジェットコースター", config)
+	second, err := NewAttraction(
+		"park-1",
+		"ジェットコースター",
+		config,
+	)
 	if err != nil {
 		t.Fatalf("NewAttraction() = %v, want nil", err)
 	}
@@ -254,14 +322,27 @@ func TestRestoreAttraction(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := RestoreAttraction("park-1", tt.id, "ジェットコースター", validConfig(t))
+			got, err := RestoreAttraction(
+				"park-1",
+				tt.id,
+				"ジェットコースター",
+				validConfig(t),
+			)
 
 			if !errors.Is(err, tt.wantErr) {
-				t.Fatalf("RestoreAttraction(%q, ...) のエラー = %v, want %v", tt.id, err, tt.wantErr)
+				t.Fatalf("RestoreAttraction(%q, ...) のエラー = %v, want %v",
+					tt.id,
+					err,
+					tt.wantErr,
+				)
 			}
 
 			if tt.wantErr == nil && got.ID() != tt.id {
-				t.Errorf("RestoreAttraction(%q, ...) の ID = %q, want %q", tt.id, got.ID(), tt.id)
+				t.Errorf("RestoreAttraction(%q, ...) の ID = %q, want %q",
+					tt.id,
+					got.ID(),
+					tt.id,
+				)
 			}
 		})
 	}
@@ -295,39 +376,69 @@ func TestAttraction_Update(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			attraction, err := RestoreAttraction("park-1", "attraction-1", "ジェットコースター", validConfig(t))
+			attraction, err := RestoreAttraction(
+				"park-1",
+				"attraction-1",
+				"ジェットコースター",
+				validConfig(t),
+			)
 			if err != nil {
 				t.Fatalf("RestoreAttraction() = %v, want nil", err)
 			}
 
-			config, err := NewPriorityPassConfig(false, tt.startTime, tt.endTime, tt.intervalMinutes, tt.capacityPerSlot)
+			config, err := NewPriorityPassConfig(
+				false,
+				tt.startTime,
+				tt.endTime,
+				tt.intervalMinutes,
+				tt.capacityPerSlot,
+			)
 			if err != nil {
 				t.Fatalf("NewPriorityPassConfig() = %v, want nil", err)
 			}
 
 			err = attraction.Update(tt.name, config)
 			if !errors.Is(err, tt.wantErr) {
-				t.Fatalf("Attraction.Update(%q, %+v) = %v, want %v", tt.name, config, err, tt.wantErr)
+				t.Fatalf("Attraction.Update(%q, %+v) = %v, want %v",
+					tt.name,
+					config,
+					err,
+					tt.wantErr,
+				)
 			}
 
 			if tt.wantErr != nil {
 				// 検証に失敗したときは元の値を保つ
 				if attraction.Name() != "ジェットコースター" || attraction.PriorityPassConfig() != validConfig(t) {
 					t.Errorf("Attraction.Update() の失敗後 = (%q, %+v), want (%q, %+v)",
-						attraction.Name(), attraction.PriorityPassConfig(), "ジェットコースター", validConfig(t))
+						attraction.Name(),
+						attraction.PriorityPassConfig(),
+						"ジェットコースター",
+						validConfig(t),
+					)
 				}
 				return
 			}
 
 			if attraction.Name() != tt.name {
-				t.Errorf("Attraction.Update() 後の Name = %q, want %q", attraction.Name(), tt.name)
+				t.Errorf("Attraction.Update() 後の Name = %q, want %q",
+					attraction.Name(),
+					tt.name,
+				)
 			}
 			if attraction.PriorityPassConfig() != config {
-				t.Errorf("Attraction.Update() 後の PriorityPassConfig = %+v, want %+v", attraction.PriorityPassConfig(), config)
+				t.Errorf("Attraction.Update() 後の PriorityPassConfig = %+v, want %+v",
+					attraction.PriorityPassConfig(),
+					config,
+				)
 			}
 			if attraction.ID() != "attraction-1" || attraction.ParkID() != "park-1" {
 				t.Errorf("Attraction.Update() 後の識別子 = (%q, %q), want (%q, %q)",
-					attraction.ParkID(), attraction.ID(), "park-1", "attraction-1")
+					attraction.ParkID(),
+					attraction.ID(),
+					"park-1",
+					"attraction-1",
+				)
 			}
 		})
 	}

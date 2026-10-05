@@ -28,7 +28,10 @@ func TestConnectCreateAttraction(t *testing.T) {
 
 	res, err := handler.CreateAttraction(context.Background(), connect.NewRequest(in))
 	if err != nil {
-		t.Fatalf("Connect.CreateAttraction(%v) = %v, want nil", in, err)
+		t.Fatalf("Connect.CreateAttraction(%v) = %v, want nil",
+			in,
+			err,
+		)
 	}
 
 	got := res.Msg.GetAttraction()
@@ -52,7 +55,10 @@ func TestConnectCreateAttraction(t *testing.T) {
 		t.Errorf("Connect.CreateAttraction() の差分 (-want +got):\n%s", diff)
 	}
 
-	key := attractionKey{parkID: "park-1", id: parkmodel.AttractionID(got.GetAttractionId())}
+	key := attractionKey{
+		parkID: "park-1",
+		id:     parkmodel.AttractionID(got.GetAttractionId()),
+	}
 	if _, ok := repo.attractions[key]; !ok {
 		t.Errorf("Connect.CreateAttraction() の後に %q が保存されていない", got.GetAttractionId())
 	}
@@ -74,6 +80,10 @@ func TestConnectCreateAttractionParkNotFound(t *testing.T) {
 	// ハンドラはエラーを素通しする、connect の形への変換はインターセプタが行う
 	_, err := handler.CreateAttraction(context.Background(), connect.NewRequest(in))
 	if !errors.Is(err, parkmodel.ErrNotFound) {
-		t.Fatalf("Connect.CreateAttraction(%v) = %v, want %v", in, err, parkmodel.ErrNotFound)
+		t.Fatalf("Connect.CreateAttraction(%v) = %v, want %v",
+			in,
+			err,
+			parkmodel.ErrNotFound,
+		)
 	}
 }

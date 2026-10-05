@@ -79,26 +79,42 @@ func TestCreateAttractionDo(t *testing.T) {
 			got, err := NewCreateAttraction(repo, repo).Do(context.Background(), tt.in)
 
 			if !errors.Is(err, tt.wantErr) {
-				t.Fatalf("CreateAttraction.Do(%+v) のエラー = %v, want %v", tt.in, err, tt.wantErr)
+				t.Fatalf("CreateAttraction.Do(%+v) のエラー = %v, want %v",
+					tt.in,
+					err,
+					tt.wantErr,
+				)
 			}
 
 			if tt.wantErr != nil {
 				if len(repo.attractions) != 0 {
-					t.Errorf("CreateAttraction.Do(%+v) の後の保存件数 = %d, want 0", tt.in, len(repo.attractions))
+					t.Errorf("CreateAttraction.Do(%+v) の後の保存件数 = %d, want 0",
+						tt.in,
+						len(repo.attractions),
+					)
 				}
 				return
 			}
 
-			key := attractionKey{parkID: got.ParkID(), id: got.ID()}
+			key := attractionKey{
+				parkID: got.ParkID(),
+				id:     got.ID(),
+			}
 			if _, ok := repo.attractions[key]; !ok {
-				t.Errorf("CreateAttraction.Do(%+v) の後に %q が保存されていない", tt.in, got.ID())
+				t.Errorf("CreateAttraction.Do(%+v) の後に %q が保存されていない",
+					tt.in,
+					got.ID(),
+				)
 			}
 			if got.ID() == "" {
 				t.Error("CreateAttraction.Do() の ID が空、採番されていない")
 			}
 			if got.PriorityPassConfig().CapacityPerSlot() != tt.in.CapacityPerSlot {
 				t.Errorf("CreateAttraction.Do(%+v) の CapacityPerSlot = %d, want %d",
-					tt.in, got.PriorityPassConfig().CapacityPerSlot(), tt.in.CapacityPerSlot)
+					tt.in,
+					got.PriorityPassConfig().CapacityPerSlot(),
+					tt.in.CapacityPerSlot,
+				)
 			}
 		})
 	}

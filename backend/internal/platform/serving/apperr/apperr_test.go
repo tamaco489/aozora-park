@@ -37,17 +37,28 @@ func TestKindConnectCode(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			got := tt.kind.ConnectCode()
 			if got != tt.want {
-				t.Errorf("Kind(%q).ConnectCode() = %v, want %v", tt.kind, got, tt.want)
+				t.Errorf("Kind(%q).ConnectCode() = %v, want %v",
+					tt.kind,
+					got,
+					tt.want,
+				)
 			}
 		})
 	}
 }
 
 func TestErrorError(t *testing.T) {
-	err := New(KindConflict, "PARK_ALREADY_EXISTS", "同じパークが既にある")
+	err := New(
+		KindConflict,
+		"PARK_ALREADY_EXISTS",
+		"同じパークが既にある",
+	)
 
 	want := "PARK_ALREADY_EXISTS: 同じパークが既にある"
 	if got := err.Error(); got != want {
-		t.Errorf("New(...).Error() = %q, want %q", got, want)
+		t.Errorf("New(...).Error() = %q, want %q",
+			got,
+			want,
+		)
 	}
 }

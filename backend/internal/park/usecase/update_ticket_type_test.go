@@ -70,26 +70,45 @@ func TestUpdateTicketTypeDo(t *testing.T) {
 			got, err := NewUpdateTicketType(repo, repo).Do(context.Background(), tt.in)
 
 			if !errors.Is(err, tt.wantErr) {
-				t.Fatalf("UpdateTicketType.Do(%+v) のエラー = %v, want %v", tt.in, err, tt.wantErr)
+				t.Fatalf("UpdateTicketType.Do(%+v) のエラー = %v, want %v",
+					tt.in,
+					err,
+					tt.wantErr,
+				)
 			}
 
-			key := ticketTypeKey{parkID: "park-1", id: "ticket-type-1"}
+			key := ticketTypeKey{
+				parkID: "park-1",
+				id:     "ticket-type-1",
+			}
 
 			if tt.wantErr != nil {
 				if tt.stored {
 					// 保存済みの値が書き換わっていないことを確かめる
 					if stored := repo.ticketTypes[key]; stored.Price() != 8000 {
-						t.Errorf("UpdateTicketType.Do(%+v) の失敗後の Price = %d, want %d", tt.in, stored.Price(), 8000)
+						t.Errorf("UpdateTicketType.Do(%+v) の失敗後の Price = %d, want %d",
+							tt.in,
+							stored.Price(),
+							8000,
+						)
 					}
 				}
 				return
 			}
 
 			if got.Name() != tt.in.Name {
-				t.Errorf("UpdateTicketType.Do(%+v) の Name = %q, want %q", tt.in, got.Name(), tt.in.Name)
+				t.Errorf("UpdateTicketType.Do(%+v) の Name = %q, want %q",
+					tt.in,
+					got.Name(),
+					tt.in.Name,
+				)
 			}
 			if stored := repo.ticketTypes[key]; stored.Price() != tt.in.Price {
-				t.Errorf("UpdateTicketType.Do(%+v) の後の Price = %d, want %d", tt.in, stored.Price(), tt.in.Price)
+				t.Errorf("UpdateTicketType.Do(%+v) の後の Price = %d, want %d",
+					tt.in,
+					stored.Price(),
+					tt.in.Price,
+				)
 			}
 		})
 	}

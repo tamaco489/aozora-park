@@ -39,7 +39,11 @@ func NewUpdateAttraction(
 //
 // 読んでから書くのは、更新後の値が不変条件を満たすかを Attraction 自身に判断させるため
 func (u *UpdateAttraction) Do(ctx context.Context, in UpdateAttractionInput) (*parkmodel.Attraction, error) {
-	attraction, err := u.reader.GetAttraction(ctx, in.ParkID, in.ID)
+	attraction, err := u.reader.GetAttraction(
+		ctx,
+		in.ParkID,
+		in.ID,
+	)
 	if err != nil {
 		return nil, err
 	}

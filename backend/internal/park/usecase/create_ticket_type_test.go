@@ -83,25 +83,42 @@ func TestCreateTicketTypeDo(t *testing.T) {
 			got, err := NewCreateTicketType(repo, repo).Do(context.Background(), tt.in)
 
 			if !errors.Is(err, tt.wantErr) {
-				t.Fatalf("CreateTicketType.Do(%+v) のエラー = %v, want %v", tt.in, err, tt.wantErr)
+				t.Fatalf("CreateTicketType.Do(%+v) のエラー = %v, want %v",
+					tt.in,
+					err,
+					tt.wantErr,
+				)
 			}
 
 			if tt.wantErr != nil {
 				if len(repo.ticketTypes) != 0 {
-					t.Errorf("CreateTicketType.Do(%+v) の後の保存件数 = %d, want 0", tt.in, len(repo.ticketTypes))
+					t.Errorf("CreateTicketType.Do(%+v) の後の保存件数 = %d, want 0",
+						tt.in,
+						len(repo.ticketTypes),
+					)
 				}
 				return
 			}
 
-			key := ticketTypeKey{parkID: got.ParkID(), id: got.ID()}
+			key := ticketTypeKey{
+				parkID: got.ParkID(),
+				id:     got.ID(),
+			}
 			if _, ok := repo.ticketTypes[key]; !ok {
-				t.Errorf("CreateTicketType.Do(%+v) の後に %q が保存されていない", tt.in, got.ID())
+				t.Errorf("CreateTicketType.Do(%+v) の後に %q が保存されていない",
+					tt.in,
+					got.ID(),
+				)
 			}
 			if got.ID() == "" {
 				t.Error("CreateTicketType.Do() の ID が空、採番されていない")
 			}
 			if got.Price() != tt.in.Price {
-				t.Errorf("CreateTicketType.Do(%+v) の Price = %d, want %d", tt.in, got.Price(), tt.in.Price)
+				t.Errorf("CreateTicketType.Do(%+v) の Price = %d, want %d",
+					tt.in,
+					got.Price(),
+					tt.in.Price,
+				)
 			}
 		})
 	}

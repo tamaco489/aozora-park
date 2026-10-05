@@ -15,11 +15,18 @@ import (
 func TestConnectCreatePark(t *testing.T) {
 	handler, repo := newHandler(t)
 
-	in := &parkv1.CreateParkRequest{Name: "Aozora Park", DefaultDailyCapacity: 1000, InventoryDays: 30}
+	in := &parkv1.CreateParkRequest{
+		Name:                 "Aozora Park",
+		DefaultDailyCapacity: 1000,
+		InventoryDays:        30,
+	}
 
 	res, err := handler.CreatePark(context.Background(), connect.NewRequest(in))
 	if err != nil {
-		t.Fatalf("Connect.CreatePark(%v) = %v, want nil", in, err)
+		t.Fatalf("Connect.CreatePark(%v) = %v, want nil",
+			in,
+			err,
+		)
 	}
 
 	got := res.Msg.GetPark()

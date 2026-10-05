@@ -58,7 +58,12 @@ func Restore(
 	if id == "" {
 		return nil, ErrInvalidID
 	}
-	return newPark(id, name, defaultDailyCapacity, inventoryDays)
+	return newPark(
+		id,
+		name,
+		defaultDailyCapacity,
+		inventoryDays,
+	)
 }
 
 func newPark(
@@ -68,7 +73,11 @@ func newPark(
 	inventoryDays int32,
 ) (*Park, error) {
 	p := &Park{id: id}
-	if err := p.apply(name, defaultDailyCapacity, inventoryDays); err != nil {
+	if err := p.apply(
+		name,
+		defaultDailyCapacity,
+		inventoryDays,
+	); err != nil {
 		return nil, err
 	}
 	return p, nil
@@ -82,7 +91,11 @@ func (p *Park) Update(
 	defaultDailyCapacity int32,
 	inventoryDays int32,
 ) error {
-	return p.apply(name, defaultDailyCapacity, inventoryDays)
+	return p.apply(
+		name,
+		defaultDailyCapacity,
+		inventoryDays,
+	)
 }
 
 func (p *Park) apply(

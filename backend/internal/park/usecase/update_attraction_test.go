@@ -76,33 +76,54 @@ func TestUpdateAttractionDo(t *testing.T) {
 			got, err := NewUpdateAttraction(repo, repo).Do(context.Background(), tt.in)
 
 			if !errors.Is(err, tt.wantErr) {
-				t.Fatalf("UpdateAttraction.Do(%+v) のエラー = %v, want %v", tt.in, err, tt.wantErr)
+				t.Fatalf("UpdateAttraction.Do(%+v) のエラー = %v, want %v",
+					tt.in,
+					err,
+					tt.wantErr,
+				)
 			}
 
-			key := attractionKey{parkID: "park-1", id: "attraction-1"}
+			key := attractionKey{
+				parkID: "park-1",
+				id:     "attraction-1",
+			}
 
 			if tt.wantErr != nil {
 				if tt.stored {
 					// 保存済みの値が書き換わっていないことを確かめる
 					if stored := repo.attractions[key]; stored.Name() != "ジェットコースター" {
-						t.Errorf("UpdateAttraction.Do(%+v) の失敗後の Name = %q, want %q", tt.in, stored.Name(), "ジェットコースター")
+						t.Errorf("UpdateAttraction.Do(%+v) の失敗後の Name = %q, want %q",
+							tt.in,
+							stored.Name(),
+							"ジェットコースター",
+						)
 					}
 				}
 				return
 			}
 
 			if got.Name() != tt.in.Name {
-				t.Errorf("UpdateAttraction.Do(%+v) の Name = %q, want %q", tt.in, got.Name(), tt.in.Name)
+				t.Errorf("UpdateAttraction.Do(%+v) の Name = %q, want %q",
+					tt.in,
+					got.Name(),
+					tt.in.Name,
+				)
 			}
 
 			stored := repo.attractions[key]
 			if stored.PriorityPassConfig().Enabled() != tt.in.Enabled {
 				t.Errorf("UpdateAttraction.Do(%+v) の後の Enabled = %t, want %t",
-					tt.in, stored.PriorityPassConfig().Enabled(), tt.in.Enabled)
+					tt.in,
+					stored.PriorityPassConfig().Enabled(),
+					tt.in.Enabled,
+				)
 			}
 			if stored.PriorityPassConfig().IntervalMinutes() != tt.in.IntervalMinutes {
 				t.Errorf("UpdateAttraction.Do(%+v) の後の IntervalMinutes = %d, want %d",
-					tt.in, stored.PriorityPassConfig().IntervalMinutes(), tt.in.IntervalMinutes)
+					tt.in,
+					stored.PriorityPassConfig().IntervalMinutes(),
+					tt.in.IntervalMinutes,
+				)
 			}
 		})
 	}

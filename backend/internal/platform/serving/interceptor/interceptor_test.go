@@ -20,7 +20,11 @@ func discardLogger() *slog.Logger {
 }
 
 func TestError(t *testing.T) {
-	sentinel := apperr.New(apperr.KindConflict, "PARK_SOLD_OUT", "在庫が不足している")
+	sentinel := apperr.New(
+		apperr.KindConflict,
+		"PARK_SOLD_OUT",
+		"在庫が不足している",
+	)
 
 	tests := map[string]struct {
 		err         error
@@ -34,7 +38,10 @@ func TestError(t *testing.T) {
 			wantMeta: "PARK_SOLD_OUT",
 		},
 		"正常系_apperrをラップした場合_包んだ文脈が応答に出ないこと": {
-			err:         fmt.Errorf("create park %s: %w", "park-1", sentinel),
+			err: fmt.Errorf("create park %s: %w",
+				"park-1",
+				sentinel,
+			),
 			wantCode:    connect.CodeFailedPrecondition,
 			wantMeta:    "PARK_SOLD_OUT",
 			wantMessage: sentinel.Error(),
@@ -62,13 +69,26 @@ func TestError(t *testing.T) {
 				t.Fatalf("Error()(next)(...) = %v, want *connect.Error", err)
 			}
 			if got.Code() != tt.wantCode {
-				t.Errorf("Error()(next)(%v) のコード = %v, want %v", tt.err, got.Code(), tt.wantCode)
+				t.Errorf("Error()(next)(%v) のコード = %v, want %v",
+					tt.err,
+					got.Code(),
+					tt.wantCode,
+				)
 			}
 			if tt.wantMessage != "" && got.Message() != tt.wantMessage {
-				t.Errorf("Error()(next)(%v) のメッセージ = %q, want %q", tt.err, got.Message(), tt.wantMessage)
+				t.Errorf("Error()(next)(%v) のメッセージ = %q, want %q",
+					tt.err,
+					got.Message(),
+					tt.wantMessage,
+				)
 			}
 			if tt.wantMeta != "" && got.Meta().Get(codeHeader) != tt.wantMeta {
-				t.Errorf("Error()(next)(%v) の %s = %q, want %q", tt.err, codeHeader, got.Meta().Get(codeHeader), tt.wantMeta)
+				t.Errorf("Error()(next)(%v) の %s = %q, want %q",
+					tt.err,
+					codeHeader,
+					got.Meta().Get(codeHeader),
+					tt.wantMeta,
+				)
 			}
 		})
 	}
@@ -85,7 +105,10 @@ func TestErrorPassesThroughSuccess(t *testing.T) {
 		t.Fatalf("Error()(next)(...) = %v, want nil", err)
 	}
 	if got != want {
-		t.Errorf("Error()(next)(...) = %v, want %v", got, want)
+		t.Errorf("Error()(next)(...) = %v, want %v",
+			got,
+			want,
+		)
 	}
 }
 
@@ -111,7 +134,11 @@ func TestCode(t *testing.T) {
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 			if got := code(tt.err); got != tt.want {
-				t.Errorf("code(%v) = %q, want %q", tt.err, got, tt.want)
+				t.Errorf("code(%v) = %q, want %q",
+					tt.err,
+					got,
+					tt.want,
+				)
 			}
 		})
 	}

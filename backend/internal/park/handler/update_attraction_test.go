@@ -30,7 +30,10 @@ func TestConnectUpdateAttraction(t *testing.T) {
 
 	res, err := handler.UpdateAttraction(context.Background(), connect.NewRequest(in))
 	if err != nil {
-		t.Fatalf("Connect.UpdateAttraction(%v) = %v, want nil", in, err)
+		t.Fatalf("Connect.UpdateAttraction(%v) = %v, want nil",
+			in,
+			err,
+		)
 	}
 
 	want := &parkv1.Attraction{
@@ -46,12 +49,22 @@ func TestConnectUpdateAttraction(t *testing.T) {
 		},
 	}
 	if diff := cmp.Diff(want, res.Msg.GetAttraction(), protocmp.Transform()); diff != "" {
-		t.Errorf("Connect.UpdateAttraction(%v) の差分 (-want +got):\n%s", in, diff)
+		t.Errorf("Connect.UpdateAttraction(%v) の差分 (-want +got):\n%s",
+			in,
+			diff,
+		)
 	}
 
-	stored := repo.attractions[attractionKey{parkID: "park-1", id: "attraction-1"}]
+	stored := repo.attractions[attractionKey{
+		parkID: "park-1",
+		id:     "attraction-1",
+	}]
 	if stored.Name() != "ジェットコースター 2" {
-		t.Errorf("Connect.UpdateAttraction(%v) の後の Name = %q, want %q", in, stored.Name(), "ジェットコースター 2")
+		t.Errorf("Connect.UpdateAttraction(%v) の後の Name = %q, want %q",
+			in,
+			stored.Name(),
+			"ジェットコースター 2",
+		)
 	}
 }
 
@@ -71,6 +84,10 @@ func TestConnectUpdateAttractionNotFound(t *testing.T) {
 
 	_, err := handler.UpdateAttraction(context.Background(), connect.NewRequest(in))
 	if !errors.Is(err, parkmodel.ErrAttractionNotFound) {
-		t.Fatalf("Connect.UpdateAttraction(%v) = %v, want %v", in, err, parkmodel.ErrAttractionNotFound)
+		t.Fatalf("Connect.UpdateAttraction(%v) = %v, want %v",
+			in,
+			err,
+			parkmodel.ErrAttractionNotFound,
+		)
 	}
 }

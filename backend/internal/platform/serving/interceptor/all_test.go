@@ -62,23 +62,38 @@ func TestAll(t *testing.T) {
 			wantCalled: true,
 		},
 		"異常系_nameが空の場合_ハンドラを呼ばずInvalidArgumentになること": {
-			req:        &parkv1.CreateParkRequest{DefaultDailyCapacity: 100, InventoryDays: 14},
+			req: &parkv1.CreateParkRequest{
+				DefaultDailyCapacity: 100,
+				InventoryDays:        14,
+			},
 			wantCode:   connect.CodeInvalidArgument,
 			wantCalled: false,
 		},
 		"境界値_inventory_daysが上限を超える場合_InvalidArgumentになること": {
-			req:        &parkv1.CreateParkRequest{Name: "Aozora Park", DefaultDailyCapacity: 100, InventoryDays: 91},
+			req: &parkv1.CreateParkRequest{
+				Name:                 "Aozora Park",
+				DefaultDailyCapacity: 100,
+				InventoryDays:        91,
+			},
 			wantCode:   connect.CodeInvalidArgument,
 			wantCalled: false,
 		},
 		"境界値_default_daily_capacityが0の場合_InvalidArgumentになること": {
-			req:        &parkv1.CreateParkRequest{Name: "Aozora Park", DefaultDailyCapacity: 0, InventoryDays: 14},
+			req: &parkv1.CreateParkRequest{
+				Name:                 "Aozora Park",
+				DefaultDailyCapacity: 0,
+				InventoryDays:        14,
+			},
 			wantCode:   connect.CodeInvalidArgument,
 			wantCalled: false,
 		},
 		"異常系_ハンドラがapperrを返す場合_Kindに対応するコードになること": {
-			req:        valid,
-			handlerErr: apperr.New(apperr.KindNotFound, "PARK_NOT_FOUND", "パークが見つからない"),
+			req: valid,
+			handlerErr: apperr.New(
+				apperr.KindNotFound,
+				"PARK_NOT_FOUND",
+				"パークが見つからない",
+			),
 			wantCode:   connect.CodeNotFound,
 			wantCalled: true,
 		},
@@ -93,20 +108,34 @@ func TestAll(t *testing.T) {
 
 			if tt.wantCode == 0 {
 				if err != nil {
-					t.Fatalf("CreatePark(%v) = %v, want nil", tt.req, err)
+					t.Fatalf("CreatePark(%v) = %v, want nil",
+						tt.req,
+						err,
+					)
 				}
 			} else {
 				connectErr, ok := errors.AsType[*connect.Error](err)
 				if !ok {
-					t.Fatalf("CreatePark(%v) = %v, want *connect.Error", tt.req, err)
+					t.Fatalf("CreatePark(%v) = %v, want *connect.Error",
+						tt.req,
+						err,
+					)
 				}
 				if connectErr.Code() != tt.wantCode {
-					t.Errorf("CreatePark(%v) のコード = %v, want %v", tt.req, connectErr.Code(), tt.wantCode)
+					t.Errorf("CreatePark(%v) のコード = %v, want %v",
+						tt.req,
+						connectErr.Code(),
+						tt.wantCode,
+					)
 				}
 			}
 
 			if svc.called != tt.wantCalled {
-				t.Errorf("CreatePark(%v) のハンドラ呼び出し = %v, want %v", tt.req, svc.called, tt.wantCalled)
+				t.Errorf("CreatePark(%v) のハンドラ呼び出し = %v, want %v",
+					tt.req,
+					svc.called,
+					tt.wantCalled,
+				)
 			}
 		})
 	}

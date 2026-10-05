@@ -26,7 +26,10 @@ func TestConnectCreateTicketType(t *testing.T) {
 
 	res, err := handler.CreateTicketType(context.Background(), connect.NewRequest(in))
 	if err != nil {
-		t.Fatalf("Connect.CreateTicketType(%v) = %v, want nil", in, err)
+		t.Fatalf("Connect.CreateTicketType(%v) = %v, want nil",
+			in,
+			err,
+		)
 	}
 
 	got := res.Msg.GetTicketType()
@@ -46,7 +49,10 @@ func TestConnectCreateTicketType(t *testing.T) {
 		t.Errorf("Connect.CreateTicketType() の差分 (-want +got):\n%s", diff)
 	}
 
-	key := ticketTypeKey{parkID: "park-1", id: parkmodel.TicketTypeID(got.GetTicketTypeId())}
+	key := ticketTypeKey{
+		parkID: "park-1",
+		id:     parkmodel.TicketTypeID(got.GetTicketTypeId()),
+	}
 	if _, ok := repo.ticketTypes[key]; !ok {
 		t.Errorf("Connect.CreateTicketType() の後に %q が保存されていない", got.GetTicketTypeId())
 	}
@@ -66,6 +72,10 @@ func TestConnectCreateTicketTypeParkNotFound(t *testing.T) {
 	// ハンドラはエラーを素通しする、connect の形への変換はインターセプタが行う
 	_, err := handler.CreateTicketType(context.Background(), connect.NewRequest(in))
 	if !errors.Is(err, parkmodel.ErrNotFound) {
-		t.Fatalf("Connect.CreateTicketType(%v) = %v, want %v", in, err, parkmodel.ErrNotFound)
+		t.Fatalf("Connect.CreateTicketType(%v) = %v, want %v",
+			in,
+			err,
+			parkmodel.ErrNotFound,
+		)
 	}
 }

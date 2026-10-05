@@ -37,7 +37,11 @@ func NewUpdateTicketType(
 //
 // 読んでから書くのは、更新後の値が不変条件を満たすかを TicketType 自身に判断させるため
 func (u *UpdateTicketType) Do(ctx context.Context, in UpdateTicketTypeInput) (*parkmodel.TicketType, error) {
-	ticketType, err := u.reader.GetTicketType(ctx, in.ParkID, in.ID)
+	ticketType, err := u.reader.GetTicketType(
+		ctx,
+		in.ParkID,
+		in.ID,
+	)
 	if err != nil {
 		return nil, err
 	}

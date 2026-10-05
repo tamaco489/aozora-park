@@ -47,12 +47,20 @@ func (r *Repository) GetAttraction(
 		if status.Code(err) == codes.NotFound {
 			return nil, parkmodel.ErrAttractionNotFound
 		}
-		return nil, fmt.Errorf("get attraction %q of park %q: %w", id, parkID, err)
+		return nil, fmt.Errorf("get attraction %q of park %q: %w",
+			id,
+			parkID,
+			err,
+		)
 	}
 
 	var doc attractionDocument
 	if err := snapshot.DataTo(&doc); err != nil {
-		return nil, fmt.Errorf("decode attraction %q of park %q: %w", id, parkID, err)
+		return nil, fmt.Errorf("decode attraction %q of park %q: %w",
+			id,
+			parkID,
+			err,
+		)
 	}
 
 	config, err := parkmodel.NewPriorityPassConfig(
@@ -63,12 +71,24 @@ func (r *Repository) GetAttraction(
 		doc.PriorityPassConfig.CapacityPerSlot,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("restore priority pass config of attraction %q: %w", id, err)
+		return nil, fmt.Errorf("restore priority pass config of attraction %q: %w",
+			id,
+			err,
+		)
 	}
 
-	attraction, err := parkmodel.RestoreAttraction(parkID, id, doc.Name, config)
+	attraction, err := parkmodel.RestoreAttraction(
+		parkID,
+		id,
+		doc.Name,
+		config,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("restore attraction %q of park %q: %w", id, parkID, err)
+		return nil, fmt.Errorf("restore attraction %q of park %q: %w",
+			id,
+			parkID,
+			err,
+		)
 	}
 
 	return attraction, nil
@@ -82,7 +102,11 @@ func (r *Repository) CreateAttraction(ctx context.Context, attraction *parkmodel
 		if status.Code(err) == codes.AlreadyExists {
 			return parkmodel.ErrAttractionAlreadyExists
 		}
-		return fmt.Errorf("create attraction %q of park %q: %w", attraction.ID(), attraction.ParkID(), err)
+		return fmt.Errorf("create attraction %q of park %q: %w",
+			attraction.ID(),
+			attraction.ParkID(),
+			err,
+		)
 	}
 
 	return nil
@@ -101,7 +125,11 @@ func (r *Repository) UpdateAttraction(ctx context.Context, attraction *parkmodel
 		if status.Code(err) == codes.NotFound {
 			return parkmodel.ErrAttractionNotFound
 		}
-		return fmt.Errorf("update attraction %q of park %q: %w", attraction.ID(), attraction.ParkID(), err)
+		return fmt.Errorf("update attraction %q of park %q: %w",
+			attraction.ID(),
+			attraction.ParkID(),
+			err,
+		)
 	}
 
 	return nil
