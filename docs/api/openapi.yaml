@@ -124,6 +124,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/aozorapark.inventory.v1.UpdateDateInventoryResponse'
+  /aozorapark.park.v1.ParkService/CreateAttraction:
+    post:
+      tags:
+        - ParkService
+      summary: CreateAttraction
+      description: CreateAttraction はパークにアトラクションを新しく登録する
+      operationId: aozorapark.park.v1.ParkService.CreateAttraction
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aozorapark.park.v1.CreateAttractionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aozorapark.park.v1.CreateAttractionResponse'
   /aozorapark.park.v1.ParkService/CreatePark:
     post:
       tags:
@@ -164,6 +204,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/aozorapark.park.v1.CreateParkResponse'
+  /aozorapark.park.v1.ParkService/CreateTicketType:
+    post:
+      tags:
+        - ParkService
+      summary: CreateTicketType
+      description: CreateTicketType はパークに券種を新しく登録する
+      operationId: aozorapark.park.v1.ParkService.CreateTicketType
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aozorapark.park.v1.CreateTicketTypeRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aozorapark.park.v1.CreateTicketTypeResponse'
   /aozorapark.park.v1.ParkService/GetPark:
     post:
       tags:
@@ -204,6 +284,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/aozorapark.park.v1.GetParkResponse'
+  /aozorapark.park.v1.ParkService/UpdateAttraction:
+    post:
+      tags:
+        - ParkService
+      summary: UpdateAttraction
+      description: UpdateAttraction は表示名と優先パスの条件を更新する
+      operationId: aozorapark.park.v1.ParkService.UpdateAttraction
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aozorapark.park.v1.UpdateAttractionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aozorapark.park.v1.UpdateAttractionResponse'
   /aozorapark.park.v1.ParkService/UpdatePark:
     post:
       tags:
@@ -244,6 +364,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/aozorapark.park.v1.UpdateParkResponse'
+  /aozorapark.park.v1.ParkService/UpdateTicketType:
+    post:
+      tags:
+        - ParkService
+      summary: UpdateTicketType
+      description: UpdateTicketType は表示名と価格と入場できる時間帯を更新する
+      operationId: aozorapark.park.v1.ParkService.UpdateTicketType
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aozorapark.park.v1.UpdateTicketTypeRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aozorapark.park.v1.UpdateTicketTypeResponse'
 components:
   schemas:
     aozorapark.inventory.v1.DateInventory:
@@ -399,6 +559,81 @@ components:
           description: date_inventory は上書き後の入場枠
       title: UpdateDateInventoryResponse
       additionalProperties: false
+    aozorapark.park.v1.Attraction:
+      type: object
+      properties:
+        attractionId:
+          type: string
+          title: attraction_id
+          description: attraction_id はアトラクションの識別子
+        parkId:
+          type: string
+          title: park_id
+          description: park_id は属するパークの識別子
+        name:
+          type: string
+          title: name
+          description: name はアトラクションの表示名
+        priorityPassConfig:
+          allOf:
+            - $ref: '#/components/schemas/aozorapark.park.v1.PriorityPassConfig'
+          title: priority_pass_config
+          description: priority_pass_config は優先パスの時間帯枠を生成する条件
+      title: Attraction
+      additionalProperties: false
+      description: Attraction はパークに属するアトラクション
+    aozorapark.park.v1.CreateAttractionRequest:
+      type: object
+      properties:
+        parkId:
+          type: string
+          title: park_id
+          minLength: 1
+          description: park_id はアトラクションを登録するパークの識別子
+        name:
+          type: string
+          title: name
+          maxLength: 100
+          minLength: 1
+          description: name はアトラクションの表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+        enabled:
+          type: boolean
+          title: enabled
+          description: enabled はアトラクションが優先パスの対象かどうか
+        startTime:
+          type: string
+          title: start_time
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
+          description: start_time は時間帯枠を生成しはじめる時刻、無効でも後から有効にするため常に妥当な値を求める
+        endTime:
+          type: string
+          title: end_time
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
+          description: end_time は時間帯枠の生成を終える時刻、start_time より後であることは usecase を通さない経路もあるため domain/model が判断する
+        intervalMinutes:
+          type: integer
+          title: interval_minutes
+          minimum: 1
+          format: int32
+          description: interval_minutes は時間帯枠を刻む間隔、単位は分
+        capacityPerSlot:
+          type: integer
+          title: capacity_per_slot
+          minimum: 1
+          format: int32
+          description: capacity_per_slot は時間帯枠 1 つあたりに発行できる優先パスの上限、単位は枚
+      title: CreateAttractionRequest
+      additionalProperties: false
+    aozorapark.park.v1.CreateAttractionResponse:
+      type: object
+      properties:
+        attraction:
+          allOf:
+            - $ref: '#/components/schemas/aozorapark.park.v1.Attraction'
+          title: attraction
+          description: attraction は登録されたアトラクション
+      title: CreateAttractionResponse
+      additionalProperties: false
     aozorapark.park.v1.CreateParkRequest:
       type: object
       properties:
@@ -432,6 +667,48 @@ components:
           title: park
           description: park は登録されたパーク
       title: CreateParkResponse
+      additionalProperties: false
+    aozorapark.park.v1.CreateTicketTypeRequest:
+      type: object
+      properties:
+        parkId:
+          type: string
+          title: park_id
+          minLength: 1
+          description: park_id は券種を登録するパークの識別子
+        name:
+          type: string
+          title: name
+          maxLength: 100
+          minLength: 1
+          description: name は券種の表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+        price:
+          type: string
+          title: price
+          minimum: 0
+          format: int64
+          description: price は販売価格、単位は円、無料の券種があるため 0 を許す
+        entryTimeFrom:
+          type: string
+          title: entry_time_from
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
+          description: entry_time_from は入場できる時間帯の開始時刻
+        entryTimeTo:
+          type: string
+          title: entry_time_to
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
+          description: entry_time_to は入場できる時間帯の終了時刻、entry_time_from より後であることは usecase を通さない経路もあるため domain/model が判断する
+      title: CreateTicketTypeRequest
+      additionalProperties: false
+    aozorapark.park.v1.CreateTicketTypeResponse:
+      type: object
+      properties:
+        ticketType:
+          allOf:
+            - $ref: '#/components/schemas/aozorapark.park.v1.TicketType'
+          title: ticket_type
+          description: ticket_type は登録された券種
+      title: CreateTicketTypeResponse
       additionalProperties: false
     aozorapark.park.v1.GetParkRequest:
       type: object
@@ -477,6 +754,122 @@ components:
       title: Park
       additionalProperties: false
       description: Park は来園予約の最上位となるパーク
+    aozorapark.park.v1.PriorityPassConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          title: enabled
+          description: enabled はアトラクションが優先パスの対象かどうか
+        startTime:
+          type: string
+          title: start_time
+          description: start_time は時間帯枠を生成しはじめる時刻、HH:MM の 24 時間表記
+        endTime:
+          type: string
+          title: end_time
+          description: end_time は時間帯枠の生成を終える時刻、HH:MM の 24 時間表記で start_time より後
+        intervalMinutes:
+          type: integer
+          title: interval_minutes
+          format: int32
+          description: interval_minutes は時間帯枠を刻む間隔、単位は分
+        capacityPerSlot:
+          type: integer
+          title: capacity_per_slot
+          format: int32
+          description: capacity_per_slot は時間帯枠 1 つあたりに発行できる優先パスの上限、単位は枚
+      title: PriorityPassConfig
+      additionalProperties: false
+      description: PriorityPassConfig は優先パスの時間帯枠を生成する条件
+    aozorapark.park.v1.TicketType:
+      type: object
+      properties:
+        ticketTypeId:
+          type: string
+          title: ticket_type_id
+          description: ticket_type_id は券種の識別子
+        parkId:
+          type: string
+          title: park_id
+          description: park_id は属するパークの識別子
+        name:
+          type: string
+          title: name
+          description: name は券種の表示名
+        price:
+          type: string
+          title: price
+          format: int64
+          description: price は販売価格、単位は円
+        entryTimeFrom:
+          type: string
+          title: entry_time_from
+          description: entry_time_from は入場できる時間帯の開始時刻、HH:MM の 24 時間表記
+        entryTimeTo:
+          type: string
+          title: entry_time_to
+          description: entry_time_to は入場できる時間帯の終了時刻、HH:MM の 24 時間表記で entry_time_from より後
+      title: TicketType
+      additionalProperties: false
+      description: TicketType はパークが販売する券種
+    aozorapark.park.v1.UpdateAttractionRequest:
+      type: object
+      properties:
+        parkId:
+          type: string
+          title: park_id
+          minLength: 1
+          description: park_id は属するパークの識別子
+        attractionId:
+          type: string
+          title: attraction_id
+          minLength: 1
+          description: attraction_id は更新するアトラクションの識別子
+        name:
+          type: string
+          title: name
+          maxLength: 100
+          minLength: 1
+          description: name はアトラクションの表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+        enabled:
+          type: boolean
+          title: enabled
+          description: enabled はアトラクションが優先パスの対象かどうか
+        startTime:
+          type: string
+          title: start_time
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
+          description: start_time は時間帯枠を生成しはじめる時刻、無効でも後から有効にするため常に妥当な値を求める
+        endTime:
+          type: string
+          title: end_time
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
+          description: end_time は時間帯枠の生成を終える時刻、start_time より後であることは usecase を通さない経路もあるため domain/model が判断する
+        intervalMinutes:
+          type: integer
+          title: interval_minutes
+          minimum: 1
+          format: int32
+          description: interval_minutes は時間帯枠を刻む間隔、単位は分
+        capacityPerSlot:
+          type: integer
+          title: capacity_per_slot
+          minimum: 1
+          format: int32
+          description: capacity_per_slot は時間帯枠 1 つあたりに発行できる優先パスの上限、単位は枚
+      title: UpdateAttractionRequest
+      additionalProperties: false
+    aozorapark.park.v1.UpdateAttractionResponse:
+      type: object
+      properties:
+        attraction:
+          allOf:
+            - $ref: '#/components/schemas/aozorapark.park.v1.Attraction'
+          title: attraction
+          description: attraction は更新後のアトラクション
+      title: UpdateAttractionResponse
+      additionalProperties: false
     aozorapark.park.v1.UpdateParkRequest:
       type: object
       properties:
@@ -515,6 +908,53 @@ components:
           title: park
           description: park は更新後のパーク
       title: UpdateParkResponse
+      additionalProperties: false
+    aozorapark.park.v1.UpdateTicketTypeRequest:
+      type: object
+      properties:
+        parkId:
+          type: string
+          title: park_id
+          minLength: 1
+          description: park_id は属するパークの識別子
+        ticketTypeId:
+          type: string
+          title: ticket_type_id
+          minLength: 1
+          description: ticket_type_id は更新する券種の識別子
+        name:
+          type: string
+          title: name
+          maxLength: 100
+          minLength: 1
+          description: name は券種の表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+        price:
+          type: string
+          title: price
+          minimum: 0
+          format: int64
+          description: price は販売価格、単位は円、無料の券種があるため 0 を許す
+        entryTimeFrom:
+          type: string
+          title: entry_time_from
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
+          description: entry_time_from は入場できる時間帯の開始時刻
+        entryTimeTo:
+          type: string
+          title: entry_time_to
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
+          description: entry_time_to は入場できる時間帯の終了時刻、entry_time_from より後であることは usecase を通さない経路もあるため domain/model が判断する
+      title: UpdateTicketTypeRequest
+      additionalProperties: false
+    aozorapark.park.v1.UpdateTicketTypeResponse:
+      type: object
+      properties:
+        ticketType:
+          allOf:
+            - $ref: '#/components/schemas/aozorapark.park.v1.TicketType'
+          title: ticket_type
+          description: ticket_type は更新後の券種
+      title: UpdateTicketTypeResponse
       additionalProperties: false
     connect-protocol-version:
       type: number

@@ -68,15 +68,30 @@ func TestNew(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := New(tt.name, tt.defaultDailyCapacity, tt.inventoryDays)
+			got, err := New(
+				tt.name,
+				tt.defaultDailyCapacity,
+				tt.inventoryDays,
+			)
 
 			if !errors.Is(err, tt.wantErr) {
-				t.Fatalf("New(%q, %d, %d) のエラー = %v, want %v", tt.name, tt.defaultDailyCapacity, tt.inventoryDays, err, tt.wantErr)
+				t.Fatalf("New(%q, %d, %d) のエラー = %v, want %v",
+					tt.name,
+					tt.defaultDailyCapacity,
+					tt.inventoryDays,
+					err,
+					tt.wantErr,
+				)
 			}
 
 			if tt.wantErr != nil {
 				if got != nil {
-					t.Errorf("New(%q, %d, %d) = %v, want nil", tt.name, tt.defaultDailyCapacity, tt.inventoryDays, got)
+					t.Errorf("New(%q, %d, %d) = %v, want nil",
+						tt.name,
+						tt.defaultDailyCapacity,
+						tt.inventoryDays,
+						got,
+					)
 				}
 				return
 			}
@@ -85,25 +100,42 @@ func TestNew(t *testing.T) {
 				t.Error("New() の ID が空、採番されていない")
 			}
 			if got.Name() != tt.name {
-				t.Errorf("New() の Name = %q, want %q", got.Name(), tt.name)
+				t.Errorf("New() の Name = %q, want %q",
+					got.Name(),
+					tt.name,
+				)
 			}
 			if got.DefaultDailyCapacity() != tt.defaultDailyCapacity {
-				t.Errorf("New() の DefaultDailyCapacity = %d, want %d", got.DefaultDailyCapacity(), tt.defaultDailyCapacity)
+				t.Errorf("New() の DefaultDailyCapacity = %d, want %d",
+					got.DefaultDailyCapacity(),
+					tt.defaultDailyCapacity,
+				)
 			}
 			if got.InventoryDays() != tt.inventoryDays {
-				t.Errorf("New() の InventoryDays = %d, want %d", got.InventoryDays(), tt.inventoryDays)
+				t.Errorf("New() の InventoryDays = %d, want %d",
+					got.InventoryDays(),
+					tt.inventoryDays,
+				)
 			}
 		})
 	}
 }
 
 func TestNewGeneratesDistinctIDs(t *testing.T) {
-	first, err := New("Aozora Park", 1000, 30)
+	first, err := New(
+		"Aozora Park",
+		1000,
+		30,
+	)
 	if err != nil {
 		t.Fatalf("New() = %v, want nil", err)
 	}
 
-	second, err := New("Aozora Park", 1000, 30)
+	second, err := New(
+		"Aozora Park",
+		1000,
+		30,
+	)
 	if err != nil {
 		t.Fatalf("New() = %v, want nil", err)
 	}
@@ -129,14 +161,27 @@ func TestRestore(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := Restore(tt.id, "Aozora Park", 1000, 30)
+			got, err := Restore(
+				tt.id,
+				"Aozora Park",
+				1000,
+				30,
+			)
 
 			if !errors.Is(err, tt.wantErr) {
-				t.Fatalf("Restore(%q, ...) のエラー = %v, want %v", tt.id, err, tt.wantErr)
+				t.Fatalf("Restore(%q, ...) のエラー = %v, want %v",
+					tt.id,
+					err,
+					tt.wantErr,
+				)
 			}
 
 			if tt.wantErr == nil && got.ID() != tt.id {
-				t.Errorf("Restore(%q, ...) の ID = %q, want %q", tt.id, got.ID(), tt.id)
+				t.Errorf("Restore(%q, ...) の ID = %q, want %q",
+					tt.id,
+					got.ID(),
+					tt.id,
+				)
 			}
 		})
 	}
@@ -164,36 +209,69 @@ func TestPark_Update(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			park, err := Restore("park-1", "Aozora Park", 1000, 30)
+			park, err := Restore(
+				"park-1",
+				"Aozora Park",
+				1000,
+				30,
+			)
 			if err != nil {
 				t.Fatalf("Restore() = %v, want nil", err)
 			}
 
-			err = park.Update(tt.name, tt.defaultDailyCapacity, tt.inventoryDays)
+			err = park.Update(
+				tt.name,
+				tt.defaultDailyCapacity,
+				tt.inventoryDays,
+			)
 			if !errors.Is(err, tt.wantErr) {
-				t.Fatalf("Park.Update(%q, %d, %d) = %v, want %v", tt.name, tt.defaultDailyCapacity, tt.inventoryDays, err, tt.wantErr)
+				t.Fatalf("Park.Update(%q, %d, %d) = %v, want %v",
+					tt.name,
+					tt.defaultDailyCapacity,
+					tt.inventoryDays,
+					err,
+					tt.wantErr,
+				)
 			}
 
 			if tt.wantErr != nil {
 				// 検証に失敗したときは元の値を保つ
 				if park.Name() != "Aozora Park" || park.DefaultDailyCapacity() != 1000 || park.InventoryDays() != 30 {
 					t.Errorf("Park.Update() の失敗後 = (%q, %d, %d), want (%q, %d, %d)",
-						park.Name(), park.DefaultDailyCapacity(), park.InventoryDays(), "Aozora Park", 1000, 30)
+						park.Name(),
+						park.DefaultDailyCapacity(),
+						park.InventoryDays(),
+						"Aozora Park",
+						1000,
+						30,
+					)
 				}
 				return
 			}
 
 			if park.Name() != tt.name {
-				t.Errorf("Park.Update() 後の Name = %q, want %q", park.Name(), tt.name)
+				t.Errorf("Park.Update() 後の Name = %q, want %q",
+					park.Name(),
+					tt.name,
+				)
 			}
 			if park.DefaultDailyCapacity() != tt.defaultDailyCapacity {
-				t.Errorf("Park.Update() 後の DefaultDailyCapacity = %d, want %d", park.DefaultDailyCapacity(), tt.defaultDailyCapacity)
+				t.Errorf("Park.Update() 後の DefaultDailyCapacity = %d, want %d",
+					park.DefaultDailyCapacity(),
+					tt.defaultDailyCapacity,
+				)
 			}
 			if park.InventoryDays() != tt.inventoryDays {
-				t.Errorf("Park.Update() 後の InventoryDays = %d, want %d", park.InventoryDays(), tt.inventoryDays)
+				t.Errorf("Park.Update() 後の InventoryDays = %d, want %d",
+					park.InventoryDays(),
+					tt.inventoryDays,
+				)
 			}
 			if park.ID() != "park-1" {
-				t.Errorf("Park.Update() 後の ID = %q, want %q", park.ID(), "park-1")
+				t.Errorf("Park.Update() 後の ID = %q, want %q",
+					park.ID(),
+					"park-1",
+				)
 			}
 		})
 	}

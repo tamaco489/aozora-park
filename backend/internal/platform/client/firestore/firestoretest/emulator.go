@@ -36,7 +36,10 @@ func Main(m *testing.M) int {
 
 	stop, err := start()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "firestoretest: %v\n", err)
+		fmt.Fprintf(os.Stderr,
+			"firestoretest: %v\n",
+			err,
+		)
 		return 1
 	}
 	defer stop()
@@ -58,7 +61,11 @@ func Client(tb testing.TB) *gcpfirestore.Client {
 func start() (func(), error) {
 	ctx := context.Background()
 
-	container, err := tcfirestore.Run(ctx, emulatorImage, tcfirestore.WithProjectID(ProjectID))
+	container, err := tcfirestore.Run(
+		ctx,
+		emulatorImage,
+		tcfirestore.WithProjectID(ProjectID),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("run emulator: %w", err)
 	}
@@ -75,10 +82,16 @@ func start() (func(), error) {
 
 	return func() {
 		if err := client.Close(); err != nil {
-			fmt.Fprintf(os.Stderr, "firestoretest: close client: %v\n", err)
+			fmt.Fprintf(os.Stderr,
+				"firestoretest: close client: %v\n",
+				err,
+			)
 		}
 		if err := testcontainers.TerminateContainer(container); err != nil {
-			fmt.Fprintf(os.Stderr, "firestoretest: terminate container: %v\n", err)
+			fmt.Fprintf(os.Stderr,
+				"firestoretest: terminate container: %v\n",
+				err,
+			)
 		}
 	}, nil
 }

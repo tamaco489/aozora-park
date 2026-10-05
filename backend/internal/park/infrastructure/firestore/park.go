@@ -47,17 +47,31 @@ func (r *Repository) Get(ctx context.Context, id parkmodel.ParkID) (*parkmodel.P
 		if status.Code(err) == codes.NotFound {
 			return nil, parkmodel.ErrNotFound
 		}
-		return nil, fmt.Errorf("get park %q: %w", id, err)
+		return nil, fmt.Errorf("get park %q: %w",
+			id,
+			err,
+		)
 	}
 
 	var doc document
 	if err := snapshot.DataTo(&doc); err != nil {
-		return nil, fmt.Errorf("decode park %q: %w", id, err)
+		return nil, fmt.Errorf("decode park %q: %w",
+			id,
+			err,
+		)
 	}
 
-	park, err := parkmodel.Restore(id, doc.Name, doc.DefaultDailyCapacity, doc.InventoryDays)
+	park, err := parkmodel.Restore(
+		id,
+		doc.Name,
+		doc.DefaultDailyCapacity,
+		doc.InventoryDays,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("restore park %q: %w", id, err)
+		return nil, fmt.Errorf("restore park %q: %w",
+			id,
+			err,
+		)
 	}
 
 	return park, nil
@@ -69,7 +83,10 @@ func (r *Repository) Create(ctx context.Context, park *parkmodel.Park) error {
 		if status.Code(err) == codes.AlreadyExists {
 			return parkmodel.ErrAlreadyExists
 		}
-		return fmt.Errorf("create park %q: %w", park.ID(), err)
+		return fmt.Errorf("create park %q: %w",
+			park.ID(),
+			err,
+		)
 	}
 
 	return nil
@@ -87,7 +104,10 @@ func (r *Repository) Update(ctx context.Context, park *parkmodel.Park) error {
 		if status.Code(err) == codes.NotFound {
 			return parkmodel.ErrNotFound
 		}
-		return fmt.Errorf("update park %q: %w", park.ID(), err)
+		return fmt.Errorf("update park %q: %w",
+			park.ID(),
+			err,
+		)
 	}
 
 	return nil

@@ -68,6 +68,35 @@ t.Errorf("CreatePurchase() の差分 (-want +got):\n%s", cmp.Diff(want, got))
 - **`t.Fatal` と `t.FailNow` をテスト以外の goroutine から呼ばない。** `runtime.Goexit` を呼ぶだけでテスト本体に失敗が伝わらない。goroutine の中では `t.Error` を使う
 - **`t.Cleanup` は panic では走らない。** コンテナや外部リソースの解放をこれだけに頼らない
 
+### テストのコンテキスト
+
+**テストの中で `context.Background()` を使わず、`t.Context()` (ヘルパでは `tb.Context()`) を使う。** テストが終わったあとに残った呼び出しが自動で打ち切られるため、後始末漏れに気づける。`testing.TB` にも `Context()` があるので、ヘルパからも呼べる。
+
+> [!IMPORTANT]
+> **`t.Cleanup` に登録した関数の中では `t.Context()` を使わない。** `t.Context()` が返すコンテキストは、**Cleanup が走る直前に取り消される**。取り消し済みのコンテキストを渡された gRPC の呼び出しは送信前に失敗するため、後始末が必ず落ちる。
+
+テスト本体で作った `ctx` を Cleanup のクロージャが捕まえている形も同じ理由で壊れる。**Cleanup の中では `context.Background()` を使う。**
+
+```go
+func TestXxx(t *testing.T) {
+    ctx := t.Context()
+
+    doc := client.Collection("xxx").Doc(t.Name())
+    t.Cleanup(func() {
+        // t.Context() は Cleanup の直前に取り消されるため、後始末は取り消されないものを使う
+        if _, err := doc.Delete(context.Background()); err != nil {
+            t.Errorf("doc.Delete() = %v, want nil", err)
+        }
+    })
+
+    // ここから先は ctx を使う
+}
+```
+
+`t.Context()` の取り消しは副作用ではなく機能で、Cleanup が「テストが起こした goroutine やサーバが `ctx.Done()` で止まるのを待つ」ために使える。**止まるのを待つ側が `t.Context()`、外部リソースを消す側が `context.Background()`** と覚える。
+
+`TestMain` と、`*testing.T` を受け取らない起動処理 (`firestoretest` のコンテナ起動など) には `t` が無いため `context.Background()` のままにする。
+
 ### Fuzz
 
 **外部から任意の入力を受ける境界にだけ書く。** Webhook のペイロードのパース、署名検証、Pub/Sub メッセージのデコードが対象になる。

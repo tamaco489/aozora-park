@@ -50,10 +50,20 @@ func TestRename(t *testing.T) {
 			got := rename(tt.groups, tt.attr)
 
 			if got.Key != tt.wantKey {
-				t.Errorf("rename(%v, %v) のキー = %q, want %q", tt.groups, tt.attr, got.Key, tt.wantKey)
+				t.Errorf("rename(%v, %v) のキー = %q, want %q",
+					tt.groups,
+					tt.attr,
+					got.Key,
+					tt.wantKey,
+				)
 			}
 			if got.Value.String() != tt.wantText {
-				t.Errorf("rename(%v, %v) の値 = %q, want %q", tt.groups, tt.attr, got.Value.String(), tt.wantText)
+				t.Errorf("rename(%v, %v) の値 = %q, want %q",
+					tt.groups,
+					tt.attr,
+					got.Value.String(),
+					tt.wantText,
+				)
 			}
 		})
 	}
