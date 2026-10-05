@@ -4,6 +4,126 @@ info:
   description: API documentation for API
   version: 1.0.0
 paths:
+  /aozorapark.inventory.v1.InventoryService/GetDateInventory:
+    post:
+      tags:
+        - InventoryService
+      summary: GetDateInventory
+      description: GetDateInventory は特定の日の入場枠を 1 件取得する
+      operationId: aozorapark.inventory.v1.InventoryService.GetDateInventory
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aozorapark.inventory.v1.GetDateInventoryRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aozorapark.inventory.v1.GetDateInventoryResponse'
+  /aozorapark.inventory.v1.InventoryService/ListTimeSlots:
+    post:
+      tags:
+        - InventoryService
+      summary: ListTimeSlots
+      description: ListTimeSlots はアトラクションの特定の日の時間帯枠を開始時刻の昇順で取得する
+      operationId: aozorapark.inventory.v1.InventoryService.ListTimeSlots
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aozorapark.inventory.v1.ListTimeSlotsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aozorapark.inventory.v1.ListTimeSlotsResponse'
+  /aozorapark.inventory.v1.InventoryService/UpdateDateInventory:
+    post:
+      tags:
+        - InventoryService
+      summary: UpdateDateInventory
+      description: UpdateDateInventory は運営が特定の日の上限人数と残りの人数を上書きする
+      operationId: aozorapark.inventory.v1.InventoryService.UpdateDateInventory
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aozorapark.inventory.v1.UpdateDateInventoryRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aozorapark.inventory.v1.UpdateDateInventoryResponse'
   /aozorapark.park.v1.ParkService/CreateAttraction:
     post:
       tags:
@@ -286,6 +406,159 @@ paths:
                 $ref: '#/components/schemas/aozorapark.park.v1.UpdateTicketTypeResponse'
 components:
   schemas:
+    aozorapark.inventory.v1.DateInventory:
+      type: object
+      properties:
+        parkId:
+          type: string
+          title: park_id
+          description: park_id は枠が属するパークの識別子
+        date:
+          type: string
+          title: date
+          description: date は枠の日付、YYYY-MM-DD
+        capacity:
+          type: integer
+          title: capacity
+          format: int32
+          description: capacity はその日に受け入れる上限人数、単位は人
+        remaining:
+          type: integer
+          title: remaining
+          format: int32
+          description: remaining はその日の残りの人数、単位は人
+      title: DateInventory
+      additionalProperties: false
+      description: DateInventory はパークの特定の日の入場枠
+    aozorapark.inventory.v1.GetDateInventoryRequest:
+      type: object
+      properties:
+        parkId:
+          type: string
+          title: park_id
+          minLength: 1
+          description: park_id は枠が属するパークの識別子
+        date:
+          type: string
+          title: date
+          pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$
+          description: date は取得する枠の日付、YYYY-MM-DD
+      title: GetDateInventoryRequest
+      additionalProperties: false
+    aozorapark.inventory.v1.GetDateInventoryResponse:
+      type: object
+      properties:
+        dateInventory:
+          allOf:
+            - $ref: '#/components/schemas/aozorapark.inventory.v1.DateInventory'
+          title: date_inventory
+          description: date_inventory は取得した入場枠
+      title: GetDateInventoryResponse
+      additionalProperties: false
+    aozorapark.inventory.v1.ListTimeSlotsRequest:
+      type: object
+      properties:
+        parkId:
+          type: string
+          title: park_id
+          minLength: 1
+          description: park_id は枠が属するパークの識別子
+        attractionId:
+          type: string
+          title: attraction_id
+          minLength: 1
+          description: attraction_id は枠が属するアトラクションの識別子
+        date:
+          type: string
+          title: date
+          pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$
+          description: date は取得する枠の日付、YYYY-MM-DD
+      title: ListTimeSlotsRequest
+      additionalProperties: false
+    aozorapark.inventory.v1.ListTimeSlotsResponse:
+      type: object
+      properties:
+        timeSlots:
+          type: array
+          items:
+            $ref: '#/components/schemas/aozorapark.inventory.v1.TimeSlot'
+          title: time_slots
+          description: time_slots は開始時刻の昇順に並んだ時間帯枠、1 日分のため件数の上限は設けない
+      title: ListTimeSlotsResponse
+      additionalProperties: false
+    aozorapark.inventory.v1.TimeSlot:
+      type: object
+      properties:
+        parkId:
+          type: string
+          title: park_id
+          description: park_id は枠が属するパークの識別子
+        attractionId:
+          type: string
+          title: attraction_id
+          description: attraction_id は枠が属するアトラクションの識別子
+        timeSlotId:
+          type: string
+          title: time_slot_id
+          description: time_slot_id は時間帯枠の識別子、YYYYMMDD_HHMM の形
+        date:
+          type: string
+          title: date
+          description: date は枠の日付、YYYY-MM-DD
+        startTime:
+          type: string
+          title: start_time
+          description: start_time は枠の開始時刻、HH:MM
+        capacity:
+          type: integer
+          title: capacity
+          format: int32
+          description: capacity はその時間帯に発行する上限枚数、単位は枚
+        remaining:
+          type: integer
+          title: remaining
+          format: int32
+          description: remaining はその時間帯の残りの枚数、単位は枚
+      title: TimeSlot
+      additionalProperties: false
+      description: TimeSlot はアトラクションの時間帯ごとの枠
+    aozorapark.inventory.v1.UpdateDateInventoryRequest:
+      type: object
+      properties:
+        parkId:
+          type: string
+          title: park_id
+          minLength: 1
+          description: park_id は枠が属するパークの識別子
+        date:
+          type: string
+          title: date
+          pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$
+          description: date は上書きする枠の日付、YYYY-MM-DD
+        capacity:
+          type: integer
+          title: capacity
+          minimum: 1
+          format: int32
+          description: capacity はその日に受け入れる上限人数、単位は人
+        remaining:
+          type: integer
+          title: remaining
+          minimum: 0
+          format: int32
+          description: remaining はその日の残りの人数、単位は人、上限人数を超えないことは枠そのものが判断する
+      title: UpdateDateInventoryRequest
+      additionalProperties: false
+    aozorapark.inventory.v1.UpdateDateInventoryResponse:
+      type: object
+      properties:
+        dateInventory:
+          allOf:
+            - $ref: '#/components/schemas/aozorapark.inventory.v1.DateInventory'
+          title: date_inventory
+          description: date_inventory は上書き後の入場枠
+      title: UpdateDateInventoryResponse
+      additionalProperties: false
     aozorapark.park.v1.Attraction:
       type: object
       properties:
@@ -751,5 +1024,10 @@ components:
       description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message, with an additional debug field for ConnectRPC error details.
 security: []
 tags:
+  - name: InventoryService
+    description: |-
+      InventoryService は入場枠と時間帯枠を参照し、特定の日の入場枠を上書きする
+
+       枠の作成は専用のジョブが行うため、この service は持たない
   - name: ParkService
     description: ParkService はパークのマスタを操作する

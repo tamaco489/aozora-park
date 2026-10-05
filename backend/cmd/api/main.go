@@ -8,7 +8,9 @@ import (
 	"connectrpc.com/grpchealth"
 	"connectrpc.com/grpcreflect"
 
+	"github.com/tamaco489/aozora-park/backend/gen/aozorapark/inventory/v1/inventoryv1connect"
 	"github.com/tamaco489/aozora-park/backend/gen/aozorapark/park/v1/parkv1connect"
+	"github.com/tamaco489/aozora-park/backend/internal/inventory"
 	"github.com/tamaco489/aozora-park/backend/internal/park"
 	"github.com/tamaco489/aozora-park/backend/internal/platform/client/firestore"
 	"github.com/tamaco489/aozora-park/backend/internal/platform/config"
@@ -47,14 +49,19 @@ func run() error {
 
 	// Cloud Run のプローブが叩く口、grpcurl と grpc-health-probe からも同じ形で呼べる
 	// 引数のサービス名を増やすと、そのサービス単位でも状態を答えられる
-	mux.Handle(grpchealth.NewHandler(grpchealth.NewStaticChecker(parkv1connect.ParkServiceName), opts))
+	mux.Handle(grpchealth.NewHandler(grpchealth.NewStaticChecker(
+		parkv1connect.ParkServiceName,
+		inventoryv1connect.InventoryServiceName,
+	), opts))
 
 	// 結線は機能パッケージ側に閉じるため、ここは組み立て関数を呼んで登録するだけにする
 	mux.Handle(parkv1connect.NewParkServiceHandler(park.NewConnectHandler(firestoreClient), opts))
+	mux.Handle(inventoryv1connect.NewInventoryServiceHandler(inventory.NewConnectHandler(firestoreClient), opts))
 
 	// grpcui と buf curl がサービス一覧を引けるようにする
 	reflector := grpcreflect.NewStaticReflector(
 		parkv1connect.ParkServiceName,
+		inventoryv1connect.InventoryServiceName,
 		grpchealth.HealthV1ServiceName,
 	)
 

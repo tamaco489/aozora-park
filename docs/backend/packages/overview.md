@@ -12,12 +12,12 @@ The outer split is by business feature, and each feature is split into layers. O
 
 ![Layers and the direction of dependencies](./images/layers.png)
 
-| Ring                       | Packages                                                                  |
-| -------------------------- | ------------------------------------------------------------------------- |
-| Enterprise Business Rules  | `park/domain/model`, `platform/serving/apperr`                            |
-| Application Business Rules | `park/usecase`, `park/domain/repository`                                  |
-| Interface Adapters         | `park/handler`, `park/infrastructure/firestore`, `internal/park` (wiring) |
-| Frameworks & Drivers       | `cmd/api`, `internal/platform/**`, `gen/**`                               |
+| Ring                       | Packages                                                                                                     |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Enterprise Business Rules  | `park/domain/model`, `inventory/domain/model`, `platform/serving/apperr`                                     |
+| Application Business Rules | `park/usecase`, `park/domain/repository`, `inventory/usecase`, `inventory/domain/repository`                 |
+| Interface Adapters         | `<feature>/handler`, `<feature>/infrastructure/firestore`, `internal/park` and `internal/inventory` (wiring) |
+| Frameworks & Drivers       | `cmd/api`, `internal/platform/**`, `gen/**`                                                                  |
 
 ## Dependencies between packages
 
@@ -45,7 +45,13 @@ Its only outward-facing knowledge is the method that maps a `Kind` to a `connect
 
 **`infrastructure/firestore` keeps the technology in its name.** The abstract names belong to `Reader` and `Writer` in `domain/repository`. Naming the implementation `datastore` would leave no room for a second one, and the role is already expressed by the type name (`firestore.Repository`).
 
-**`ParkID` is the only value object.** The display name, the daily capacity and the number of days never leave `Park` on their own, so wrapping them would only add conversions. Having a validation rule is not on its own a reason to introduce a type.
+**`ParkID` is the only value object in `park`.** The display name, the daily capacity and the number of days never leave `Park` on their own, so wrapping them would only add conversions. Having a validation rule is not on its own a reason to introduce a type.
+
+**`inventory` holds two entities in one feature package.** The daily admission inventory (`DateInventory`) and the attraction time slot (`TimeSlot`) are separate aggregates, but both are decremented and restored by the same inventory operations. The methods on `domain/repository` carry the entity name as a prefix (`GetDateInventory`, `ListTimeSlots`, `UpdateDateInventory`) to tell them apart.
+
+**`inventory` turns its identifiers and its date into value objects.** `ParkID`, `AttractionID`, `TimeSlotID` and `Date` are passed side by side as strings into the repository methods, where swapping two of them would still compile. The start time, the capacity and the remaining count never leave `DateInventory` or `TimeSlot` on their own, so they stay primitive.
+
+**`inventory` never creates a slot.** `domain/model` only offers `RestoreDateInventory` and `RestoreTimeSlot`. Slots are created ahead of time by a job, so adding a `New` here would give creation two entry points.
 
 ## Regenerating the diagrams
 

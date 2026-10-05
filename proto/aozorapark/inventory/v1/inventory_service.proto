@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package aozorapark.inventory.v1;
+
+import "aozorapark/inventory/v1/inventory.proto";
+import "buf/validate/validate.proto";
+
+// InventoryService は入場枠と時間帯枠を参照し、特定の日の入場枠を上書きする
+//
+// 枠の作成は専用のジョブが行うため、この service は持たない
+service InventoryService {
+  // UpdateDateInventory は運営が特定の日の上限人数と残りの人数を上書きする
+  rpc UpdateDateInventory(UpdateDateInventoryRequest) returns (UpdateDateInventoryResponse) {}
+
+  // GetDateInventory は特定の日の入場枠を 1 件取得する
+  rpc GetDateInventory(GetDateInventoryRequest) returns (GetDateInventoryResponse) {}
+
+  // ListTimeSlots はアトラクションの特定の日の時間帯枠を開始時刻の昇順で取得する
+  rpc ListTimeSlots(ListTimeSlotsRequest) returns (ListTimeSlotsResponse) {}
+}
+
+message UpdateDateInventoryRequest {
+  // park_id は枠が属するパークの識別子
+  string park_id = 1 [(buf.validate.field).string.min_len = 1];
+
+  // date は上書きする枠の日付、YYYY-MM-DD
+  string date = 2 [(buf.validate.field).string.pattern = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"];
+
+  // capacity はその日に受け入れる上限人数、単位は人
+  int32 capacity = 3 [(buf.validate.field).int32.gte = 1];
+
+  // remaining はその日の残りの人数、単位は人、上限人数を超えないことは枠そのものが判断する
+  int32 remaining = 4 [(buf.validate.field).int32.gte = 0];
+}
+
+message UpdateDateInventoryResponse {
+  // date_inventory は上書き後の入場枠
+  DateInventory date_inventory = 1;
+}
+
+message GetDateInventoryRequest {
+  // park_id は枠が属するパークの識別子
+  string park_id = 1 [(buf.validate.field).string.min_len = 1];
+
+  // date は取得する枠の日付、YYYY-MM-DD
+  string date = 2 [(buf.validate.field).string.pattern = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"];
+}
+
+message GetDateInventoryResponse {
+  // date_inventory は取得した入場枠
+  DateInventory date_inventory = 1;
+}
+
+message ListTimeSlotsRequest {
+  // park_id は枠が属するパークの識別子
+  string park_id = 1 [(buf.validate.field).string.min_len = 1];
+
+  // attraction_id は枠が属するアトラクションの識別子
+  string attraction_id = 2 [(buf.validate.field).string.min_len = 1];
+
+  // date は取得する枠の日付、YYYY-MM-DD
+  string date = 3 [(buf.validate.field).string.pattern = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"];
+}
+
+message ListTimeSlotsResponse {
+  // time_slots は開始時刻の昇順に並んだ時間帯枠、1 日分のため件数の上限は設けない
+  repeated TimeSlot time_slots = 1;
+}

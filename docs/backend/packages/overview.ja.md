@@ -12,12 +12,12 @@
 
 ![層と依存の向き](./images/layers.png)
 
-| リング                     | パッケージ                                                                  |
-| -------------------------- | --------------------------------------------------------------------------- |
-| Enterprise Business Rules  | `park/domain/model`、`platform/serving/apperr`                              |
-| Application Business Rules | `park/usecase`、`park/domain/repository`                                    |
-| Interface Adapters         | `park/handler`、`park/infrastructure/firestore`、`internal/park` (組み立て) |
-| Frameworks & Drivers       | `cmd/api`、`internal/platform/**`、`gen/**`                                 |
+| リング                     | パッケージ                                                                                              |
+| -------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Enterprise Business Rules  | `park/domain/model`、`inventory/domain/model`、`platform/serving/apperr`                                |
+| Application Business Rules | `park/usecase`、`park/domain/repository`、`inventory/usecase`、`inventory/domain/repository`            |
+| Interface Adapters         | `<機能>/handler`、`<機能>/infrastructure/firestore`、`internal/park` と `internal/inventory` (組み立て) |
+| Frameworks & Drivers       | `cmd/api`、`internal/platform/**`、`gen/**`                                                             |
 
 ## パッケージ間の依存
 
@@ -45,7 +45,13 @@ go list -f '{{.ImportPath}} {{.Imports}}' ./... | grep park/domain/model  # こ�
 
 **`infrastructure/firestore` は技術名のままにする。** 抽象名は `domain/repository` の `Reader` と `Writer` が持ちます。実装側を `datastore` のような抽象名にすると、2 つ目の実装を追加するときに名前が空きません。役割は型名 (`firestore.Repository`) で表します。
 
-**値オブジェクトにしたのは `ParkID` だけ。** 表示名と上限人数と日数は `Park` の外へ単体で出ないため、型にすると変換だけが増えます。検証規則があることだけを理由に型を定義しません。
+**`park` が値オブジェクトにしたのは `ParkID` だけ。** 表示名と上限人数と日数は `Park` の外へ単体で出ないため、型にすると変換だけが増えます。検証規則があることだけを理由に型を定義しません。
+
+**`inventory` は 2 つのエンティティを 1 つの機能パッケージに置く。** 入場枠 (`DateInventory`) と時間帯枠 (`TimeSlot`) は別の集約ですが、どちらも同じ枠在庫の減算と復元の対象になります。`domain/repository` のメソッドはエンティティ名を接頭辞に付けて (`GetDateInventory`、`ListTimeSlots`、`UpdateDateInventory`) 区別します。
+
+**`inventory` が値オブジェクトにしたのは識別子と日付。** `ParkID`、`AttractionID`、`TimeSlotID`、`Date` は repository のメソッドに文字列を並べて渡す位置にあり、取り違えてもコンパイルが通ってしまいます。開始時刻と上限と残りは `DateInventory` と `TimeSlot` の外へ単体で出ないため、プリミティブのままにしています。
+
+**`inventory` は枠を新しく生成しない。** `domain/model` が持つのは `RestoreDateInventory` と `RestoreTimeSlot` だけです。枠の作成は先行生成のジョブが担うため、`New` を置くと作成の経路が 2 つになります。
 
 ## 図を再作成する
 
