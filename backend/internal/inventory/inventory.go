@@ -22,3 +22,12 @@ func NewConnectHandler(client *gcpfirestore.Client) inventoryv1connect.Inventory
 		inventoryusecase.NewListTimeSlots(inventories),
 	)
 }
+
+// NewGenerateInventory は枠を作成するジョブの入口までを組み立てる
+//
+// ジョブには handler が無いため、cmd には usecase をそのまま渡す
+func NewGenerateInventory(client *gcpfirestore.Client) *inventoryusecase.GenerateInventory {
+	inventories := inventoryfirestore.NewRepository(client)
+
+	return inventoryusecase.NewGenerateInventory(inventories, inventories)
+}
