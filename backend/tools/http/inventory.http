@@ -1,0 +1,36 @@
+# api を起動した状態で、各リクエストの上の Send Request から実行する
+# 枠は先行生成のジョブが作成するため、エミュレータには先に枠を入れておく
+@baseUrl = http://localhost:8080
+@parkId = park-1
+@attractionId = attraction-1
+@date = 2026-10-05
+
+### 特定の日の入場枠を 1 件取得する
+POST {{baseUrl}}/aozorapark.inventory.v1.InventoryService/GetDateInventory
+Content-Type: application/json
+
+{
+  "parkId": "{{parkId}}",
+  "date": "{{date}}"
+}
+
+### 特定の日の上限人数と残りの人数を上書きする、残りは上限以下にする
+POST {{baseUrl}}/aozorapark.inventory.v1.InventoryService/UpdateDateInventory
+Content-Type: application/json
+
+{
+  "parkId": "{{parkId}}",
+  "date": "{{date}}",
+  "capacity": 2000,
+  "remaining": 1500
+}
+
+### アトラクションの特定の日の時間帯枠を開始時刻の昇順で取得する
+POST {{baseUrl}}/aozorapark.inventory.v1.InventoryService/ListTimeSlots
+Content-Type: application/json
+
+{
+  "parkId": "{{parkId}}",
+  "attractionId": "{{attractionId}}",
+  "date": "{{date}}"
+}
