@@ -15,6 +15,18 @@ service ParkService {
 
   // UpdatePark は表示名と枠の生成に使う初期値を更新する
   rpc UpdatePark(UpdateParkRequest) returns (UpdateParkResponse) {}
+
+  // CreateAttraction はパークにアトラクションを新しく登録する
+  rpc CreateAttraction(CreateAttractionRequest) returns (CreateAttractionResponse) {}
+
+  // UpdateAttraction は表示名と優先パスの条件を更新する
+  rpc UpdateAttraction(UpdateAttractionRequest) returns (UpdateAttractionResponse) {}
+
+  // CreateTicketType はパークに券種を新しく登録する
+  rpc CreateTicketType(CreateTicketTypeRequest) returns (CreateTicketTypeResponse) {}
+
+  // UpdateTicketType は表示名と価格と入場できる時間帯を更新する
+  rpc UpdateTicketType(UpdateTicketTypeRequest) returns (UpdateTicketTypeResponse) {}
 }
 
 message CreateParkRequest {
@@ -72,4 +84,122 @@ message UpdateParkRequest {
 message UpdateParkResponse {
   // park は更新後のパーク
   Park park = 1;
+}
+
+message CreateAttractionRequest {
+  // park_id はアトラクションを登録するパークの識別子
+  string park_id = 1 [(buf.validate.field).string.min_len = 1];
+
+  // name はアトラクションの表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // enabled はアトラクションが優先パスの対象かどうか
+  bool enabled = 3;
+
+  // start_time は時間帯枠を生成しはじめる時刻、無効でも後から有効にするため常に妥当な値を求める
+  string start_time = 4 [(buf.validate.field).string.pattern = "^([01][0-9]|2[0-3]):[0-5][0-9]$"];
+
+  // end_time は時間帯枠の生成を終える時刻、start_time より後であることは usecase を通さない経路もあるため domain/model が判断する
+  string end_time = 5 [(buf.validate.field).string.pattern = "^([01][0-9]|2[0-3]):[0-5][0-9]$"];
+
+  // interval_minutes は時間帯枠を刻む間隔、単位は分
+  int32 interval_minutes = 6 [(buf.validate.field).int32.gte = 1];
+
+  // capacity_per_slot は時間帯枠 1 つあたりに発行できる優先パスの上限、単位は枚
+  int32 capacity_per_slot = 7 [(buf.validate.field).int32.gte = 1];
+}
+
+message CreateAttractionResponse {
+  // attraction は登録されたアトラクション
+  Attraction attraction = 1;
+}
+
+message UpdateAttractionRequest {
+  // park_id は属するパークの識別子
+  string park_id = 1 [(buf.validate.field).string.min_len = 1];
+
+  // attraction_id は更新するアトラクションの識別子
+  string attraction_id = 2 [(buf.validate.field).string.min_len = 1];
+
+  // name はアトラクションの表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+  string name = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // enabled はアトラクションが優先パスの対象かどうか
+  bool enabled = 4;
+
+  // start_time は時間帯枠を生成しはじめる時刻、無効でも後から有効にするため常に妥当な値を求める
+  string start_time = 5 [(buf.validate.field).string.pattern = "^([01][0-9]|2[0-3]):[0-5][0-9]$"];
+
+  // end_time は時間帯枠の生成を終える時刻、start_time より後であることは usecase を通さない経路もあるため domain/model が判断する
+  string end_time = 6 [(buf.validate.field).string.pattern = "^([01][0-9]|2[0-3]):[0-5][0-9]$"];
+
+  // interval_minutes は時間帯枠を刻む間隔、単位は分
+  int32 interval_minutes = 7 [(buf.validate.field).int32.gte = 1];
+
+  // capacity_per_slot は時間帯枠 1 つあたりに発行できる優先パスの上限、単位は枚
+  int32 capacity_per_slot = 8 [(buf.validate.field).int32.gte = 1];
+}
+
+message UpdateAttractionResponse {
+  // attraction は更新後のアトラクション
+  Attraction attraction = 1;
+}
+
+message CreateTicketTypeRequest {
+  // park_id は券種を登録するパークの識別子
+  string park_id = 1 [(buf.validate.field).string.min_len = 1];
+
+  // name は券種の表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // price は販売価格、単位は円、無料の券種があるため 0 を許す
+  int64 price = 3 [(buf.validate.field).int64.gte = 0];
+
+  // entry_time_from は入場できる時間帯の開始時刻
+  string entry_time_from = 4 [(buf.validate.field).string.pattern = "^([01][0-9]|2[0-3]):[0-5][0-9]$"];
+
+  // entry_time_to は入場できる時間帯の終了時刻、entry_time_from より後であることは usecase を通さない経路もあるため domain/model が判断する
+  string entry_time_to = 5 [(buf.validate.field).string.pattern = "^([01][0-9]|2[0-3]):[0-5][0-9]$"];
+}
+
+message CreateTicketTypeResponse {
+  // ticket_type は登録された券種
+  TicketType ticket_type = 1;
+}
+
+message UpdateTicketTypeRequest {
+  // park_id は属するパークの識別子
+  string park_id = 1 [(buf.validate.field).string.min_len = 1];
+
+  // ticket_type_id は更新する券種の識別子
+  string ticket_type_id = 2 [(buf.validate.field).string.min_len = 1];
+
+  // name は券種の表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+  string name = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+
+  // price は販売価格、単位は円、無料の券種があるため 0 を許す
+  int64 price = 4 [(buf.validate.field).int64.gte = 0];
+
+  // entry_time_from は入場できる時間帯の開始時刻
+  string entry_time_from = 5 [(buf.validate.field).string.pattern = "^([01][0-9]|2[0-3]):[0-5][0-9]$"];
+
+  // entry_time_to は入場できる時間帯の終了時刻、entry_time_from より後であることは usecase を通さない経路もあるため domain/model が判断する
+  string entry_time_to = 6 [(buf.validate.field).string.pattern = "^([01][0-9]|2[0-3]):[0-5][0-9]$"];
+}
+
+message UpdateTicketTypeResponse {
+  // ticket_type は更新後の券種
+  TicketType ticket_type = 1;
 }
