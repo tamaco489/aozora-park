@@ -51,3 +51,27 @@ var ErrInvalidRemaining = apperr.New(
 	"INVENTORY_INVALID_REMAINING",
 	"枠の残りが 0 未満か上限を超えている",
 )
+
+var ErrInvalidInventoryDays = apperr.New(
+	apperr.KindInvalidArgument,
+	"INVENTORY_INVALID_INVENTORY_DAYS",
+	"枠を作成する日数が範囲外",
+)
+
+var ErrInvalidEndTime = apperr.New(
+	apperr.KindInvalidArgument,
+	"INVENTORY_INVALID_END_TIME",
+	"枠の終了時刻が HH:MM の形式でない",
+)
+
+var ErrInvalidTimeRange = apperr.New(
+	apperr.KindInvalidArgument,
+	"INVENTORY_INVALID_TIME_RANGE",
+	"枠の終了時刻が開始時刻より後にない",
+)
+
+var ErrInvalidIntervalMinutes = apperr.New(
+	apperr.KindInvalidArgument,
+	"INVENTORY_INVALID_INTERVAL_MINUTES",
+	"枠を刻む間隔が 1 分未満",
+)

@@ -1,5 +1,9 @@
 package model
 
+import (
+	"strings"
+)
+
 // TimeSlot はアトラクションの時間帯ごとの枠
 type TimeSlot struct {
 	parkID       ParkID
@@ -11,9 +15,37 @@ type TimeSlot struct {
 	remaining    int32
 }
 
-// RestoreTimeSlot は保存済みの時間帯枠を組み立てる
+// NewTimeSlotID は日付と開始時刻から時間帯枠の識別子を組み立てる
 //
-// 枠の作成は専用のジョブが行うため、この機能パッケージは新規生成を持たない
+// 同じ日の同じ開始時刻には必ず同じ識別子が出るため、二重に作成しても上書きにならない
+func NewTimeSlotID(date Date, startTime string) TimeSlotID {
+	return TimeSlotID(strings.ReplaceAll(date.String(), "-", "") +
+		"_" +
+		strings.ReplaceAll(startTime, ":", ""))
+}
+
+// NewTimeSlot は枠を作成するジョブが時間帯枠を新しく生成する
+//
+// 残りは上限と同じ値から始まる、まだ誰も申し込んでいないため
+func NewTimeSlot(
+	parkID ParkID,
+	attractionID AttractionID,
+	date Date,
+	startTime string,
+	capacity int32,
+) (*TimeSlot, error) {
+	return RestoreTimeSlot(
+		parkID,
+		attractionID,
+		NewTimeSlotID(date, startTime),
+		date,
+		startTime,
+		capacity,
+		capacity,
+	)
+}
+
+// RestoreTimeSlot は保存済みの時間帯枠を組み立てる
 func RestoreTimeSlot(
 	parkID ParkID,
 	attractionID AttractionID,

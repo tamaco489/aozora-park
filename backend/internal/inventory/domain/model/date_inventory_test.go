@@ -194,3 +194,70 @@ func TestDateInventoryOverwrite(t *testing.T) {
 		})
 	}
 }
+
+func TestNewDateInventory(t *testing.T) {
+	const (
+		parkID   = ParkID("park-1")
+		date     = Date("2026-10-05")
+		capacity = int32(1000)
+	)
+
+	got, err := NewDateInventory(
+		parkID,
+		date,
+		capacity,
+	)
+	if err != nil {
+		t.Fatalf("NewDateInventory(%q, %q, %d) のエラー = %v, want nil",
+			parkID,
+			date,
+			capacity,
+			err,
+		)
+	}
+
+	// 作成した直後はまだ誰も予約していないため、残りは上限と同じになる
+	if got.Capacity() != capacity || got.Remaining() != capacity {
+		t.Errorf("NewDateInventory(%q, %q, %d) = (%d, %d), want (%d, %d)",
+			parkID,
+			date,
+			capacity,
+			got.Capacity(),
+			got.Remaining(),
+			capacity,
+			capacity,
+		)
+	}
+}
+
+func TestNewDateInventoryInvalidDate(t *testing.T) {
+	const (
+		parkID   = ParkID("park-1")
+		date     = Date("2026-10-5")
+		capacity = int32(1000)
+	)
+
+	got, err := NewDateInventory(
+		parkID,
+		date,
+		capacity,
+	)
+	if !errors.Is(err, ErrInvalidDate) {
+		t.Fatalf("NewDateInventory(%q, %q, %d) のエラー = %v, want %v",
+			parkID,
+			date,
+			capacity,
+			err,
+			ErrInvalidDate,
+		)
+	}
+
+	if got != nil {
+		t.Errorf("NewDateInventory(%q, %q, %d) = %v, want nil",
+			parkID,
+			date,
+			capacity,
+			got,
+		)
+	}
+}
