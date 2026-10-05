@@ -24,8 +24,10 @@ type Repository struct {
 }
 
 var (
-	_ inventoryrepository.Reader = (*Repository)(nil)
-	_ inventoryrepository.Writer = (*Repository)(nil)
+	_ inventoryrepository.Reader       = (*Repository)(nil)
+	_ inventoryrepository.Writer       = (*Repository)(nil)
+	_ inventoryrepository.MasterReader = (*Repository)(nil)
+	_ inventoryrepository.Creator      = (*Repository)(nil)
 )
 
 func NewRepository(client *gcpfirestore.Client) *Repository {

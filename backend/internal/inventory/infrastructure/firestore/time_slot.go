@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	gcpfirestore "cloud.google.com/go/firestore"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	inventorymodel "github.com/tamaco489/aozora-park/backend/internal/inventory/domain/model"
 )
@@ -75,4 +77,30 @@ func (r *Repository) ListTimeSlots(
 	}
 
 	return slots, nil
+}
+
+func (r *Repository) CreateTimeSlotIfAbsent(ctx context.Context, slot *inventorymodel.TimeSlot) (bool, error) {
+	data := timeSlotDocument{
+		AttractionID: slot.AttractionID().String(),
+		Date:         slot.Date().String(),
+		StartTime:    slot.StartTime(),
+		Capacity:     slot.Capacity(),
+		Remaining:    slot.Remaining(),
+	}
+
+	// Create は既にあると失敗するため、申込で減った残りを初期値に戻さない
+	doc := r.timeSlots(slot.ParkID(), slot.AttractionID()).Doc(slot.ID().String())
+	if _, err := doc.Create(ctx, data); err != nil {
+		if status.Code(err) == codes.AlreadyExists {
+			return false, nil
+		}
+		return false, fmt.Errorf("create time slot %q %q %q: %w",
+			slot.ParkID(),
+			slot.AttractionID(),
+			slot.ID(),
+			err,
+		)
+	}
+
+	return true, nil
 }

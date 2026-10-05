@@ -137,3 +137,108 @@ func TestRepositoryListTimeSlotsEmpty(t *testing.T) {
 		)
 	}
 }
+
+func TestRepositoryCreateTimeSlotIfAbsent(t *testing.T) {
+	repo, client := newRepository(t)
+	ctx := t.Context()
+
+	const (
+		parkID       = inventorymodel.ParkID("park-create-time-slot")
+		attractionID = inventorymodel.AttractionID("attraction-create-time-slot")
+		date         = inventorymodel.Date("2026-10-05")
+		startTime    = "09:00"
+		capacity     = int32(30)
+	)
+	cleanupTimeSlot(
+		t,
+		client,
+		parkID,
+		attractionID,
+		inventorymodel.NewTimeSlotID(date, startTime),
+	)
+
+	slot, err := inventorymodel.NewTimeSlot(
+		parkID,
+		attractionID,
+		date,
+		startTime,
+		capacity,
+	)
+	if err != nil {
+		t.Fatalf("NewTimeSlot(%q, %q, %q, %q, %d) = %v, want nil",
+			parkID,
+			attractionID,
+			date,
+			startTime,
+			capacity,
+			err,
+		)
+	}
+
+	created, err := repo.CreateTimeSlotIfAbsent(ctx, slot)
+	if err != nil {
+		t.Fatalf("1 回目の Repository.CreateTimeSlotIfAbsent(%q) = %v, want nil",
+			slot.ID(),
+			err,
+		)
+	}
+	if !created {
+		t.Errorf("1 回目の Repository.CreateTimeSlotIfAbsent(%q) = %t, want %t",
+			slot.ID(),
+			created,
+			true,
+		)
+	}
+
+	created, err = repo.CreateTimeSlotIfAbsent(ctx, slot)
+	if err != nil {
+		t.Fatalf("2 回目の Repository.CreateTimeSlotIfAbsent(%q) = %v, want nil",
+			slot.ID(),
+			err,
+		)
+	}
+	if created {
+		t.Errorf("2 回目の Repository.CreateTimeSlotIfAbsent(%q) = %t, want %t",
+			slot.ID(),
+			created,
+			false,
+		)
+	}
+
+	stored, err := repo.ListTimeSlots(
+		ctx,
+		parkID,
+		attractionID,
+		date,
+	)
+	if err != nil {
+		t.Fatalf("Repository.ListTimeSlots(%q, %q, %q) = %v, want nil",
+			parkID,
+			attractionID,
+			date,
+			err,
+		)
+	}
+
+	if len(stored) != 1 {
+		t.Fatalf("Repository.ListTimeSlots(%q, %q, %q) の件数 = %d, want %d",
+			parkID,
+			attractionID,
+			date,
+			len(stored),
+			1,
+		)
+	}
+
+	if stored[0].StartTime() != startTime || stored[0].Remaining() != capacity {
+		t.Errorf("Repository.ListTimeSlots(%q, %q, %q) の枠 = (%q, %d), want (%q, %d)",
+			parkID,
+			attractionID,
+			date,
+			stored[0].StartTime(),
+			stored[0].Remaining(),
+			startTime,
+			capacity,
+		)
+	}
+}
