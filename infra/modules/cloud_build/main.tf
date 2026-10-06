@@ -78,19 +78,6 @@ resource "google_service_account_iam_member" "deployer_act_as" {
   member             = google_service_account.deployer.member
 }
 
-# 対象が api だけだった頃のアドレスから付け替える、再作成すると一時的に権限が外れるため
-#
-# stg に apply して state のアドレスが移ったら不要になる、永続的に要るものではない
-moved {
-  from = google_cloud_run_v2_service_iam_member.deployer_developer
-  to   = google_cloud_run_v2_service_iam_member.deployer_developer["api"]
-}
-
-moved {
-  from = google_service_account_iam_member.deployer_act_as_api
-  to   = google_service_account_iam_member.deployer_act_as["api"]
-}
-
 # NOTE: https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloudbuild_trigger
 # サービスのタグ (api/v1.2.3) の push で、ビルドからデプロイまでを行うトリガ
 # Developer Connect のリポジトリは手動のトリガを作れないため、stg は gcloud builds submit で実行し、トリガーは prd だけに作る
