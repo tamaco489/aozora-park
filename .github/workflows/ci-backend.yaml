@@ -56,6 +56,7 @@ jobs:
       - name: Build
         run: go build ./...
 
+  # エミュレータを使わないテスト、PR で先に結果を返す
   backend-test:
     runs-on: ubuntu-latest
     steps:
@@ -65,8 +66,31 @@ jobs:
           go-version-file: backend/go.mod
           cache-dependency-path: backend/go.sum
       # -shuffle は順序依存、-count=1 はキャッシュ無効化
-      # DOCKER_TESTS はエミュレータを起動するテストを走らせる
+      # DOCKER_TESTS を渡さないため、エミュレータを使うテストは自分で飛ぶ
       - name: Test
         run: go test -race -shuffle=on -count=1 ./...
+
+  # エミュレータを使うテスト、1 GB を超えるイメージの取得と起動で backend-test より長くかかる
+  backend-test-emulator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # イメージの取得に 30 秒ほどかかるため、setup-go とコンパイルの裏で進めておく
+      # testcontainers が取得済みでなければ自分で取りに行くが、同じイメージの取得は docker が 1 つにまとめる
+      # タグは firestoretest の emulatorImage と同じ値にする、片方を変更したらもう片方も修正する
+      - name: Start pulling the emulator image
+        run: docker pull "$EMULATOR_IMAGE" > /dev/null 2>&1 &
+        env:
+          EMULATOR_IMAGE: gcr.io/google.com/cloudsdktool/cloud-sdk:584.0.0-emulators
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+      # 対象は firestoretest を import しているテストパッケージ、一覧を書くと新しい機能を足したときの追記漏れに気づけない
+      # 外部テストパッケージ (package xxx_test) は TestImports ではなく XTestImports に出るため両方を見る
+      # grep は 2 列目以降に当てる、ImportPath に当てると firestoretest 自身が混ざる
+      # -race を付けない、infrastructure のテストは直列の I/O で goroutine を跨ぐ共有が無く、2 倍の時間に見合う検出が得られないため
+      - name: Test
+        run: go test -shuffle=on -count=1 $(go list -f '{{.ImportPath}} {{join .TestImports " "}} {{join .XTestImports " "}}' ./... | grep ' .*firestoretest' | cut -d' ' -f1)
         env:
           DOCKER_TESTS: 1

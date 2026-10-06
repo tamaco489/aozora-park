@@ -20,6 +20,8 @@ import (
 const ProjectID = "demo-aozora-park"
 
 // emulatorImage は Firestore エミュレータを含む Cloud SDK のイメージ (エミュレータの挙動がバージョンによって異なるため、タグを固定する)
+//
+// ci-backend.yaml が取得を先回りするために同じ値を持つ、片方を変更したらもう片方も修正する
 const emulatorImage = "gcr.io/google.com/cloudsdktool/cloud-sdk:584.0.0-emulators"
 
 // gate はエミュレータを起動するかを決める環境変数 (Docker が無い環境でも go test ./... が通るようにするため、既定では起動しない)
