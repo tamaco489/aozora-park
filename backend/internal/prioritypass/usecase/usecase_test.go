@@ -32,8 +32,11 @@ var fixedNow = time.Date(
 type fakeRepository struct {
 	passes      map[prioritypassmodel.PassID]*prioritypassmodel.PriorityPass
 	publishedAt map[prioritypassmodel.PassID]time.Time
+	remaining   map[prioritypassmodel.TimeSlotID]int32
+	events      map[prioritypassmodel.PassID]int // events は状態の変化として追記した件数
 	createErr   error
 	markErr     error
+	allocateErr error
 }
 
 var (
@@ -45,6 +48,8 @@ func newFakeRepository() *fakeRepository {
 	return &fakeRepository{
 		passes:      map[prioritypassmodel.PassID]*prioritypassmodel.PriorityPass{},
 		publishedAt: map[prioritypassmodel.PassID]time.Time{},
+		remaining:   map[prioritypassmodel.TimeSlotID]int32{},
+		events:      map[prioritypassmodel.PassID]int{},
 	}
 }
 
@@ -98,6 +103,48 @@ func (r *fakeRepository) MarkPriorityPassPublished(
 	r.publishedAt[id] = publishedAt
 
 	return nil
+}
+
+// AllocateTimeSlot は infrastructure と同じ順序で残りを確認してから遷移させる
+func (r *fakeRepository) AllocateTimeSlot(
+	_ context.Context,
+	id prioritypassmodel.PassID,
+	now time.Time,
+) (prioritypassmodel.Allocation, error) {
+	if r.allocateErr != nil {
+		return prioritypassmodel.Allocation{}, r.allocateErr
+	}
+
+	pass, ok := r.passes[id]
+	if !ok {
+		return prioritypassmodel.Allocation{}, prioritypassmodel.ErrPriorityPassNotFound
+	}
+
+	if !pass.IsRequested() {
+		return prioritypassmodel.Allocation{Pass: pass}, nil
+	}
+
+	remaining, ok := r.remaining[pass.TimeSlotID()]
+	if !ok {
+		return prioritypassmodel.Allocation{}, prioritypassmodel.ErrTimeSlotNotFound
+	}
+
+	if remaining > 0 {
+		if err := pass.Issue(now); err != nil {
+			return prioritypassmodel.Allocation{}, err
+		}
+		r.remaining[pass.TimeSlotID()] = remaining - 1
+	} else {
+		if err := pass.MarkSoldOut(now); err != nil {
+			return prioritypassmodel.Allocation{}, err
+		}
+	}
+	r.events[id]++
+
+	return prioritypassmodel.Allocation{
+		Pass:    pass,
+		Changed: true,
+	}, nil
 }
 
 // fakePublisher は送り先を差し替えるためのインメモリ実装

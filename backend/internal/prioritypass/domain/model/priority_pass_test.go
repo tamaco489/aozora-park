@@ -235,3 +235,183 @@ func newValidPriorityPassHelper(tb testing.TB) *PriorityPass {
 
 	return pass
 }
+
+// transitedAt は遷移の時刻、作成の時刻と区別できる値にする
+var transitedAt = validNow.Add(time.Hour)
+
+func TestPriorityPassIssue(t *testing.T) {
+	tests := map[string]struct {
+		status     Status
+		wantErr    error
+		wantStatus Status
+	}{
+		"正常系_requestedの場合_issuedになること": {
+			status:     StatusRequested,
+			wantStatus: StatusIssued,
+		},
+		"異常系_issuedの場合_ErrNotRequestedになること": {
+			status:     StatusIssued,
+			wantErr:    ErrNotRequested,
+			wantStatus: StatusIssued,
+		},
+		"異常系_sold_outの場合_ErrNotRequestedになること": {
+			status:     StatusSoldOut,
+			wantErr:    ErrNotRequested,
+			wantStatus: StatusSoldOut,
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			pass := restorePriorityPassHelper(t, tt.status)
+
+			err := pass.Issue(transitedAt)
+
+			if !errors.Is(err, tt.wantErr) {
+				t.Fatalf("PriorityPass.Issue(%v) のエラー = %v, want %v",
+					transitedAt,
+					err,
+					tt.wantErr,
+				)
+			}
+
+			if pass.Status() != tt.wantStatus {
+				t.Errorf("PriorityPass.Issue(%v) の状態 = %q, want %q",
+					transitedAt,
+					pass.Status(),
+					tt.wantStatus,
+				)
+			}
+
+			assertUpdatedAtHelper(t, pass, tt.wantErr == nil)
+		})
+	}
+}
+
+func TestPriorityPassMarkSoldOut(t *testing.T) {
+	tests := map[string]struct {
+		status     Status
+		wantErr    error
+		wantStatus Status
+	}{
+		"正常系_requestedの場合_sold_outになること": {
+			status:     StatusRequested,
+			wantStatus: StatusSoldOut,
+		},
+		"異常系_issuedの場合_ErrNotRequestedになること": {
+			status:     StatusIssued,
+			wantErr:    ErrNotRequested,
+			wantStatus: StatusIssued,
+		},
+		"異常系_sold_outの場合_ErrNotRequestedになること": {
+			status:     StatusSoldOut,
+			wantErr:    ErrNotRequested,
+			wantStatus: StatusSoldOut,
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			pass := restorePriorityPassHelper(t, tt.status)
+
+			err := pass.MarkSoldOut(transitedAt)
+
+			if !errors.Is(err, tt.wantErr) {
+				t.Fatalf("PriorityPass.MarkSoldOut(%v) のエラー = %v, want %v",
+					transitedAt,
+					err,
+					tt.wantErr,
+				)
+			}
+
+			if pass.Status() != tt.wantStatus {
+				t.Errorf("PriorityPass.MarkSoldOut(%v) の状態 = %q, want %q",
+					transitedAt,
+					pass.Status(),
+					tt.wantStatus,
+				)
+			}
+
+			assertUpdatedAtHelper(t, pass, tt.wantErr == nil)
+		})
+	}
+}
+
+func TestPriorityPassIsRequested(t *testing.T) {
+	tests := map[string]struct {
+		status Status
+		want   bool
+	}{
+		"正常系_requestedの場合_trueになること": {
+			status: StatusRequested,
+			want:   true,
+		},
+		"正常系_issuedの場合_falseになること": {
+			status: StatusIssued,
+			want:   false,
+		},
+		"正常系_sold_outの場合_falseになること": {
+			status: StatusSoldOut,
+			want:   false,
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			pass := restorePriorityPassHelper(t, tt.status)
+
+			if got := pass.IsRequested(); got != tt.want {
+				t.Errorf("PriorityPass(%q).IsRequested() = %v, want %v",
+					tt.status,
+					got,
+					tt.want,
+				)
+			}
+		})
+	}
+}
+
+// restorePriorityPassHelper は指定した状態の優先パスを組み立てる
+func restorePriorityPassHelper(tb testing.TB, status Status) *PriorityPass {
+	tb.Helper()
+
+	pass, err := RestorePriorityPass(
+		"pass-1",
+		validParkID,
+		validTicketID,
+		validAttractionID,
+		validTimeSlotID,
+		status,
+		validNow,
+		validNow,
+	)
+	if err != nil {
+		tb.Fatalf("RestorePriorityPass(%q) = %v, want nil",
+			status,
+			err,
+		)
+	}
+
+	return pass
+}
+
+// assertUpdatedAtHelper は遷移したときだけ更新の時刻が動くことを確かめる
+func assertUpdatedAtHelper(
+	tb testing.TB,
+	pass *PriorityPass,
+	transited bool,
+) {
+	tb.Helper()
+
+	want := validNow
+	if transited {
+		want = transitedAt
+	}
+
+	if !pass.UpdatedAt().Equal(want) {
+		tb.Errorf("PriorityPass.UpdatedAt() = %v, want %v",
+			pass.UpdatedAt(),
+			want,
+		)
+	}
+}

@@ -62,6 +62,16 @@ func (r *Repository) GetPriorityPass(
 		)
 	}
 
+	return restoreFromSnapshot(snapshot, id)
+}
+
+// restoreFromSnapshot は読み出したドキュメントから優先パスを組み立てる
+//
+// トランザクションの中と外で同じ変換を使う
+func restoreFromSnapshot(
+	snapshot *gcpfirestore.DocumentSnapshot,
+	id prioritypassmodel.PassID,
+) (*prioritypassmodel.PriorityPass, error) {
 	var doc document
 	if err := snapshot.DataTo(&doc); err != nil {
 		return nil, fmt.Errorf("decode priority pass %q: %w",

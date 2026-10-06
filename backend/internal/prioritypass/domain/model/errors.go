@@ -51,3 +51,15 @@ var ErrInvalidStatus = apperr.New(
 	"PRIORITY_PASS_INVALID_STATUS",
 	"優先パスの状態が既知の値でない",
 )
+
+var ErrNotRequested = apperr.New(
+	apperr.KindConflict,
+	"PRIORITY_PASS_NOT_REQUESTED",
+	"優先パスが申込中でない",
+)
+
+var ErrTimeSlotNotFound = apperr.New(
+	apperr.KindNotFound,
+	"PRIORITY_PASS_TIME_SLOT_NOT_FOUND",
+	"申込が指す時間帯枠が見つからない",
+)
