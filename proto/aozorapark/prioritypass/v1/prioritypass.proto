@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package aozorapark.prioritypass.v1;
+
+// PriorityPassStatus は優先パスの状態
+//
+// 却下を表す REJECTED は、券との突き合わせを行う tickets ができたときに足す
+enum PriorityPassStatus {
+  // PRIORITY_PASS_STATUS_UNSPECIFIED は未設定
+  PRIORITY_PASS_STATUS_UNSPECIFIED = 0;
+
+  // PRIORITY_PASS_STATUS_REQUESTED は申込を受け付けた状態
+  PRIORITY_PASS_STATUS_REQUESTED = 1;
+
+  // PRIORITY_PASS_STATUS_ISSUED は時間帯枠を確保して発行した状態
+  PRIORITY_PASS_STATUS_ISSUED = 2;
+
+  // PRIORITY_PASS_STATUS_SOLD_OUT は時間帯枠が埋まっていて発行できなかった状態
+  PRIORITY_PASS_STATUS_SOLD_OUT = 3;
+}
+
+// PriorityPass はアトラクションの時間帯枠に対する優先パス
+message PriorityPass {
+  // pass_id は優先パスの識別子
+  string pass_id = 1;
+
+  // park_id は優先パスが属するパークの識別子
+  string park_id = 2;
+
+  // ticket_id は申込に使った券の識別子
+  string ticket_id = 3;
+
+  // attraction_id は優先パスの対象となるアトラクションの識別子
+  string attraction_id = 4;
+
+  // time_slot_id は希望する時間帯枠の識別子、YYYYMMDD_HHMM の形
+  string time_slot_id = 5;
+
+  // status は優先パスの状態
+  PriorityPassStatus status = 6;
+}
