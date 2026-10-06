@@ -70,8 +70,8 @@ func restorePriorityPassHelper(
 	return pass
 }
 
-// cleanupPriorityPass は検査対象が作成する優先パスとイベントの後始末を登録する
-func cleanupPriorityPass(
+// cleanupPriorityPassHelper は検査対象が作成する優先パスとイベントの後始末を登録する
+func cleanupPriorityPassHelper(
 	tb testing.TB,
 	client *gcpfirestore.Client,
 	id prioritypassmodel.PassID,

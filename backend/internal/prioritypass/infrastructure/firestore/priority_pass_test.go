@@ -14,7 +14,7 @@ func TestRepositoryCreateAndGetPriorityPass(t *testing.T) {
 	ctx := t.Context()
 
 	const id = prioritypassmodel.PassID("pass-create-and-get")
-	cleanupPriorityPass(t, client, id)
+	cleanupPriorityPassHelper(t, client, id)
 
 	pass := restorePriorityPassHelper(t, id, prioritypassmodel.StatusRequested)
 
@@ -73,7 +73,7 @@ func TestRepositoryCreatePriorityPassWritesPublishedAt(t *testing.T) {
 	ctx := t.Context()
 
 	const id = prioritypassmodel.PassID("pass-published-at")
-	cleanupPriorityPass(t, client, id)
+	cleanupPriorityPassHelper(t, client, id)
 
 	if err := repo.CreatePriorityPass(ctx, restorePriorityPassHelper(t, id, prioritypassmodel.StatusRequested)); err != nil {
 		t.Fatalf("Repository.CreatePriorityPass(%q) = %v, want nil",
@@ -112,7 +112,7 @@ func TestRepositoryCreatePriorityPassWritesEvent(t *testing.T) {
 	ctx := t.Context()
 
 	const id = prioritypassmodel.PassID("pass-event")
-	cleanupPriorityPass(t, client, id)
+	cleanupPriorityPassHelper(t, client, id)
 
 	if err := repo.CreatePriorityPass(ctx, restorePriorityPassHelper(t, id, prioritypassmodel.StatusRequested)); err != nil {
 		t.Fatalf("Repository.CreatePriorityPass(%q) = %v, want nil",
@@ -175,7 +175,7 @@ func TestRepositoryCreatePriorityPassAlreadyExists(t *testing.T) {
 	ctx := t.Context()
 
 	const id = prioritypassmodel.PassID("pass-already-exists")
-	cleanupPriorityPass(t, client, id)
+	cleanupPriorityPassHelper(t, client, id)
 
 	if err := repo.CreatePriorityPass(ctx, restorePriorityPassHelper(t, id, prioritypassmodel.StatusRequested)); err != nil {
 		t.Fatalf("1 回目の Repository.CreatePriorityPass(%q) = %v, want nil",
