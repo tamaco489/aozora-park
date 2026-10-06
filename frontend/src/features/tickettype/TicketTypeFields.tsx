@@ -14,17 +14,41 @@ type Props = {
   onChange: (values: TicketTypeFieldValues) => void;
 };
 
+// 簡易入力のための候補、押すと入力欄に入る
+//
+// datalist はブラウザが候補を描くため見た目を揃えられない、自前のボタンにして CSS で整える
+const nameOptions = [
+  "1 日券 おとな",
+  "1 日券 こども",
+  "午後券 おとな",
+  "午後券 こども",
+  "年間パス おとな",
+];
+
 export function TicketTypeFields({ idPrefix, values, onChange }: Props) {
   return (
     <>
       <div className="field">
         <label htmlFor={`${idPrefix}-name`}>表示名</label>
-        <input
-          id={`${idPrefix}-name`}
-          value={values.name}
-          onChange={(e) => onChange({ ...values, name: e.target.value })}
-          placeholder="1 日券 おとな"
-        />
+        <div className="with-options">
+          <input
+            id={`${idPrefix}-name`}
+            value={values.name}
+            onChange={(e) => onChange({ ...values, name: e.target.value })}
+            placeholder="1 日券 おとな"
+          />
+          <div className="options">
+            {nameOptions.map((name) => (
+              <button
+                key={name}
+                type="button"
+                onClick={() => onChange({ ...values, name })}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="field">
