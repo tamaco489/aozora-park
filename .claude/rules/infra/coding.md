@@ -44,7 +44,7 @@
 
 ## 命名と値の渡し方
 
-- GCP プロジェクトを環境ごとに分けるため、リソース名に環境の接頭辞を付けない (`api`、`payment-service`)。プロジェクト外で一意にする必要があるもの (GCS バケットなど) だけ、先頭にプロジェクト ID を付けて `${var.project_id}-<役割>` にする (`stg-aozora-park-tfstate`)
+- GCP プロジェクトを環境ごとに分けるため、リソース名に環境の接頭辞を付けない (`api`、`payment-executor`)。プロジェクト外で一意にする必要があるもの (GCS バケットなど) だけ、先頭にプロジェクト ID を付けて `${var.project_id}-<役割>` にする (`stg-aozora-park-tfstate`)
 - リソース名はモジュール内で組み立てる。環境ディレクトリは値 (`project_id` `region` `env`) を渡すだけで名前を組み立てない
 - `env` は `validation` で `stg` と `prd` に限る。`project_id` は `validation` で GCP のプロジェクト ID の形式を検査する
 - **API キー・シークレット・Webhook URL・メールアドレスをファイルに書かない。** 秘匿値は Secret Manager に置き、Terraform ではシークレットの入れ物と参照だけを定義する。値の投入はユーザーが手で行う
