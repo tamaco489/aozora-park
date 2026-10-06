@@ -12,8 +12,11 @@
 ```text
 frontend/
 ├── src/
-│   ├── main.tsx          # React の起動だけを書く
-│   ├── App.tsx           # 画面の部品を並べるだけ
+│   ├── main.tsx          # React の起動とルーターの設置だけを書く
+│   ├── App.tsx           # ルート表だけを書く
+│   ├── Layout.tsx        # 全ページ共通の見出しと行き先。中身は Outlet に入る
+│   ├── Home.tsx          # トップ
+│   ├── NotFound.tsx      # 404
 │   ├── index.css         # 全体の CSS
 │   ├── api/              # api との接続。画面から切り離す
 │   │   ├── transport.ts  # 接続先とトランスポート
@@ -21,6 +24,7 @@ frontend/
 │   │   └── errors.ts     # connect のエラーを画面の文言に変換する
 │   ├── features/         # 業務機能ごとの画面
 │   │   └── park/
+│   │       └── ParkPage.tsx  # そのパスで出すページ
 │   └── gen/              # buf generate の出力。手で編集しない
 ├── vite.config.ts        # 開発サーバの proxy。api の接続先を決める
 └── .oxlintrc.json
@@ -29,6 +33,25 @@ frontend/
 - `src/features/` は業務機能で分け、`backend/internal/<機能>` と名前を揃える
 - **画面の部品から connect のクライアントを生成しない。** `src/api/` で生成したものを import する
 - `src/api/` はサービス 1 つにつき 1 ファイルにする (`park.ts`)。トランスポートは全サービスで共有する
+
+### ルーティング
+
+**機能ごとに 1 つのパスを割り当てる。** 1 画面に全機能を並べると、機能が増えるほど縦に伸びて目的の操作に辿り着けなくなる。
+
+| パス            | 出すもの                                     |
+| --------------- | -------------------------------------------- |
+| `/`             | 行き先の案内                                 |
+| `/<機能>`       | その機能の操作をまとめたページ               |
+| `*`             | 404                                          |
+
+- ページの部品は `features/<機能>/<機能>Page.tsx` に置き、既存の操作の部品を並べるだけにする。**ページに業務の処理を書かない**
+- ルート表は `App.tsx` の 1 か所にまとめる。部品の中で `<Route>` を定義しない
+- 共通の見出しと行き先は `Layout.tsx` が持ち、各ページは `Outlet` に入る
+- **識別子をパスに載せない** (`/parks/:parkId` にしない)。一覧の RPC が無く、識別子は手入力のため、遷移する手段が無い。一覧ができた時点で見直す
+- 見出しは `h1` が全体、`h2` がページ、`h3` が操作の三段にする
+- 現在のページは `NavLink` が付ける `aria-current="page"` で示す。色だけに頼らない
+
+**Firebase Hosting と Vite の設定は変更しない。** `firebase.json` の末尾に `"source": "**"` から `/index.html` への rewrite があり、RPC の rewrite がその前に並んでいるため直リロードも通る。Vite の開発サーバは history fallback が既定で有効。
 
 ## api との接続
 
