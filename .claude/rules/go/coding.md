@@ -65,6 +65,7 @@ backend/
 │       ├── serving/                  # リクエストを受ける側の下回り
 │       │   ├── httpx/                # サーバ起動・graceful shutdown・App
 │       │   ├── interceptor/          # 認証・ログ・エラー変換
+│       │   ├── pubsubpush/           # Pub/Sub push の封筒のパース (connect を通さない入口)
 │       │   └── apperr/               # エラーの型・Kind・connect.Code への変換
 │       └── observability/            # 起きたことを外に出すもの
 │           ├── logging/
@@ -95,7 +96,7 @@ backend/
 | グループ        | 入れるもの                                                 | 判断基準                     |
 | --------------- | ---------------------------------------------------------- | ---------------------------- |
 | `client`        | `firestore` `pubsub` `cloudtasks` `auth` `fincode` `slack` | プロセスの外へ出ていくもの   |
-| `serving`       | `httpx` `interceptor` `apperr`                             | リクエストを受ける側の下回り |
+| `serving`       | `httpx` `interceptor` `pubsubpush` `apperr`                | リクエストを受ける側の下回り |
 | `observability` | `logging` `telemetry`                                      | 起きたことを外に出すもの     |
 
 - 設定は `internal/platform/config` で 1 箇所にまとめて読む。**他のパッケージで環境変数を読まない** (例外はエミュレータの起動を判定する `firestoretest` だけ)
@@ -281,6 +282,21 @@ const (
 
 この 3 つ以外で集約をまたぎたくなったら、まず集約の境界を疑う。状態の変更と `events` への追記は同一集約のため、例外にあたらない。
 
+### events の語彙
+
+**`events` に残す値は Firestore に保存され、後から意味を変えられない。** 使う語を 3 つのフィールドごとに決めておく。
+
+| フィールド | 決め方                                                 | 現在ある値                                           |
+| ---------- | ------------------------------------------------------ | ---------------------------------------------------- |
+| `actor`    | 人の操作を受けた入口か、機械なら `system:<サービス名>` | `api`、`system:priority-pass-issuer`                 |
+| `action`   | 何が起きたか。状態の名前を入れない                     | `created`、`status_changed`                          |
+| `cause`    | なぜそうなったか。`<対象>_<結果>` の形                 | `guest_requested`、`slot_allocated`、`slot_sold_out` |
+
+- **`action` に状態の名前を入れない** (`issued` や `sold_out` にしない)。状態は `changes` が持つため、`action` に入れると同じ情報が 2 か所になり、状態が増えるたびに語彙も増える
+- 区別が要るのは `cause`。同じ `status_changed` でも、枠を確保できたのか埋まっていたのかはここで分かれる
+- 値を増やすときはこの表に足す。**表に無い値を実装だけに置かない**
+- 文字列はテストでリテラルとして固定する。定数を参照して比べると、定数を書き換えたときにテストが追従して気づけない
+
 ## エラー
 
 ### エラーの扱い
@@ -316,6 +332,15 @@ var ErrSoldOut = apperr.New(apperr.KindConflict, "PURCHASE_SOLD_OUT", "在庫が
 - SDK が同じ意味を複数の型やコードで返す場合は、ラッパ側で 1 つのセンチネルに畳む
 - Firestore のトランザクションは `infrastructure` の内側に閉じる。`usecase` に `*firestore.Transaction` を漏らさない
 
+### 送信は呼び出し元の ctx から切り離す
+
+**publish と Cloud Tasks への投入は、呼び出し元のリクエストが切れても送り切る。** 代わりに待つ上限を自分で置く。
+
+- 送信だけを理由に手前の処理を巻き戻さない。作成済みのものを呼び出し元が作り直すと二重の申込になる
+- `context.WithoutCancel` で切り離し、`context.WithTimeout` で上限を置く。宛先に届かない間 SDK がリトライを続けるため、上限が無いと呼び出し元がその分だけ待たされる
+- 優先パスの申込では、上限を置かない場合に 60.3 秒かかった RPC が、3 秒の上限で 3.02 秒になった
+- 送れたことを示す項目 (`publishedAt`) を持たせ、残らなかったものは後から送り直せるようにする。送信の失敗はエラーとして返さずログに残す
+
 ### 外部 API の翻訳
 
 **外部サービスの型を `usecase` より内側に持ち込まない。** fincode のレスポンス構造体、Slack のペイロード、Pub/Sub のメッセージ型は `platform/client` と機能パッケージの境界で自分たちの型に翻訳する。
@@ -337,6 +362,8 @@ var ErrSoldOut = apperr.New(apperr.KindConflict, "PURCHASE_SOLD_OUT", "在庫が
 - `cmd/*/main.go` は 4 段に固定する。設定を読む → クライアントを生成する → 機能の組み立て関数を呼ぶ → サーバを起動する
 - クライアントの終了処理は `platform/serving` の `App` に登録し、登録の逆順に閉じる
 - 業務上の時刻 (`createdAt`、失効の基準時刻) と乱数は `WithClock` `WithRandN` で差し替えられるようにし、組み立て関数の引数か `Option` で渡す
+- **`Option` の型は `<ユースケース名>Option` にする** (`RequestPriorityPassOption`)。関数は `With<対象>` を基本にする (`WithClock`)
+- **同じパッケージの別のユースケースと衝突する場合だけ、関数名にユースケースを足す** (`WithClock` と `WithAllocateClock`)。パッケージが違えば衝突しないため、`inventory` と `prioritypass` に同名の `WithClock` があってよい
 - **待機のための `Sleeper` は定義しない。** バックオフやポーリングは `time.Sleep` をそのまま書き、テスト側を `testing/synctest` で囲む (`.claude/rules/go/testing.md`)
 - **`main` が 4 段の形を保てなくなったら、まず組み立てを機能パッケージ側へ押し戻す。** 実行時解決のコンテナ (fx・dig) は採らない
 
@@ -356,6 +383,20 @@ var ErrSoldOut = apperr.New(apperr.KindConflict, "PURCHASE_SOLD_OUT", "在庫が
 - リトライしてほしい失敗だけ 5xx を返す。再実行しても直らない失敗は 2xx で ack し、ログに残す (無限リトライを避ける)
 - Webhook の受信は署名検証・生保存・publish までに留め、業務ロジックを持たない
 - 構造化ログに `purchaseId` `passId` `reservationId` とメッセージ ID・タスク名を必ず含める
+
+### Pub/Sub push の受け口
+
+**push は connect に載せず、素の HTTP のハンドラで受ける。** 受け口は機能パッケージの `handler/subscriber.go` に置き、封筒のパースは `platform/serving/pubsubpush` が持つ。
+
+- **proto に Pub/Sub の仕様を持ち込まない。** connect の RPC にすると封筒の形が proto に入り、frontend にも生成される
+- push は HTTP/1.1 の POST で固定されるため、connect の gRPC と gRPC-Web の経路は使えない。使えない経路のために connect を挟む理由がない
+- 封筒は `{"message":{"data":<base64>,"messageId":...,"attributes":{}},"subscription":...}` の形で、DLQ を経由したものには `deliveryAttempt` が付く
+- Webhook の受信も素の HTTP のため、同じ下回りを共有する
+- `pubsubpush` が見るのは封筒まで。`data` を復号したあとの本文は、機能側が自分たちの型に翻訳する
+- 認証は Cloud Run の IAM と push の OIDC トークンで行う。ハンドラの中で検証を書き直さない
+- 受け口のパスは `/pubsub/push` にする。`infra/modules/pubsub` の `push_endpoint` と同じ値にし、片方を変更したらもう片方も直す
+
+`pubsubpush` はまだ実装していない。ここに書いたのは置き場所の方針で、最初の受け口を作るときにこの形にする。
 
 ## 書き方
 
