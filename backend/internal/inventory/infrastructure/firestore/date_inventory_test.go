@@ -173,7 +173,7 @@ func TestRepositoryCreateDateInventoryIfAbsent(t *testing.T) {
 		date     = inventorymodel.Date("2026-10-05")
 		capacity = int32(1000)
 	)
-	cleanupDateInventory(
+	cleanupDateInventoryHelper(
 		t,
 		client,
 		parkID,

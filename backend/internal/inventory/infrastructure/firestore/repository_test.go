@@ -109,8 +109,8 @@ func seedTimeSlotHelper(
 	})
 }
 
-// cleanupDateInventory は検査対象が作成する入場枠の後始末を登録する
-func cleanupDateInventory(
+// cleanupDateInventoryHelper は検査対象が作成する入場枠の後始末を登録する
+func cleanupDateInventoryHelper(
 	tb testing.TB,
 	client *gcpfirestore.Client,
 	parkID inventorymodel.ParkID,
@@ -135,8 +135,8 @@ func cleanupDateInventory(
 	})
 }
 
-// cleanupTimeSlot は検査対象が作成する時間帯枠の後始末を登録する
-func cleanupTimeSlot(
+// cleanupTimeSlotHelper は検査対象が作成する時間帯枠の後始末を登録する
+func cleanupTimeSlotHelper(
 	tb testing.TB,
 	client *gcpfirestore.Client,
 	parkID inventorymodel.ParkID,
