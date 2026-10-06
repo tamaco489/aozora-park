@@ -57,34 +57,50 @@ resource "google_artifact_registry_repository_iam_member" "deployer_writer" {
   member     = google_service_account.deployer.member
 }
 
-# api のサービスだけにリビジョンのデプロイを許可する
+# デプロイ対象のサービスだけにリビジョンのデプロイを許可する
 # IAM ポリシーは Terraform が管理するため、変更できる run.admin は付けない
 resource "google_cloud_run_v2_service_iam_member" "deployer_developer" {
+  for_each = var.run_services
+
   project  = var.project_id
   location = var.region
-  name     = var.api_service_name
+  name     = each.value.name
   role     = "roles/run.developer"
   member   = google_service_account.deployer.member
 }
 
-# デプロイするリビジョンに sa-api を名乗らせるため、sa-api への actAs を付ける
-resource "google_service_account_iam_member" "deployer_act_as_api" {
-  service_account_id = "projects/${var.project_id}/serviceAccounts/${var.api_service_account_email}"
+# デプロイするリビジョンに各サービスの実行 SA を名乗らせるため、その SA への actAs を付ける
+resource "google_service_account_iam_member" "deployer_act_as" {
+  for_each = var.run_services
+
+  service_account_id = "projects/${var.project_id}/serviceAccounts/${each.value.service_account_email}"
   role               = "roles/iam.serviceAccountUser"
   member             = google_service_account.deployer.member
 }
 
+# 対象が api だけだった頃のアドレスから付け替える、再作成すると一時的に権限が外れるため
+moved {
+  from = google_cloud_run_v2_service_iam_member.deployer_developer
+  to   = google_cloud_run_v2_service_iam_member.deployer_developer["api"]
+}
+
+moved {
+  from = google_service_account_iam_member.deployer_act_as_api
+  to   = google_service_account_iam_member.deployer_act_as["api"]
+}
+
 # NOTE: https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloudbuild_trigger
-# api のタグ (api/v1.2.3) の push で、ビルドからデプロイまでを行うトリガ
+# サービスのタグ (api/v1.2.3) の push で、ビルドからデプロイまでを行うトリガ
 # Developer Connect のリポジトリは手動のトリガを作れないため、stg は gcloud builds submit で実行し、トリガーは prd だけに作る
 # タグ名はスラッシュを含みイメージのタグに使えないため、イメージのタグにはコミットの SHA を渡す
-resource "google_cloudbuild_trigger" "api" {
-  count = var.enable_tag_trigger ? 1 : 0
+# タグの接頭辞は Cloud Run のサービス名と揃え、サービスごとに別のタグで出せるようにする
+resource "google_cloudbuild_trigger" "service" {
+  for_each = var.enable_tag_trigger ? var.run_services : {}
 
   project         = var.project_id
   location        = var.region
-  name            = "api"
-  description     = "Build and deploy the api on an api/v* tag push"
+  name            = each.key
+  description     = "Build and deploy ${each.key} on a ${each.key}/v* tag push"
   service_account = google_service_account.deployer.id
   filename        = "backend/cloudbuild.yaml"
 
@@ -97,12 +113,12 @@ resource "google_cloudbuild_trigger" "api" {
     git_repository_link = google_developer_connect_git_repository_link.aozora_park.name
 
     push {
-      tag = "^api/v[0-9]+\\.[0-9]+\\.[0-9]+$"
+      tag = "^${each.key}/v[0-9]+\\.[0-9]+\\.[0-9]+$"
     }
   }
 
   substitutions = {
-    _SERVICE = "api"
+    _SERVICE = each.key
     _TAG     = "$COMMIT_SHA"
   }
 }
