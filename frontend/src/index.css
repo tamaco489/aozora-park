@@ -19,6 +19,29 @@ h1 {
   font-size: 1.5rem;
 }
 
+/* 行き先は常に出す、現在のページだけ色と下線で示す */
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e4e7eb;
+}
+
+a {
+  color: #2f4f8f;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+nav a[aria-current="page"] {
+  color: #1f2933;
+  text-decoration: underline;
+}
+
 /* 機能のまとまりを表す見出し、カードの外に置く */
 h2 {
   margin: 2rem 0 0.75rem;

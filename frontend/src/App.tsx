@@ -1,37 +1,25 @@
-import { AttractionCreate } from "./features/attraction/AttractionCreate";
-import { AttractionUpdate } from "./features/attraction/AttractionUpdate";
-import { DateInventoryUpdate } from "./features/inventory/DateInventoryUpdate";
-import { DateInventoryView } from "./features/inventory/DateInventoryView";
-import { TimeSlotList } from "./features/inventory/TimeSlotList";
-import { ParkCreate } from "./features/park/ParkCreate";
-import { ParkUpdate } from "./features/park/ParkUpdate";
-import { ParkView } from "./features/park/ParkView";
-import { TicketTypeCreate } from "./features/tickettype/TicketTypeCreate";
-import { TicketTypeUpdate } from "./features/tickettype/TicketTypeUpdate";
+import { Route, Routes } from "react-router";
 
-// ルーターは入れず、機能ごとの見出しで区切って 1 画面に並べる
+import { Home } from "./Home";
+import { Layout } from "./Layout";
+import { NotFound } from "./NotFound";
+import { AttractionPage } from "./features/attraction/AttractionPage";
+import { InventoryPage } from "./features/inventory/InventoryPage";
+import { ParkPage } from "./features/park/ParkPage";
+import { TicketTypePage } from "./features/tickettype/TicketTypePage";
+
+// 機能ごとにページを分ける、一覧の RPC ができるまで ID はパスに載せない
 export default function App() {
   return (
-    <main>
-      <h1>Aozora Park</h1>
-
-      <h2>パーク</h2>
-      <ParkCreate />
-      <ParkView />
-      <ParkUpdate />
-
-      <h2>アトラクション</h2>
-      <AttractionCreate />
-      <AttractionUpdate />
-
-      <h2>券種</h2>
-      <TicketTypeCreate />
-      <TicketTypeUpdate />
-
-      <h2>枠</h2>
-      <DateInventoryView />
-      <DateInventoryUpdate />
-      <TimeSlotList />
-    </main>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<Home />} />
+        <Route path="parks" element={<ParkPage />} />
+        <Route path="attractions" element={<AttractionPage />} />
+        <Route path="ticket-types" element={<TicketTypePage />} />
+        <Route path="inventory" element={<InventoryPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
   );
 }
