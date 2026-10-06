@@ -17,6 +17,15 @@ type Props = {
   onChange: (values: AttractionFieldValues) => void;
 };
 
+// 簡易入力のための候補、protovalidate を殺さないよう datalist にして自由入力も残す
+const nameOptions = [
+  "そらとびコースター",
+  "なみのりボート",
+  "ゆめみの観覧車",
+  "もりのメリーゴーランド",
+  "ほしぞらシアター",
+];
+
 export function AttractionFields({ idPrefix, values, onChange }: Props) {
   return (
     <>
@@ -24,10 +33,16 @@ export function AttractionFields({ idPrefix, values, onChange }: Props) {
         <label htmlFor={`${idPrefix}-name`}>表示名</label>
         <input
           id={`${idPrefix}-name`}
+          list={`${idPrefix}-name-options`}
           value={values.name}
           onChange={(e) => onChange({ ...values, name: e.target.value })}
           placeholder="そらとびコースター"
         />
+        <datalist id={`${idPrefix}-name-options`}>
+          {nameOptions.map((name) => (
+            <option key={name} value={name} />
+          ))}
+        </datalist>
       </div>
 
       <div className="field">
