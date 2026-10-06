@@ -110,6 +110,12 @@ resource "google_pubsub_subscription" "prioritypass_requested_allocate" {
     maximum_backoff = "600s"
   }
 
+  # 既定では 31 日の無通信で自動で削除される、開発の間隔が空く stg では到達しうる
+  # 消えると publish したメッセージが配送先を失い、drift の検知を持たないため気づけない
+  expiration_policy {
+    ttl = ""
+  }
+
   # 呼び出し権限が無い状態で作成すると、最初の配信がすべて失敗して DLQ に落ちる
   depends_on = [google_cloud_run_v2_service_iam_member.priority_pass_issuer_invoker]
 }
