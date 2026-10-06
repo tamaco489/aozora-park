@@ -16,10 +16,10 @@ func TestMain(m *testing.M) {
 	os.Exit(firestoretest.Main(m))
 }
 
-// newRepository は保存先を用意し、テストが作成したドキュメントを片付ける
+// newRepositoryHelper は保存先を用意し、テストが作成したドキュメントを片付ける
 //
 // テスト間の分離はドキュメント ID を分けて行う、同じコレクションを共有するため
-func newRepository(tb testing.TB) (*Repository, *gcpfirestore.Client) {
+func newRepositoryHelper(tb testing.TB) (*Repository, *gcpfirestore.Client) {
 	tb.Helper()
 
 	client := firestoretest.Client(tb)
@@ -27,7 +27,7 @@ func newRepository(tb testing.TB) (*Repository, *gcpfirestore.Client) {
 	return NewRepository(client), client
 }
 
-func cleanup(
+func cleanupHelper(
 	tb testing.TB,
 	client *gcpfirestore.Client,
 	id parkmodel.ParkID,
@@ -45,7 +45,7 @@ func cleanup(
 }
 
 func TestRepositoryCreateAndGet(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	park, err := parkmodel.New(
@@ -56,7 +56,7 @@ func TestRepositoryCreateAndGet(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New() = %v, want nil", err)
 	}
-	cleanup(
+	cleanupHelper(
 		t,
 		client,
 		park.ID(),
@@ -94,7 +94,7 @@ func TestRepositoryCreateAndGet(t *testing.T) {
 }
 
 func TestRepositoryCreateAlreadyExists(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	park, err := parkmodel.New(
@@ -105,7 +105,7 @@ func TestRepositoryCreateAlreadyExists(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New() = %v, want nil", err)
 	}
-	cleanup(
+	cleanupHelper(
 		t,
 		client,
 		park.ID(),
@@ -128,7 +128,7 @@ func TestRepositoryCreateAlreadyExists(t *testing.T) {
 }
 
 func TestRepositoryGetNotFound(t *testing.T) {
-	repo, _ := newRepository(t)
+	repo, _ := newRepositoryHelper(t)
 
 	const id = parkmodel.ParkID("park-does-not-exist")
 
@@ -142,7 +142,7 @@ func TestRepositoryGetNotFound(t *testing.T) {
 }
 
 func TestRepositoryUpdate(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	park, err := parkmodel.New(
@@ -153,7 +153,7 @@ func TestRepositoryUpdate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New() = %v, want nil", err)
 	}
-	cleanup(
+	cleanupHelper(
 		t,
 		client,
 		park.ID(),
@@ -199,7 +199,7 @@ func TestRepositoryUpdate(t *testing.T) {
 }
 
 func TestRepositoryUpdateNotFound(t *testing.T) {
-	repo, _ := newRepository(t)
+	repo, _ := newRepositoryHelper(t)
 
 	park, err := parkmodel.Restore(
 		"park-does-not-exist",

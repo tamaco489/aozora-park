@@ -8,7 +8,7 @@ import (
 
 func TestListTimeSlotsDo(t *testing.T) {
 	repo := newFakeRepository()
-	stored := storeTimeSlots(t, repo)
+	stored := storeTimeSlotsHelper(t, repo)
 
 	tests := map[string]struct {
 		in            ListTimeSlotsInput
@@ -75,13 +75,13 @@ func TestListTimeSlotsDo(t *testing.T) {
 // 並びの検証が空振りしていないことを確かめる、保存の順を入れ替えたら取得の順も入れ替わる
 func TestListTimeSlotsDoKeepsRepositoryOrder(t *testing.T) {
 	repo := newFakeRepository()
-	repo.slots[slotKey(storedParkID, storedAttractionID, storedDate)] = []*inventorymodel.TimeSlot{
-		restoreTimeSlot(
+	repo.slots[slotKeyHelper(storedParkID, storedAttractionID, storedDate)] = []*inventorymodel.TimeSlot{
+		restoreTimeSlotHelper(
 			t,
 			"20261005_1100",
 			"11:00",
 		),
-		restoreTimeSlot(
+		restoreTimeSlotHelper(
 			t,
 			"20261005_1000",
 			"10:00",

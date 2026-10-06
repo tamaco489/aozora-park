@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 
 	parkmodel "github.com/tamaco489/aozora-park/backend/internal/park/domain/model"
 	parkrepository "github.com/tamaco489/aozora-park/backend/internal/park/domain/repository"
@@ -48,6 +49,15 @@ func (u *UpdateAttraction) Do(ctx context.Context, in UpdateAttractionInput) (*p
 		return nil, err
 	}
 
+	if err := u.ensureNameFree(
+		ctx,
+		in.ParkID,
+		in.Name,
+		in.ID,
+	); err != nil {
+		return nil, err
+	}
+
 	config, err := parkmodel.NewPriorityPassConfig(
 		in.Enabled,
 		in.StartTime,
@@ -68,4 +78,29 @@ func (u *UpdateAttraction) Do(ctx context.Context, in UpdateAttractionInput) (*p
 	}
 
 	return attraction, nil
+}
+
+// ensureNameFree は同じパークに同じ表示名のアトラクションが無いことを確かめる
+//
+// 自分自身は除く、表示名を変えない更新を弾かないため
+// 競合の扱いは CreateAttraction.ensureNameFree と同じ
+func (u *UpdateAttraction) ensureNameFree(
+	ctx context.Context,
+	parkID parkmodel.ParkID,
+	name string,
+	self parkmodel.AttractionID,
+) error {
+	found, err := u.reader.FindAttractionByName(ctx, parkID, name)
+	if errors.Is(err, parkmodel.ErrAttractionNotFound) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	if found.ID() == self {
+		return nil
+	}
+
+	return parkmodel.ErrAttractionNameTaken
 }

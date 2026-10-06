@@ -72,10 +72,10 @@ func TestCreateAttractionDo(t *testing.T) {
 			repo.createAttractionErr = tt.createErr
 
 			if tt.storedPark {
-				store(t, repo)
+				storeHelper(t, repo)
 			}
 
-			got, err := NewCreateAttraction(repo, repo).Do(t.Context(), tt.in)
+			got, err := NewCreateAttraction(repo, repo, repo).Do(t.Context(), tt.in)
 
 			if !errors.Is(err, tt.wantErr) {
 				t.Fatalf("CreateAttraction.Do(%+v) のエラー = %v, want %v",
@@ -95,7 +95,7 @@ func TestCreateAttractionDo(t *testing.T) {
 				return
 			}
 
-			key := attractionKey{
+			key := attractionKeyHelper{
 				parkID: got.ParkID(),
 				id:     got.ID(),
 			}
@@ -113,6 +113,90 @@ func TestCreateAttractionDo(t *testing.T) {
 					tt.in,
 					got.PriorityPassConfig().CapacityPerSlot(),
 					tt.in.CapacityPerSlot,
+				)
+			}
+		})
+	}
+}
+
+func TestCreateAttractionDoNameTaken(t *testing.T) {
+	tests := map[string]struct {
+		storedParkID parkmodel.ParkID
+		storedName   string
+		name         string
+		wantErr      error
+	}{
+		"異常系_同じパークに同じ表示名がある場合_ErrAttractionNameTakenになること": {
+			storedParkID: "park-1",
+			storedName:   "そらとびコースター",
+			name:         "そらとびコースター",
+			wantErr:      parkmodel.ErrAttractionNameTaken,
+		},
+		"正常系_同じパークに違う表示名がある場合_保存されること": {
+			storedParkID: "park-1",
+			storedName:   "なみのりボート",
+			name:         "そらとびコースター",
+		},
+		"正常系_別のパークに同じ表示名がある場合_保存されること": {
+			storedParkID: "park-2",
+			storedName:   "そらとびコースター",
+			name:         "そらとびコースター",
+		},
+		"境界値_末尾に空白がある場合_別の表示名として保存されること": {
+			storedParkID: "park-1",
+			storedName:   "そらとびコースター",
+			name:         "そらとびコースター ",
+			// 保存されている文字列をそのまま比べるため、空白の有無で別物になる
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			repo := newFakeRepository()
+			storeHelper(t, repo)
+			storeAttractionAsHelper(
+				t,
+				repo,
+				tt.storedParkID,
+				"stored-1",
+				tt.storedName,
+			)
+
+			in := CreateAttractionInput{
+				ParkID:          "park-1",
+				Name:            tt.name,
+				Enabled:         true,
+				StartTime:       "09:00",
+				EndTime:         "18:00",
+				IntervalMinutes: 30,
+				CapacityPerSlot: 10,
+			}
+
+			got, err := NewCreateAttraction(repo, repo, repo).Do(t.Context(), in)
+
+			if !errors.Is(err, tt.wantErr) {
+				t.Fatalf("CreateAttraction.Do(%+v) のエラー = %v, want %v",
+					in,
+					err,
+					tt.wantErr,
+				)
+			}
+
+			if tt.wantErr != nil {
+				if len(repo.attractions) != 1 {
+					t.Errorf("CreateAttraction.Do(%+v) の後の保存件数 = %d, want 1",
+						in,
+						len(repo.attractions),
+					)
+				}
+				return
+			}
+
+			if got.Name() != tt.name {
+				t.Errorf("CreateAttraction.Do(%+v) の Name = %q, want %q",
+					in,
+					got.Name(),
+					tt.name,
 				)
 			}
 		})

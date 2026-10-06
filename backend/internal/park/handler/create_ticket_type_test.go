@@ -13,7 +13,7 @@ import (
 )
 
 func TestConnectCreateTicketType(t *testing.T) {
-	handler, repo := newHandler(t, restore(t))
+	handler, repo := newHandlerHelper(t, restoreHelper(t))
 
 	in := &parkv1.CreateTicketTypeRequest{
 		ParkId:        "park-1",
@@ -48,7 +48,7 @@ func TestConnectCreateTicketType(t *testing.T) {
 		t.Errorf("Connect.CreateTicketType() の差分 (-want +got):\n%s", diff)
 	}
 
-	key := ticketTypeKey{
+	key := ticketTypeKeyHelper{
 		parkID: "park-1",
 		id:     parkmodel.TicketTypeID(got.GetTicketTypeId()),
 	}
@@ -58,7 +58,7 @@ func TestConnectCreateTicketType(t *testing.T) {
 }
 
 func TestConnectCreateTicketTypeParkNotFound(t *testing.T) {
-	handler, _ := newHandler(t)
+	handler, _ := newHandlerHelper(t)
 
 	in := &parkv1.CreateTicketTypeRequest{
 		ParkId:        "park-2",

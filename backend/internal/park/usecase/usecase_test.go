@@ -8,14 +8,14 @@ import (
 	parkrepository "github.com/tamaco489/aozora-park/backend/internal/park/domain/repository"
 )
 
-// attractionKey はアトラクションを親のパークごとに分けて持つための鍵
-type attractionKey struct {
+// attractionKeyHelper はアトラクションを親のパークごとに分けて持つための鍵
+type attractionKeyHelper struct {
 	parkID parkmodel.ParkID
 	id     parkmodel.AttractionID
 }
 
-// ticketTypeKey は券種を親のパークごとに分けて持つための鍵
-type ticketTypeKey struct {
+// ticketTypeKeyHelper は券種を親のパークごとに分けて持つための鍵
+type ticketTypeKeyHelper struct {
 	parkID parkmodel.ParkID
 	id     parkmodel.TicketTypeID
 }
@@ -26,11 +26,11 @@ type fakeRepository struct {
 	createErr error
 	updateErr error
 
-	attractions         map[attractionKey]*parkmodel.Attraction
+	attractions         map[attractionKeyHelper]*parkmodel.Attraction
 	createAttractionErr error
 	updateAttractionErr error
 
-	ticketTypes         map[ticketTypeKey]*parkmodel.TicketType
+	ticketTypes         map[ticketTypeKeyHelper]*parkmodel.TicketType
 	createTicketTypeErr error
 	updateTicketTypeErr error
 }
@@ -47,8 +47,8 @@ var (
 func newFakeRepository() *fakeRepository {
 	return &fakeRepository{
 		parks:       map[parkmodel.ParkID]*parkmodel.Park{},
-		attractions: map[attractionKey]*parkmodel.Attraction{},
-		ticketTypes: map[ticketTypeKey]*parkmodel.TicketType{},
+		attractions: map[attractionKeyHelper]*parkmodel.Attraction{},
+		ticketTypes: map[ticketTypeKeyHelper]*parkmodel.TicketType{},
 	}
 }
 
@@ -83,7 +83,7 @@ func (r *fakeRepository) Update(_ context.Context, park *parkmodel.Park) error {
 }
 
 // store は保存済みのパークを 1 件用意する
-func store(tb testing.TB, repo *fakeRepository) *parkmodel.Park {
+func storeHelper(tb testing.TB, repo *fakeRepository) *parkmodel.Park {
 	tb.Helper()
 
 	park, err := parkmodel.Restore(
@@ -105,7 +105,7 @@ func (r *fakeRepository) GetAttraction(
 	parkID parkmodel.ParkID,
 	id parkmodel.AttractionID,
 ) (*parkmodel.Attraction, error) {
-	attraction, ok := r.attractions[attractionKey{
+	attraction, ok := r.attractions[attractionKeyHelper{
 		parkID: parkID,
 		id:     id,
 	}]
@@ -115,12 +115,27 @@ func (r *fakeRepository) GetAttraction(
 	return attraction, nil
 }
 
+func (r *fakeRepository) FindAttractionByName(
+	_ context.Context,
+	parkID parkmodel.ParkID,
+	name string,
+) (*parkmodel.Attraction, error) {
+	// 実装は索引で 1 件に絞るが、フェイクは件数が少ないため総当たりで足りる
+	for key, attraction := range r.attractions {
+		if key.parkID == parkID && attraction.Name() == name {
+			return attraction, nil
+		}
+	}
+
+	return nil, parkmodel.ErrAttractionNotFound
+}
+
 func (r *fakeRepository) CreateAttraction(_ context.Context, attraction *parkmodel.Attraction) error {
 	if r.createAttractionErr != nil {
 		return r.createAttractionErr
 	}
 
-	key := attractionKey{
+	key := attractionKeyHelper{
 		parkID: attraction.ParkID(),
 		id:     attraction.ID(),
 	}
@@ -137,7 +152,7 @@ func (r *fakeRepository) UpdateAttraction(_ context.Context, attraction *parkmod
 		return r.updateAttractionErr
 	}
 
-	key := attractionKey{
+	key := attractionKeyHelper{
 		parkID: attraction.ParkID(),
 		id:     attraction.ID(),
 	}
@@ -154,7 +169,7 @@ func (r *fakeRepository) GetTicketType(
 	parkID parkmodel.ParkID,
 	id parkmodel.TicketTypeID,
 ) (*parkmodel.TicketType, error) {
-	ticketType, ok := r.ticketTypes[ticketTypeKey{
+	ticketType, ok := r.ticketTypes[ticketTypeKeyHelper{
 		parkID: parkID,
 		id:     id,
 	}]
@@ -164,12 +179,27 @@ func (r *fakeRepository) GetTicketType(
 	return ticketType, nil
 }
 
+func (r *fakeRepository) FindTicketTypeByName(
+	_ context.Context,
+	parkID parkmodel.ParkID,
+	name string,
+) (*parkmodel.TicketType, error) {
+	// 実装は索引で 1 件に絞るが、フェイクは件数が少ないため総当たりで足りる
+	for key, ticketType := range r.ticketTypes {
+		if key.parkID == parkID && ticketType.Name() == name {
+			return ticketType, nil
+		}
+	}
+
+	return nil, parkmodel.ErrTicketTypeNotFound
+}
+
 func (r *fakeRepository) CreateTicketType(_ context.Context, ticketType *parkmodel.TicketType) error {
 	if r.createTicketTypeErr != nil {
 		return r.createTicketTypeErr
 	}
 
-	key := ticketTypeKey{
+	key := ticketTypeKeyHelper{
 		parkID: ticketType.ParkID(),
 		id:     ticketType.ID(),
 	}
@@ -186,7 +216,7 @@ func (r *fakeRepository) UpdateTicketType(_ context.Context, ticketType *parkmod
 		return r.updateTicketTypeErr
 	}
 
-	key := ticketTypeKey{
+	key := ticketTypeKeyHelper{
 		parkID: ticketType.ParkID(),
 		id:     ticketType.ID(),
 	}
@@ -199,7 +229,7 @@ func (r *fakeRepository) UpdateTicketType(_ context.Context, ticketType *parkmod
 }
 
 // priorityPassConfig はテストで使う優先パスの条件を組み立てる
-func priorityPassConfig(tb testing.TB) parkmodel.PriorityPassConfig {
+func priorityPassConfigHelper(tb testing.TB) parkmodel.PriorityPassConfig {
 	tb.Helper()
 
 	config, err := parkmodel.NewPriorityPassConfig(
@@ -217,19 +247,19 @@ func priorityPassConfig(tb testing.TB) parkmodel.PriorityPassConfig {
 }
 
 // storeAttraction は保存済みのアトラクションを 1 件用意する
-func storeAttraction(tb testing.TB, repo *fakeRepository) *parkmodel.Attraction {
+func storeAttractionHelper(tb testing.TB, repo *fakeRepository) *parkmodel.Attraction {
 	tb.Helper()
 
 	attraction, err := parkmodel.RestoreAttraction(
 		"park-1",
 		"attraction-1",
 		"ジェットコースター",
-		priorityPassConfig(tb),
+		priorityPassConfigHelper(tb),
 	)
 	if err != nil {
 		tb.Fatalf("RestoreAttraction() = %v, want nil", err)
 	}
-	repo.attractions[attractionKey{
+	repo.attractions[attractionKeyHelper{
 		parkID: attraction.ParkID(),
 		id:     attraction.ID(),
 	}] = attraction
@@ -238,7 +268,63 @@ func storeAttraction(tb testing.TB, repo *fakeRepository) *parkmodel.Attraction 
 }
 
 // storeTicketType は保存済みの券種を 1 件用意する
-func storeTicketType(tb testing.TB, repo *fakeRepository) *parkmodel.TicketType {
+// storeAttractionAs は表示名の重複を確かめるために、親と識別子と表示名を指定して 1 件積む
+func storeAttractionAsHelper(
+	tb testing.TB,
+	repo *fakeRepository,
+	parkID parkmodel.ParkID,
+	id parkmodel.AttractionID,
+	name string,
+) *parkmodel.Attraction {
+	tb.Helper()
+
+	attraction, err := parkmodel.RestoreAttraction(
+		parkID,
+		id,
+		name,
+		priorityPassConfigHelper(tb),
+	)
+	if err != nil {
+		tb.Fatalf("RestoreAttraction() = %v, want nil", err)
+	}
+	repo.attractions[attractionKeyHelper{
+		parkID: parkID,
+		id:     id,
+	}] = attraction
+
+	return attraction
+}
+
+// storeTicketTypeAs は storeAttractionAs と同じ目的で券種を 1 件積む
+func storeTicketTypeAsHelper(
+	tb testing.TB,
+	repo *fakeRepository,
+	parkID parkmodel.ParkID,
+	id parkmodel.TicketTypeID,
+	name string,
+) *parkmodel.TicketType {
+	tb.Helper()
+
+	ticketType, err := parkmodel.RestoreTicketType(
+		parkID,
+		id,
+		name,
+		8000,
+		"09:00",
+		"21:00",
+	)
+	if err != nil {
+		tb.Fatalf("RestoreTicketType() = %v, want nil", err)
+	}
+	repo.ticketTypes[ticketTypeKeyHelper{
+		parkID: parkID,
+		id:     id,
+	}] = ticketType
+
+	return ticketType
+}
+
+func storeTicketTypeHelper(tb testing.TB, repo *fakeRepository) *parkmodel.TicketType {
 	tb.Helper()
 
 	ticketType, err := parkmodel.RestoreTicketType(
@@ -252,7 +338,7 @@ func storeTicketType(tb testing.TB, repo *fakeRepository) *parkmodel.TicketType 
 	if err != nil {
 		tb.Fatalf("RestoreTicketType() = %v, want nil", err)
 	}
-	repo.ticketTypes[ticketTypeKey{
+	repo.ticketTypes[ticketTypeKeyHelper{
 		parkID: ticketType.ParkID(),
 		id:     ticketType.ID(),
 	}] = ticketType

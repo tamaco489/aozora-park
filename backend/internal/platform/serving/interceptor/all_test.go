@@ -32,11 +32,11 @@ func (s *stubParkService) CreatePark(context.Context, *connect.Request[parkv1.Cr
 	return connect.NewResponse(&parkv1.CreateParkResponse{}), nil
 }
 
-func newTestClient(tb testing.TB, svc *stubParkService) parkv1connect.ParkServiceClient {
+func newTestClientHelper(tb testing.TB, svc *stubParkService) parkv1connect.ParkServiceClient {
 	tb.Helper()
 
 	mux := http.NewServeMux()
-	mux.Handle(parkv1connect.NewParkServiceHandler(svc, All(discardLogger())))
+	mux.Handle(parkv1connect.NewParkServiceHandler(svc, All(discardLoggerHelper())))
 
 	server := httptest.NewServer(mux)
 	tb.Cleanup(server.Close)
@@ -102,7 +102,7 @@ func TestAll(t *testing.T) {
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 			svc := &stubParkService{err: tt.handlerErr}
-			client := newTestClient(t, svc)
+			client := newTestClientHelper(t, svc)
 
 			_, err := client.CreatePark(t.Context(), connect.NewRequest(tt.req))
 

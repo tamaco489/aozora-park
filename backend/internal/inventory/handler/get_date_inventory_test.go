@@ -13,7 +13,7 @@ import (
 )
 
 func TestConnectGetDateInventory(t *testing.T) {
-	handler := newHandler(t, newStoredRepository(t))
+	handler := newHandlerHelper(t, newStoredRepositoryHelper(t))
 
 	in := &inventoryv1.GetDateInventoryRequest{
 		ParkId: "park-1",
@@ -43,7 +43,7 @@ func TestConnectGetDateInventory(t *testing.T) {
 }
 
 func TestConnectGetDateInventoryNotFound(t *testing.T) {
-	handler := newHandler(t, newEmptyRepository())
+	handler := newHandlerHelper(t, newEmptyRepositoryHelper())
 
 	in := &inventoryv1.GetDateInventoryRequest{
 		ParkId: "park-1",

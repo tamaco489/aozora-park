@@ -13,8 +13,8 @@ import (
 )
 
 func TestConnectUpdateAttraction(t *testing.T) {
-	handler, repo := newHandler(t, restore(t))
-	storeAttraction(t, repo)
+	handler, repo := newHandlerHelper(t, restoreHelper(t))
+	storeAttractionHelper(t, repo)
 
 	in := &parkv1.UpdateAttractionRequest{
 		ParkId:          "park-1",
@@ -54,7 +54,7 @@ func TestConnectUpdateAttraction(t *testing.T) {
 		)
 	}
 
-	stored := repo.attractions[attractionKey{
+	stored := repo.attractions[attractionKeyHelper{
 		parkID: "park-1",
 		id:     "attraction-1",
 	}]
@@ -68,7 +68,7 @@ func TestConnectUpdateAttraction(t *testing.T) {
 }
 
 func TestConnectUpdateAttractionNotFound(t *testing.T) {
-	handler, _ := newHandler(t, restore(t))
+	handler, _ := newHandlerHelper(t, restoreHelper(t))
 
 	in := &parkv1.UpdateAttractionRequest{
 		ParkId:          "park-1",

@@ -13,7 +13,7 @@ import (
 )
 
 func TestConnectCreateAttraction(t *testing.T) {
-	handler, repo := newHandler(t, restore(t))
+	handler, repo := newHandlerHelper(t, restoreHelper(t))
 
 	in := &parkv1.CreateAttractionRequest{
 		ParkId:          "park-1",
@@ -54,7 +54,7 @@ func TestConnectCreateAttraction(t *testing.T) {
 		t.Errorf("Connect.CreateAttraction() の差分 (-want +got):\n%s", diff)
 	}
 
-	key := attractionKey{
+	key := attractionKeyHelper{
 		parkID: "park-1",
 		id:     parkmodel.AttractionID(got.GetAttractionId()),
 	}
@@ -64,7 +64,7 @@ func TestConnectCreateAttraction(t *testing.T) {
 }
 
 func TestConnectCreateAttractionParkNotFound(t *testing.T) {
-	handler, _ := newHandler(t)
+	handler, _ := newHandlerHelper(t)
 
 	in := &parkv1.CreateAttractionRequest{
 		ParkId:          "park-2",

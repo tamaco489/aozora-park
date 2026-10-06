@@ -76,10 +76,10 @@ func TestCreateTicketTypeDo(t *testing.T) {
 			repo.createTicketTypeErr = tt.createErr
 
 			if tt.storedPark {
-				store(t, repo)
+				storeHelper(t, repo)
 			}
 
-			got, err := NewCreateTicketType(repo, repo).Do(t.Context(), tt.in)
+			got, err := NewCreateTicketType(repo, repo, repo).Do(t.Context(), tt.in)
 
 			if !errors.Is(err, tt.wantErr) {
 				t.Fatalf("CreateTicketType.Do(%+v) のエラー = %v, want %v",
@@ -99,7 +99,7 @@ func TestCreateTicketTypeDo(t *testing.T) {
 				return
 			}
 
-			key := ticketTypeKey{
+			key := ticketTypeKeyHelper{
 				parkID: got.ParkID(),
 				id:     got.ID(),
 			}
@@ -117,6 +117,82 @@ func TestCreateTicketTypeDo(t *testing.T) {
 					tt.in,
 					got.Price(),
 					tt.in.Price,
+				)
+			}
+		})
+	}
+}
+
+func TestCreateTicketTypeDoNameTaken(t *testing.T) {
+	tests := map[string]struct {
+		storedParkID parkmodel.ParkID
+		storedName   string
+		name         string
+		wantErr      error
+	}{
+		"異常系_同じパークに同じ表示名がある場合_ErrTicketTypeNameTakenになること": {
+			storedParkID: "park-1",
+			storedName:   "1 日券 おとな",
+			name:         "1 日券 おとな",
+			wantErr:      parkmodel.ErrTicketTypeNameTaken,
+		},
+		"正常系_同じパークに違う表示名がある場合_保存されること": {
+			storedParkID: "park-1",
+			storedName:   "1 日券 こども",
+			name:         "1 日券 おとな",
+		},
+		"正常系_別のパークに同じ表示名がある場合_保存されること": {
+			storedParkID: "park-2",
+			storedName:   "1 日券 おとな",
+			name:         "1 日券 おとな",
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			repo := newFakeRepository()
+			storeHelper(t, repo)
+			storeTicketTypeAsHelper(
+				t,
+				repo,
+				tt.storedParkID,
+				"stored-1",
+				tt.storedName,
+			)
+
+			in := CreateTicketTypeInput{
+				ParkID:        "park-1",
+				Name:          tt.name,
+				Price:         8000,
+				EntryTimeFrom: "09:00",
+				EntryTimeTo:   "21:00",
+			}
+
+			got, err := NewCreateTicketType(repo, repo, repo).Do(t.Context(), in)
+
+			if !errors.Is(err, tt.wantErr) {
+				t.Fatalf("CreateTicketType.Do(%+v) のエラー = %v, want %v",
+					in,
+					err,
+					tt.wantErr,
+				)
+			}
+
+			if tt.wantErr != nil {
+				if len(repo.ticketTypes) != 1 {
+					t.Errorf("CreateTicketType.Do(%+v) の後の保存件数 = %d, want 1",
+						in,
+						len(repo.ticketTypes),
+					)
+				}
+				return
+			}
+
+			if got.Name() != tt.name {
+				t.Errorf("CreateTicketType.Do(%+v) の Name = %q, want %q",
+					in,
+					got.Name(),
+					tt.name,
 				)
 			}
 		})

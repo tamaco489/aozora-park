@@ -58,8 +58,8 @@ func (r *fakeRepository) UpdateDateInventory(_ context.Context, inventory *inven
 	return nil
 }
 
-// newHandler は渡した枠を保存済みにしたハンドラを組み立てる
-func newHandler(tb testing.TB, repo *fakeRepository) *Connect {
+// newHandlerHelper は渡した枠を保存済みにしたハンドラを組み立てる
+func newHandlerHelper(tb testing.TB, repo *fakeRepository) *Connect {
 	tb.Helper()
 
 	return NewConnect(
@@ -69,12 +69,12 @@ func newHandler(tb testing.TB, repo *fakeRepository) *Connect {
 	)
 }
 
-func newEmptyRepository() *fakeRepository {
+func newEmptyRepositoryHelper() *fakeRepository {
 	return &fakeRepository{inventories: map[inventorymodel.Date]*inventorymodel.DateInventory{}}
 }
 
-// newStoredRepository は入場枠 1 件と時間帯枠 2 件を保存済みにする
-func newStoredRepository(tb testing.TB) *fakeRepository {
+// newStoredRepositoryHelper は入場枠 1 件と時間帯枠 2 件を保存済みにする
+func newStoredRepositoryHelper(tb testing.TB) *fakeRepository {
 	tb.Helper()
 
 	inventory, err := inventorymodel.RestoreDateInventory(
@@ -87,15 +87,15 @@ func newStoredRepository(tb testing.TB) *fakeRepository {
 		tb.Fatalf("RestoreDateInventory() = %v, want nil", err)
 	}
 
-	repo := newEmptyRepository()
+	repo := newEmptyRepositoryHelper()
 	repo.inventories[storedDate] = inventory
 	repo.slots = []*inventorymodel.TimeSlot{
-		restoreTimeSlot(
+		restoreTimeSlotHelper(
 			tb,
 			"20261005_1000",
 			"10:00",
 		),
-		restoreTimeSlot(
+		restoreTimeSlotHelper(
 			tb,
 			"20261005_1100",
 			"11:00",
@@ -105,7 +105,7 @@ func newStoredRepository(tb testing.TB) *fakeRepository {
 	return repo
 }
 
-func restoreTimeSlot(
+func restoreTimeSlotHelper(
 	tb testing.TB,
 	id inventorymodel.TimeSlotID,
 	startTime string,
