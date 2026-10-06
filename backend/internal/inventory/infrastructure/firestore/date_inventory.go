@@ -84,3 +84,29 @@ func (r *Repository) UpdateDateInventory(ctx context.Context, inventory *invento
 
 	return nil
 }
+
+func (r *Repository) CreateDateInventoryIfAbsent(
+	ctx context.Context,
+	inventory *inventorymodel.DateInventory,
+) (bool, error) {
+	data := dateInventoryDocument{
+		Date:      inventory.Date().String(),
+		Capacity:  inventory.Capacity(),
+		Remaining: inventory.Remaining(),
+	}
+
+	// Create は既にあると失敗するため、運営が上書きした上限や購入で減った残りを初期値に戻さない
+	doc := r.dateInventories(inventory.ParkID()).Doc(inventory.Date().String())
+	if _, err := doc.Create(ctx, data); err != nil {
+		if status.Code(err) == codes.AlreadyExists {
+			return false, nil
+		}
+		return false, fmt.Errorf("create date inventory %q %q: %w",
+			inventory.ParkID(),
+			inventory.Date(),
+			err,
+		)
+	}
+
+	return true, nil
+}

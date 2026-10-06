@@ -2,6 +2,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -15,6 +16,7 @@ const (
 	startTimeLen = 5
 	// startTimeLayout は HH:MM、time には対応する定数がない
 	startTimeLayout = "15:04"
+	minutesPerHour  = 60
 )
 
 // ParkID は枠が属するパークの識別子
@@ -50,16 +52,40 @@ func validateDate(date Date) error {
 	return nil
 }
 
+// validateStartTime は時間帯枠の開始時刻が HH:MM の 24 時間表記かを確かめる
+//
+// 独自に桁を数えず parseMinutes を使い回すのは、検証と分への変換で形式の解釈がずれないようにするため
 func validateStartTime(startTime string) error {
-	if len(startTime) != startTimeLen {
-		return ErrInvalidStartTime
-	}
-
-	if _, err := time.Parse(startTimeLayout, startTime); err != nil {
+	if _, ok := parseMinutes(startTime); !ok {
 		return ErrInvalidStartTime
 	}
 
 	return nil
+}
+
+// parseMinutes は HH:MM を 0 時からの分に変換する、形式が違うときは false を返す
+func parseMinutes(timeOfDay string) (int32, bool) {
+	// time.Parse は 1 桁の時も受け入れるため、桁数も見る
+	if len(timeOfDay) != startTimeLen {
+		return 0, false
+	}
+
+	t, err := time.Parse(startTimeLayout, timeOfDay)
+	if err != nil {
+		return 0, false
+	}
+
+	return int32(t.Hour()*minutesPerHour + t.Minute()), true
+}
+
+// formatMinutes は 0 時からの分を HH:MM にする
+//
+// ゼロ埋めを欠くと文字列の昇順が時刻の昇順と一致せず、開始時刻で並べた一覧が壊れる
+func formatMinutes(minutes int32) string {
+	return fmt.Sprintf("%02d:%02d",
+		minutes/minutesPerHour,
+		minutes%minutesPerHour,
+	)
 }
 
 // validateQuantity は枠の不変条件を検査する、残りは 0 以上かつ上限以下

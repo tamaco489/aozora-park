@@ -8,9 +8,24 @@ type DateInventory struct {
 	remaining int32
 }
 
+// NewDateInventory は枠を作成するジョブが入場枠を新しく生成する
+//
+// 残りは上限と同じ値から始まる、まだ誰も予約していないため
+func NewDateInventory(
+	parkID ParkID,
+	date Date,
+	capacity int32,
+) (*DateInventory, error) {
+	return RestoreDateInventory(
+		parkID,
+		date,
+		capacity,
+		capacity,
+	)
+}
+
 // RestoreDateInventory は保存済みの入場枠を組み立てる
 //
-// 枠の作成は専用のジョブが行うため、この機能パッケージは新規生成を持たない
 // infrastructure が読み出した値を入れる、保存されている値も検証を通す
 func RestoreDateInventory(
 	parkID ParkID,

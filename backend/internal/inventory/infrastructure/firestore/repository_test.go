@@ -108,3 +108,56 @@ func seedTimeSlotHelper(
 		}
 	})
 }
+
+// cleanupDateInventory は検査対象が作成する入場枠の後始末を登録する
+func cleanupDateInventory(
+	tb testing.TB,
+	client *gcpfirestore.Client,
+	parkID inventorymodel.ParkID,
+	date inventorymodel.Date,
+) {
+	tb.Helper()
+
+	doc := client.Collection(parkCollection).
+		Doc(parkID.String()).
+		Collection(dateInventoryCollection).
+		Doc(date.String())
+
+	tb.Cleanup(func() {
+		// t.Context() は Cleanup の直前に取り消されるため、後始末は取り消されないものを使う
+		if _, err := doc.Delete(context.Background()); err != nil {
+			tb.Errorf("Delete(%q %q) = %v, want nil",
+				parkID,
+				date,
+				err,
+			)
+		}
+	})
+}
+
+// cleanupTimeSlot は検査対象が作成する時間帯枠の後始末を登録する
+func cleanupTimeSlot(
+	tb testing.TB,
+	client *gcpfirestore.Client,
+	parkID inventorymodel.ParkID,
+	attractionID inventorymodel.AttractionID,
+	id inventorymodel.TimeSlotID,
+) {
+	tb.Helper()
+
+	doc := client.Collection(parkCollection).
+		Doc(parkID.String()).
+		Collection(attractionCollection).
+		Doc(attractionID.String()).
+		Collection(timeSlotCollection).
+		Doc(id.String())
+
+	tb.Cleanup(func() {
+		if _, err := doc.Delete(context.Background()); err != nil {
+			tb.Errorf("Delete(%q) = %v, want nil",
+				id,
+				err,
+			)
+		}
+	})
+}

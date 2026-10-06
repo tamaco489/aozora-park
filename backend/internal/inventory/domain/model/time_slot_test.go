@@ -168,3 +168,81 @@ func TestRestoreTimeSlot(t *testing.T) {
 		})
 	}
 }
+
+func TestNewTimeSlotID(t *testing.T) {
+	tests := map[string]struct {
+		date      Date
+		startTime string
+		want      TimeSlotID
+	}{
+		"正常系_日付と開始時刻がある場合_区切りを除いた識別子になること": {
+			date:      "2026-10-05",
+			startTime: "09:00",
+			want:      "20261005_0900",
+		},
+		"境界値_0時0分の場合_ゼロ埋めが保たれること": {
+			date:      "2026-10-05",
+			startTime: "00:00",
+			want:      "20261005_0000",
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			if got := NewTimeSlotID(tt.date, tt.startTime); got != tt.want {
+				t.Errorf("NewTimeSlotID(%q, %q) = %q, want %q",
+					tt.date,
+					tt.startTime,
+					got,
+					tt.want,
+				)
+			}
+		})
+	}
+}
+
+func TestNewTimeSlot(t *testing.T) {
+	const (
+		parkID       = ParkID("park-1")
+		attractionID = AttractionID("attraction-1")
+		date         = Date("2026-10-05")
+		startTime    = "09:00"
+		capacity     = int32(30)
+	)
+
+	got, err := NewTimeSlot(
+		parkID,
+		attractionID,
+		date,
+		startTime,
+		capacity,
+	)
+	if err != nil {
+		t.Fatalf("NewTimeSlot(%q, %q, %q, %q, %d) のエラー = %v, want nil",
+			parkID,
+			attractionID,
+			date,
+			startTime,
+			capacity,
+			err,
+		)
+	}
+
+	// 識別子は日付と開始時刻から決まるため、同じ枠を二度生成しても同じ値になる
+	wantID := TimeSlotID("20261005_0900")
+	if got.ID() != wantID || got.Capacity() != capacity || got.Remaining() != capacity {
+		t.Errorf("NewTimeSlot(%q, %q, %q, %q, %d) = (%q, %d, %d), want (%q, %d, %d)",
+			parkID,
+			attractionID,
+			date,
+			startTime,
+			capacity,
+			got.ID(),
+			got.Capacity(),
+			got.Remaining(),
+			wantID,
+			capacity,
+			capacity,
+		)
+	}
+}
