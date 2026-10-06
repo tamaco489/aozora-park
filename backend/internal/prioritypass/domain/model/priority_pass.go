@@ -131,6 +131,33 @@ func validate(
 	return nil
 }
 
+// Issue は枠を確保できた申込を発行済みにする
+func (p *PriorityPass) Issue(now time.Time) error {
+	return p.transit(StatusIssued, now)
+}
+
+// MarkSoldOut は枠が残っていなかった申込を売り切れにする
+func (p *PriorityPass) MarkSoldOut(now time.Time) error {
+	return p.transit(StatusSoldOut, now)
+}
+
+// transit は申込中からの遷移だけを許す
+//
+// 割当のメッセージは再配信されるため、終端まで進んだものが申込中に戻らないようにする
+func (p *PriorityPass) transit(status Status, now time.Time) error {
+	if !p.IsRequested() {
+		return ErrNotRequested
+	}
+
+	p.status = status
+	p.updatedAt = now
+
+	return nil
+}
+
+// IsRequested は申込が割当を待っている状態かを返す
+func (p *PriorityPass) IsRequested() bool { return p.status == StatusRequested }
+
 func (p *PriorityPass) ID() PassID { return p.id }
 
 func (p *PriorityPass) ParkID() ParkID { return p.parkID }

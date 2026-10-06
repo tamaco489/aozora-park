@@ -71,6 +71,20 @@ func (r *fakeRepository) MarkPriorityPassPublished(
 	return nil
 }
 
+// AllocateTimeSlot は connect の入口が割当を呼ばないため、Writer を満たすためだけに置く
+func (r *fakeRepository) AllocateTimeSlot(
+	_ context.Context,
+	id prioritypassmodel.PassID,
+	_ time.Time,
+) (prioritypassmodel.Allocation, error) {
+	pass, ok := r.passes[id]
+	if !ok {
+		return prioritypassmodel.Allocation{}, prioritypassmodel.ErrPriorityPassNotFound
+	}
+
+	return prioritypassmodel.Allocation{Pass: pass}, nil
+}
+
 // fakePublisher は送り先を差し替えるためのインメモリ実装
 type fakePublisher struct{}
 
