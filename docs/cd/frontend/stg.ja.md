@@ -4,7 +4,7 @@
 
 [ドキュメント一覧](../../README.ja.md)に戻る。
 
-手元から 1 コマンドで stg の frontend を更新します。構成の全体像は [frontend のデプロイの構成](./overview.ja.md)にあります。
+手元から 1 コマンドで stg の frontend を更新します。構成の全体像は [frontend のデプロイの構成](./README.ja.md)にあります。
 **ビルドもデプロイも手元で実行します。** backend と違い Cloud Build を経由しません。
 
 ## 前提

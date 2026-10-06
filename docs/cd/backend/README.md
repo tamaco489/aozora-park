@@ -1,11 +1,11 @@
 # Backend deployment architecture
 
-[English](./overview.md) | [日本語](./overview.ja.md)
+[English](./README.md) | [日本語](./README.ja.md)
 
 Back to the [documentation index](../../README.md).
 
 This page describes how the api reaches Cloud Run. The procedure itself is in [Deploying the backend to stg](./stg.md).
-For an overview that also covers the frontend, see [Deployment architecture](../../cd/overview.md).
+For an overview that also covers the frontend, see [Deployment architecture](../README.md).
 The rules live in `.claude/rules/cd/coding.md`; this page records the current shape and why it was chosen.
 
 ## The deployment paths

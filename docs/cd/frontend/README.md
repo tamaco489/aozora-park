@@ -1,11 +1,11 @@
 # Frontend deployment architecture
 
-[English](./overview.md) | [日本語](./overview.ja.md)
+[English](./README.md) | [日本語](./README.ja.md)
 
 Back to the [documentation index](../../README.md).
 
 This page describes how the frontend reaches Firebase Hosting. The procedure itself is in [Deploying the frontend to stg](./stg.md).
-For an overview that also covers the backend, see [Deployment architecture](../../cd/overview.md).
+For an overview that also covers the backend, see [Deployment architecture](../README.md).
 The conventions live in `.claude/rules/cd/coding.md`. This page records the current shape and why it was chosen.
 
 ## Deployment path
@@ -76,7 +76,7 @@ The prefix exists so that triggers can be split as more deployment targets appea
 
 However, **Firebase Hosting has no equivalent of a Cloud Build trigger.**
 Serving on a tag push means matching the tag in GitHub Actions. Automating stg has put that groundwork in place, but
-**there is no Workload Identity Federation in prd**, so the delivery path has to be decided first (the reason is in [Deployment architecture](../../cd/overview.md)).
+**there is no Workload Identity Federation in prd**, so the delivery path has to be decided first (the reason is in [Deployment architecture](../README.md)).
 
 ## Resources involved
 

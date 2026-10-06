@@ -4,7 +4,7 @@
 
 Back to the [documentation index](../../README.md).
 
-Update the stg frontend with a single command from your machine. The overall architecture is described in [Frontend deployment architecture](./overview.md).
+Update the stg frontend with a single command from your machine. The overall architecture is described in [Frontend deployment architecture](./README.md).
 **Both the build and the deployment run locally.** Unlike the backend, Cloud Build is not involved.
 
 ## Prerequisites

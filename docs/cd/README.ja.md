@@ -1,12 +1,12 @@
 # デプロイの構成
 
-[English](./overview.md) | [日本語](./overview.ja.md)
+[English](./README.md) | [日本語](./README.ja.md)
 
 [ドキュメント一覧](../README.ja.md)に戻る。
 
 このプロジェクトには、仕組みの異なる 2 つのデプロイの経路があります。ここでは両方を俯瞰します。
-それぞれの詳細は [backend のデプロイの構成](../backend/deploy/overview.ja.md)と [frontend のデプロイの構成](../frontend/deploy/overview.ja.md)にあります。
-GCP への認証に使う仕組みは [Workload Identity Federation](./wif/overview.ja.md)にあります。
+それぞれの詳細は [backend のデプロイの構成](./backend/README.ja.md)と [frontend のデプロイの構成](./frontend/README.ja.md)にあります。
+GCP への認証に使う仕組みは [Workload Identity Federation](./wif/README.ja.md)にあります。
 
 ## 2 つの経路
 
@@ -35,6 +35,7 @@ frontend は静的ファイルを作るだけで数秒で終わるため、ラ�
 - **長期のクレデンシャルをリポジトリと GitHub Secrets に置きません。** GCP への認証は Workload Identity Federation を使い、ワークフローは `id-token: write` で得た OIDC トークンから短命のアクセストークンを受け取ります
 - **手元からも同じものを起こせます。** どちらも `just deploy-stg` という同じ名前のレシピで、CI が止まっていても配信できます
 - **`workflow_dispatch` で任意のブランチから配信できます。** 作業中の内容を stg で確かめるためで、手元の `just deploy-stg` と同じ用途です
+- **frontend から api への通信は Firebase Hosting の `rewrites` が Cloud Run へ転送します。** 同一オリジンになるため CORS を設定していません。Cloud Run は `allUsers` に公開したままです (Hosting からの転送は内部トラフィック扱いにならないため)。詳細は [frontend のデプロイの構成](./frontend/README.ja.md)にあります
 - prd は GCP のプロジェクトが未作成のため、構成の定義だけを持ちます
 
 ### `prd` に WIF を置いていません
@@ -46,40 +47,13 @@ stg のプロバイダは `assertion.repository` だけを見て、ブランチ�
 作業中のブランチから stg を更新できるようにするための意図的な緩さで、**prd に同じ条件を持ち込むことはできません。**
 prd を自動化する時点で、タグなのかブランチなのか、承認を挟むのかを決め、それに合わせて `attribute_condition` を書きます。
 
-## api への経路
-
-frontend から api への通信は、**Firebase Hosting の `rewrites` が Cloud Run へ転送します。**
-
-```text
-ブラウザ ──> Firebase Hosting ──rewrites──> Cloud Run (api)
-                    │
-                    └── 静的ファイル (frontend/dist)
-```
-
-ブラウザから見ると api は同一オリジンにあるため、プリフライト (`OPTIONS`) が発生しません。
-CORS は設定していません。理由は [frontend のデプロイの構成](../frontend/deploy/overview.ja.md)にあります。
-
-Cloud Run は `allUsers` に公開したままです。Hosting からの転送は内部トラフィック扱いにならないためです。
-
-## それぞれの図
-
-図は各領域のドキュメントが持ちます。ここでは両方を並べます。
-
-### backend
-
-![api のデプロイ経路](../backend/deploy/images/flow.png)
-
-### frontend
-
-![frontend のデプロイ経路](../frontend/deploy/images/flow.png)
-
 ## 詳細
 
-| ドキュメント                                                   | 内容                                                 |
-| -------------------------------------------------------------- | ---------------------------------------------------- |
-| [backend のデプロイの構成](../backend/deploy/overview.ja.md)   | Cloud Build と Developer Connect、Terraform との分担 |
-| [backend の stg へのデプロイ](../backend/deploy/stg.ja.md)     | 手順、疎通確認、ロールバック                         |
-| [frontend のデプロイの構成](../frontend/deploy/overview.ja.md) | rewrites とキャッシュ、採らなかった案                |
-| [frontend の stg へのデプロイ](../frontend/deploy/stg.ja.md)   | 手順、疎通確認、ロールバック                         |
+| ドキュメント                                         | 内容                                                 |
+| ---------------------------------------------------- | ---------------------------------------------------- |
+| [backend のデプロイの構成](./backend/README.ja.md)   | Cloud Build と Developer Connect、Terraform との分担 |
+| [backend の stg へのデプロイ](./backend/stg.ja.md)   | 手順、疎通確認、ロールバック                         |
+| [frontend のデプロイの構成](./frontend/README.ja.md) | rewrites とキャッシュ、採らなかった案                |
+| [frontend の stg へのデプロイ](./frontend/stg.ja.md) | 手順、疎通確認、ロールバック                         |
 
 規約は `.claude/rules/cd/coding.md` が持ちます。ここには現状と、その形を選んだ理由を置きます。

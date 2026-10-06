@@ -1,11 +1,11 @@
 # Workload Identity Federation
 
-[English](./overview.md) | [日本語](./overview.ja.md)
+[English](./README.md) | [日本語](./README.ja.md)
 
 Back to the [documentation index](../../README.md).
 
 This page describes how GitHub Actions reaches Google Cloud without any long-lived credentials.
-For an overview of CD as a whole, see [Deployment architecture](../overview.md).
+For an overview of CD as a whole, see [Deployment architecture](../README.md).
 The configuration itself lives in `infra/modules/github_oidc/`, and the conventions are in `.claude/rules/cd/coding.md`.
 
 ## 1. What problem it solves
