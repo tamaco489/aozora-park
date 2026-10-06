@@ -4,10 +4,10 @@ import type { TicketType } from "../../gen/aozorapark/park/v1/park_pb";
 export function TicketTypeDetail({ ticketType }: { ticketType: TicketType }) {
   return (
     <dl>
-      <dt>識別子</dt>
-      <dd>{ticketType.ticketTypeId}</dd>
       <dt>パークの識別子</dt>
       <dd>{ticketType.parkId}</dd>
+      <dt>券種の識別子</dt>
+      <dd>{ticketType.ticketTypeId}</dd>
       <dt>表示名</dt>
       <dd>{ticketType.name}</dd>
       <dt>販売価格</dt>

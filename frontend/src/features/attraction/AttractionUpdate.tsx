@@ -70,7 +70,9 @@ export function AttractionUpdate() {
         </div>
 
         <div className="field">
-          <label htmlFor="attraction-update-attractionId">識別子</label>
+          <label htmlFor="attraction-update-attractionId">
+            アトラクションの識別子
+          </label>
           <input
             id="attraction-update-attractionId"
             value={attractionId}

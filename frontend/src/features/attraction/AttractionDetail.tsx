@@ -6,10 +6,10 @@ export function AttractionDetail({ attraction }: { attraction: Attraction }) {
 
   return (
     <dl>
-      <dt>識別子</dt>
-      <dd>{attraction.attractionId}</dd>
       <dt>パークの識別子</dt>
       <dd>{attraction.parkId}</dd>
+      <dt>アトラクションの識別子</dt>
+      <dd>{attraction.attractionId}</dd>
       <dt>表示名</dt>
       <dd>{attraction.name}</dd>
       <dt>優先パスの対象</dt>
