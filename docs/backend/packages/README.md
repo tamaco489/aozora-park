@@ -1,6 +1,6 @@
 # Backend package layout
 
-[English](./overview.md) | [日本語](./overview.ja.md)
+[English](./README.md) | [日本語](./README.ja.md)
 
 Back to the [documentation index](../../README.md).
 

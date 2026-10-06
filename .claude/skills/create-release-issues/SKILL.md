@@ -170,6 +170,9 @@ issue_write(method: "create", owner, repo, title, body, labels: ["<ラベル>"],
 issue_write(method: "update", owner, repo, issue_number, body: <番号を埋めた本文>)
 ```
 
+**全件を作成し終えたら、`<この Issue の番号>` が 1 つも残っていないことを全 Issue にわたって検索して確かめる。**
+テンプレートの文字列は決まっているため機械的に置換できる。件数が増えるほど 1 本だけ漏れる。
+
 - 1 件失敗したらそこで止め、どこまで作成できたかを報告する
 - 作成済みの Issue を削除しない (ユーザーが判断する)
 
@@ -199,6 +202,8 @@ issue_write(method: "update", owner, repo, issue_number, body: <番号を埋め�
 
 - サブ Issue の列と依存の列の両方を置き換える。**片方だけだと、依存先がどれか分からないまま残る**
 - 置き換えたあと、仮の見出しが本文に残っていないことを検索して確かめる
+- **置換で半角スペースが落ちていないかを確かめる。** `サブ 2 とサブ 3` は `#114 と#115` になり、
+  英字の前後に半角スペースを入れる表記の規約から外れる (`.claude/rules/general/globals.md`)
 
 ### Step 9: 結果報告
 

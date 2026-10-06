@@ -1,6 +1,6 @@
 # backend のパッケージ構成
 
-[English](./overview.md) | [日本語](./overview.ja.md)
+[English](./README.md) | [日本語](./README.ja.md)
 
 [ドキュメント一覧](../../README.ja.md)に戻る。
 

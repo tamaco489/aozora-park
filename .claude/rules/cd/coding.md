@@ -5,7 +5,7 @@
 **検査 (`ci-*`) の規約は `.claude/rules/ci/coding.md` が持つ。** ワークフローの書き方のうち CD に固有でないもの
 (バージョンの固定、`${{ }}` を `env` 経由で渡すこと、`working-directory` で対象のディレクトリに入ること、ステップの `name` を英語にすること) は、そちらに従う。
 
-経路と、その形を選んだ理由は `docs/cd/overview.ja.md` が持つ。認証の仕組みは `docs/cd/wif/overview.ja.md` が持つ。
+経路と、その形を選んだ理由は `docs/cd/README.ja.md` が持つ。認証の仕組みは `docs/cd/wif/README.ja.md` が持つ。
 
 ## 方針
 
@@ -96,4 +96,4 @@ permissions:
 ## 実行
 
 - **ワークフローの手動実行と、起動条件を広げる変更の push は Claude が行わない** (`CLAUDE.md`)。実行する主体が GitHub Actions でも stg への実デプロイになる
-- **`firebase.json` `backend/cloudbuild.yaml` デプロイのレシピを変更したら、`docs/backend/deploy/` `docs/frontend/deploy/` `docs/cd/` を更新する。** 手順書が古いまま実行されると事故につながる
+- **`firebase.json` `backend/cloudbuild.yaml` デプロイのレシピを変更したら、`docs/cd/` 配下を更新する。** 手順書が古いまま実行されると事故につながる

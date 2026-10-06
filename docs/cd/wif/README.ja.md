@@ -1,11 +1,11 @@
 # Workload Identity Federation
 
-[English](./overview.md) | [日本語](./overview.ja.md)
+[English](./README.md) | [日本語](./README.ja.md)
 
 [ドキュメント一覧](../../README.ja.md)に戻る。
 
 GitHub Actions から長期クレデンシャルを置かずに Google Cloud へ入るための仕組みをまとめます。
-CD の全体像は[デプロイの構成](../overview.ja.md)にあります。
+CD の全体像は[デプロイの構成](../README.ja.md)にあります。
 実際の設定は `infra/modules/github_oidc/` にあり、規約は `.claude/rules/cd/coding.md` が持ちます。
 
 ## 1. 何を解決する仕組みか
