@@ -72,7 +72,7 @@ func TestCreateAttractionDo(t *testing.T) {
 			repo.createAttractionErr = tt.createErr
 
 			if tt.storedPark {
-				store(t, repo)
+				storeHelper(t, repo)
 			}
 
 			got, err := NewCreateAttraction(repo, repo, repo).Do(t.Context(), tt.in)
@@ -153,8 +153,8 @@ func TestCreateAttractionDoNameTaken(t *testing.T) {
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 			repo := newFakeRepository()
-			store(t, repo)
-			storeAttractionAs(
+			storeHelper(t, repo)
+			storeAttractionAsHelper(
 				t,
 				repo,
 				tt.storedParkID,

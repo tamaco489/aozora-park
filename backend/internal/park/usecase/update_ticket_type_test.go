@@ -63,7 +63,7 @@ func TestUpdateTicketTypeDo(t *testing.T) {
 			repo.updateTicketTypeErr = tt.updateErr
 
 			if tt.stored {
-				storeTicketType(t, repo)
+				storeTicketTypeHelper(t, repo)
 			}
 
 			got, err := NewUpdateTicketType(repo, repo).Do(t.Context(), tt.in)
@@ -133,14 +133,14 @@ func TestUpdateTicketTypeDoNameTaken(t *testing.T) {
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 			repo := newFakeRepository()
-			storeTicketTypeAs(
+			storeTicketTypeAsHelper(
 				t,
 				repo,
 				"park-1",
 				"ticket-type-1",
 				"1 日券 おとな",
 			)
-			storeTicketTypeAs(
+			storeTicketTypeAsHelper(
 				t,
 				repo,
 				"park-1",

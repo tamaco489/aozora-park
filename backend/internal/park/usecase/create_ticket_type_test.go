@@ -76,7 +76,7 @@ func TestCreateTicketTypeDo(t *testing.T) {
 			repo.createTicketTypeErr = tt.createErr
 
 			if tt.storedPark {
-				store(t, repo)
+				storeHelper(t, repo)
 			}
 
 			got, err := NewCreateTicketType(repo, repo, repo).Do(t.Context(), tt.in)
@@ -151,8 +151,8 @@ func TestCreateTicketTypeDoNameTaken(t *testing.T) {
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 			repo := newFakeRepository()
-			store(t, repo)
-			storeTicketTypeAs(
+			storeHelper(t, repo)
+			storeTicketTypeAsHelper(
 				t,
 				repo,
 				tt.storedParkID,

@@ -69,7 +69,7 @@ func TestUpdateAttractionDo(t *testing.T) {
 			repo.updateAttractionErr = tt.updateErr
 
 			if tt.stored {
-				storeAttraction(t, repo)
+				storeAttractionHelper(t, repo)
 			}
 
 			got, err := NewUpdateAttraction(repo, repo).Do(t.Context(), tt.in)
@@ -148,14 +148,14 @@ func TestUpdateAttractionDoNameTaken(t *testing.T) {
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
 			repo := newFakeRepository()
-			storeAttractionAs(
+			storeAttractionAsHelper(
 				t,
 				repo,
 				"park-1",
 				"attraction-1",
 				"そらとびコースター",
 			)
-			storeAttractionAs(
+			storeAttractionAsHelper(
 				t,
 				repo,
 				"park-1",

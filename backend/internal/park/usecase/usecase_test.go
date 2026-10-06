@@ -83,7 +83,7 @@ func (r *fakeRepository) Update(_ context.Context, park *parkmodel.Park) error {
 }
 
 // store は保存済みのパークを 1 件用意する
-func store(tb testing.TB, repo *fakeRepository) *parkmodel.Park {
+func storeHelper(tb testing.TB, repo *fakeRepository) *parkmodel.Park {
 	tb.Helper()
 
 	park, err := parkmodel.Restore(
@@ -229,7 +229,7 @@ func (r *fakeRepository) UpdateTicketType(_ context.Context, ticketType *parkmod
 }
 
 // priorityPassConfig はテストで使う優先パスの条件を組み立てる
-func priorityPassConfig(tb testing.TB) parkmodel.PriorityPassConfig {
+func priorityPassConfigHelper(tb testing.TB) parkmodel.PriorityPassConfig {
 	tb.Helper()
 
 	config, err := parkmodel.NewPriorityPassConfig(
@@ -247,14 +247,14 @@ func priorityPassConfig(tb testing.TB) parkmodel.PriorityPassConfig {
 }
 
 // storeAttraction は保存済みのアトラクションを 1 件用意する
-func storeAttraction(tb testing.TB, repo *fakeRepository) *parkmodel.Attraction {
+func storeAttractionHelper(tb testing.TB, repo *fakeRepository) *parkmodel.Attraction {
 	tb.Helper()
 
 	attraction, err := parkmodel.RestoreAttraction(
 		"park-1",
 		"attraction-1",
 		"ジェットコースター",
-		priorityPassConfig(tb),
+		priorityPassConfigHelper(tb),
 	)
 	if err != nil {
 		tb.Fatalf("RestoreAttraction() = %v, want nil", err)
@@ -269,7 +269,7 @@ func storeAttraction(tb testing.TB, repo *fakeRepository) *parkmodel.Attraction 
 
 // storeTicketType は保存済みの券種を 1 件用意する
 // storeAttractionAs は表示名の重複を確かめるために、親と識別子と表示名を指定して 1 件積む
-func storeAttractionAs(
+func storeAttractionAsHelper(
 	tb testing.TB,
 	repo *fakeRepository,
 	parkID parkmodel.ParkID,
@@ -282,7 +282,7 @@ func storeAttractionAs(
 		parkID,
 		id,
 		name,
-		priorityPassConfig(tb),
+		priorityPassConfigHelper(tb),
 	)
 	if err != nil {
 		tb.Fatalf("RestoreAttraction() = %v, want nil", err)
@@ -296,7 +296,7 @@ func storeAttractionAs(
 }
 
 // storeTicketTypeAs は storeAttractionAs と同じ目的で券種を 1 件積む
-func storeTicketTypeAs(
+func storeTicketTypeAsHelper(
 	tb testing.TB,
 	repo *fakeRepository,
 	parkID parkmodel.ParkID,
@@ -324,7 +324,7 @@ func storeTicketTypeAs(
 	return ticketType
 }
 
-func storeTicketType(tb testing.TB, repo *fakeRepository) *parkmodel.TicketType {
+func storeTicketTypeHelper(tb testing.TB, repo *fakeRepository) *parkmodel.TicketType {
 	tb.Helper()
 
 	ticketType, err := parkmodel.RestoreTicketType(
