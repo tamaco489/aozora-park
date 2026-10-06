@@ -70,7 +70,9 @@ export function TicketTypeUpdate() {
         </div>
 
         <div className="field">
-          <label htmlFor="tickettype-update-ticketTypeId">識別子</label>
+          <label htmlFor="tickettype-update-ticketTypeId">
+            券種の識別子
+          </label>
           <input
             id="tickettype-update-ticketTypeId"
             value={ticketTypeId}

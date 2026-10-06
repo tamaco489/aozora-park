@@ -37,7 +37,7 @@ export function ParkView() {
 
       <form onSubmit={handleSubmit}>
         <div className="field">
-          <label htmlFor="view-parkId">識別子</label>
+          <label htmlFor="view-parkId">パークの識別子</label>
           <input
             id="view-parkId"
             value={parkId}

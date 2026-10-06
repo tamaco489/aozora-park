@@ -67,7 +67,7 @@ export function ParkUpdate() {
 
       <form onSubmit={handleSubmit}>
         <div className="field">
-          <label htmlFor="update-parkId">識別子</label>
+          <label htmlFor="update-parkId">パークの識別子</label>
           <input
             id="update-parkId"
             className="narrow"
