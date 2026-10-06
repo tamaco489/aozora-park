@@ -52,6 +52,9 @@ func validateDate(date Date) error {
 	return nil
 }
 
+// validateStartTime は時間帯枠の開始時刻が HH:MM の 24 時間表記かを確かめる
+//
+// 独自に桁を数えず parseMinutes を使い回すのは、検証と分への変換で形式の解釈がずれないようにするため
 func validateStartTime(startTime string) error {
 	if _, ok := parseMinutes(startTime); !ok {
 		return ErrInvalidStartTime

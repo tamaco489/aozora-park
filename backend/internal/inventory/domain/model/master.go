@@ -30,10 +30,12 @@ func RestoreParkMaster(
 		return nil, ErrInvalidParkID
 	}
 
+	// 0 以下だと 1 人も入れない日が作られ、その日の申込が必ず失敗する
 	if defaultDailyCapacity < capacityMin {
 		return nil, ErrInvalidCapacity
 	}
 
+	// 0 日だと枠が 1 日も作られず、上限を超えると 1 回の実行で書き込む量が際限なく増える
 	if inventoryDays < inventoryDaysMin || inventoryDays > inventoryDaysMax {
 		return nil, ErrInvalidInventoryDays
 	}
@@ -84,11 +86,13 @@ func RestoreAttractionMaster(
 		return nil, ErrInvalidAttractionID
 	}
 
+	// HH:MM のまま持つと刻みの加算ができないため、組み立ての時点で 0 時からの分に直す
 	startMinutes, ok := parseMinutes(startTime)
 	if !ok {
 		return nil, ErrInvalidStartTime
 	}
 
+	// 終了時刻も分に揃える、開始時刻との前後を文字列ではなく数値で比べるため
 	endMinutes, ok := parseMinutes(endTime)
 	if !ok {
 		return nil, ErrInvalidEndTime
@@ -104,6 +108,7 @@ func RestoreAttractionMaster(
 		return nil, ErrInvalidIntervalMinutes
 	}
 
+	// 0 だと 1 枚も出せない枠ができ、その枠の申込が必ず sold_out になる
 	if capacityPerSlot < capacityMin {
 		return nil, ErrInvalidCapacity
 	}
@@ -128,6 +133,7 @@ func (a *AttractionMaster) StartTimes() []string {
 		0,
 		(a.endMinutes-a.startMinutes)/a.intervalMinutes+1,
 	)
+	// 間隔で割り切れない場合は最後の枠が終了時刻の手前で止まる、終了時刻をまたぐ枠を作らないため
 	for minutes := a.startMinutes; minutes < a.endMinutes; minutes += a.intervalMinutes {
 		startTimes = append(startTimes, formatMinutes(minutes))
 	}
