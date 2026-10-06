@@ -12,12 +12,20 @@
 
 ![層と依存の向き](./images/layers.png)
 
-| リング                     | パッケージ                                                                                              |
-| -------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Enterprise Business Rules  | `park/domain/model`、`inventory/domain/model`、`platform/serving/apperr`                                |
-| Application Business Rules | `park/usecase`、`park/domain/repository`、`inventory/usecase`、`inventory/domain/repository`            |
-| Interface Adapters         | `<機能>/handler`、`<機能>/infrastructure/firestore`、`internal/park` と `internal/inventory` (組み立て) |
-| Frameworks & Drivers       | `cmd/api`、`internal/platform/**`、`gen/**`                                                             |
+| リング                     | パッケージ                                                                                                        |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Enterprise Business Rules  | `<機能>/domain/model`、`platform/serving/apperr`                                                                  |
+| Application Business Rules | `<機能>/usecase`、`<機能>/usecase/port`、`<機能>/domain/repository`                                               |
+| Interface Adapters         | `<機能>/handler`、`<機能>/infrastructure/firestore`、`<機能>/infrastructure/pubsub`、`internal/<機能>` (組み立て) |
+| Frameworks & Drivers       | `cmd/api`、`cmd/job`、`internal/platform/**`、`gen/**`                                                            |
+
+機能パッケージは `park`、`inventory`、`prioritypass` の 3 つで、どれも同じ形をとります。
+`usecase/port` と `infrastructure/pubsub` を持つのは `prioritypass` だけです。
+
+`cmd/job` は 1 つのバイナリをサブコマンドで切り替えます。今あるのは枠の先行生成 (`generate`) だけです。
+
+優先パスの割当を受ける `cmd/priority-pass-issuer` と、Pub/Sub push の封筒を解く `platform/serving/pubsubpush` はまだ置いていません。
+置き場所だけを `.claude/rules/go/coding.md` で決めています。
 
 ## パッケージ間の依存
 
@@ -52,6 +60,16 @@ go list -f '{{.ImportPath}} {{.Imports}}' ./... | grep park/domain/model  # こ�
 **`inventory` が値オブジェクトにしたのは識別子と日付。** `ParkID`、`AttractionID`、`TimeSlotID`、`Date` は repository のメソッドに文字列を並べて渡す位置にあり、取り違えてもコンパイルが通ってしまいます。開始時刻と上限と残りは `DateInventory` と `TimeSlot` の外へ単体で出ないため、プリミティブのままにしています。
 
 **`inventory` は枠を新しく生成しない。** `domain/model` が持つのは `RestoreDateInventory` と `RestoreTimeSlot` だけです。枠の作成は先行生成のジョブが担うため、`New` を置くと作成の経路が 2 つになります。
+
+**`prioritypass` だけが `usecase/port` を持つ。** 永続化は `domain/repository` に置きますが、publish は永続化ではありません。使う側が必要とするメソッドだけを `usecase/port` に並べ、実装は `infrastructure/pubsub` が持ちます。`park` と `inventory` は Firestore しか触らないため、この層がありません。
+
+**publish の失敗で申込を巻き戻さない。** 作成済みの申込を呼び出し元が作り直すと二重の申込になるため、送信の失敗はエラーとして返さずログに残します。送れたことは `publishedAt` に記録し、残らなかったものを後から送り直せるようにしています。
+
+**publish は呼び出し元の ctx から切り離し、待つ上限を置く。** 宛先に届かない間 SDK がリトライを続けるため、上限を置かないと申込を返すのが遅れます。実測では、上限を置かない場合に 60.3 秒かかった RPC が、`context.WithoutCancel` と 3 秒の `context.WithTimeout` で 3.02 秒になりました。
+
+**機能パッケージ同士を import せず、相手のドキュメントは自分の構造体で読む。** `inventory` は `park` が書いたマスタを、`prioritypass` は `inventory` が書いた時間帯枠を読みます。どちらも相手の `domain/model` を使わず、必要な項目だけの構造体を自分側に置きます。`DataTo` は構造体に無い項目を捨てるため、相手が項目を増やしても壊れません。
+
+引き換えに、コレクションのパスとフィールド名が 2 か所に並びます。片方だけを書き換えても、実装とテストのヘルパが同じ定数を参照していると気づけないため、組み立てたパスをリテラルと突き合わせるテストを置いています (`TestRepositoryTimeSlotDocPath`)。3 つ目の利用者が現れたら、この形のままでよいかを見直します。
 
 ## 図を再作成する
 
