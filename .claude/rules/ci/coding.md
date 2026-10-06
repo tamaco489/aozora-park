@@ -84,19 +84,20 @@ concurrency:
 
 ## 検査の内容
 
-| 対象       | 検査するもの                                                            |
-| ---------- | ----------------------------------------------------------------------- |
-| `backend`  | 整形漏れ、`go vet`、golangci-lint、ビルド、テスト                       |
-| `proto`    | `buf lint`、整形漏れ、破壊的変更、生成コードの差分                      |
-| `frontend` | oxlint (型情報を使う検査を含む)、ビルド (`tsc -b` を含む)               |
-| `infra`    | 整形漏れ、`validate` (stg だけ、backend なし)、tflint、trivy (stg だけ) |
+| 対象       | 検査するもの                                                                      |
+| ---------- | --------------------------------------------------------------------------------- |
+| `backend`  | 整形漏れ、`go vet`、golangci-lint、ビルド、テスト (エミュレータの有無で 2 ジョブ) |
+| `proto`    | `buf lint`、整形漏れ、破壊的変更、生成コードの差分                                |
+| `frontend` | oxlint (型情報を使う検査を含む)、ビルド (`tsc -b` を含む)                         |
+| `infra`    | 整形漏れ、`validate` (stg だけ、backend なし)、tflint、trivy (stg だけ)           |
 
 - **依存の向きは golangci-lint の depguard で検査する。** 規則は `backend/.golangci.yaml` にあり、向きの定義は `.claude/rules/go/coding.md` が持つ
 - `go vet` のステップは残す。golangci-lint の govet と重なるが、有効な解析器の既定が同じとは限らない
 - 新しい書き方への置き換え (`min` `max` `slices` など) は golangci-lint の `modernize` が見る。人の手順に置かない
 - **生成物はコミットする運用のため、生成し直して差分が出ないことを検査する**
 - 破壊的変更は PR の base と比較する。base に `.proto` が無ければ理由を出して飛ばす
-- テストは `go test -race -shuffle=on -count=1 ./...` で回す (`.claude/rules/go/testing.md`)
+- テストは `backend-test` と `backend-test-emulator` の 2 ジョブに分ける。前者は `-race` を付けて `DOCKER_TESTS` を渡さず全パッケージを、後者はその逆で `firestoretest` を import するパッケージだけを走らせる (`.claude/rules/go/testing.md`)
+- **時間のかかる取得は、先頭のステップでバックグラウンドに回す。** エミュレータのイメージは 1 GB を超え、取得が setup とコンパイルの裏に隠れると待ち時間がその分だけ縮む
 - **終了コードで落ちることを確かめてから入れる。** `gofmt -l` は差分があっても 0 を返すため、出力が空であることを検査する
 
 ## 書き方

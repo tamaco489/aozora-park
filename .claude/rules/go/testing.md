@@ -217,14 +217,36 @@ func TestRepositoryCreateAndGet(t *testing.T) {
 ### テストの実行
 
 ```sh
-go test ./...                                  # 日常
-go test -race -shuffle=on -count=1 ./...       # CI
+# 日常、エミュレータが要るものは飛ばされる
+go test ./...
+
+# 手元でエミュレータも含めて回す、絞り込みはしない
+DOCKER_TESTS=1 go test ./...
+
+# CI の backend-test
+go test -race -shuffle=on -count=1 ./...
+
+# CI の backend-test-emulator、firestoretest を import しているパッケージだけを選ぶ
+DOCKER_TESTS=1 go test -shuffle=on -count=1 $(go list -f '{{.ImportPath}} {{join .TestImports " "}} {{join .XTestImports " "}}' ./... | grep ' .*firestoretest' | cut -d' ' -f1)
 ```
 
 - `-shuffle=on` はテスト間の順序依存を検出する。失敗時は出力された seed で再現できる
 - `-count=1` はテスト結果のキャッシュを無効にする。エミュレータの状態はキャッシュ判定に入らないため、CI では必ず付ける
 - `-race` はメモリを 5 倍から 10 倍、実行時間を 2 倍から 20 倍にする。遅ければ別ジョブに分ける
 - カバレッジを取るときは `-covermode=atomic` にする。`-race` と併用できる書式はこれだけ
+
+**エミュレータを使うジョブだけ `-race` を外す。** `infrastructure` のテストは 1 つのテストが書いて読むだけの直列の I/O で、
+goroutine を跨いで共有する状態を持たない。検出できるものがほぼ無い場所に実行時間 2 倍を払うことになるため。
+
+- **これは例外で、既定は `-race` を付ける。** `handler` と `usecase` は connect のサーバと `t.Parallel()` が goroutine を起こすので外さない
+- **対象のパッケージを一覧で持たない。** `firestoretest` を import しているかを `go list` に聞いて選ぶ。
+  一覧にすると、新しい `infrastructure` を足したときに追記を忘れたテストが、どちらのジョブでも走らないまま残る
+- **外部テストパッケージ (`package xxx_test`) は `.TestImports` に出ない。** `.XTestImports` も見る。
+  片方だけでは `platform/client/firestore` が対象から漏れる
+- **絞り込みは CI だけの都合。** 2 つのジョブで同じテストを二重に走らせないためで、手元は `just test-emulator` (`./...`) でよい
+- 上の 1 行は `ci-backend.yaml` にも同じものがある。**ワークフローを正とし、片方を変更したらもう片方も修正する**
+- 引き換えに、`infrastructure` に goroutine を持ち込んだときの競合は CI で検出されなくなる。
+  入れるなら、そのテストは `-race` の付くジョブで回る場所に置く
 
 ### テストデータの置き場所
 
