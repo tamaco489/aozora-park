@@ -102,13 +102,18 @@ func (r *fakeRepository) MarkPriorityPassPublished(
 
 // fakePublisher は送り先を差し替えるためのインメモリ実装
 type fakePublisher struct {
-	published []prioritypassmodel.PassID
-	err       error
+	published   []prioritypassmodel.PassID
+	err         error
+	ctxErr      error // ctxErr は呼び出された時点の ctx の取り消しの状態
+	hasDeadline bool  // hasDeadline は呼び出された ctx に期限が付いていたか
 }
 
 var _ prioritypassport.Publisher = (*fakePublisher)(nil)
 
-func (p *fakePublisher) PublishRequested(_ context.Context, pass *prioritypassmodel.PriorityPass) error {
+func (p *fakePublisher) PublishRequested(ctx context.Context, pass *prioritypassmodel.PriorityPass) error {
+	p.ctxErr = ctx.Err()
+	_, p.hasDeadline = ctx.Deadline()
+
 	if p.err != nil {
 		return p.err
 	}

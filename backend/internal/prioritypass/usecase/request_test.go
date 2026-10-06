@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"testing"
 	"time"
@@ -235,4 +236,56 @@ func newRequestPriorityPassHelper(
 		discardLoggerHelper(),
 		WithClock(func() time.Time { return fixedNow }),
 	)
+}
+
+// TestRequestPriorityPassDoPublishesAfterCallerCancels は呼び出し元が切断しても publish を行うことを確かめる
+//
+// 申込は作成済みのため、送らずに終わると publishedAt が null のまま残り reconciliation の対象が無用に増える
+func TestRequestPriorityPassDoPublishesAfterCallerCancels(t *testing.T) {
+	repo := newFakeRepository()
+	publisher := &fakePublisher{}
+
+	// 呼び出し元が離れた状態を作る
+	ctx, cancel := context.WithCancel(t.Context())
+	cancel()
+
+	in := RequestPriorityPassInput{
+		ParkID:       storedParkID,
+		TicketID:     storedTicketID,
+		AttractionID: storedAttractionID,
+		TimeSlotID:   storedTimeSlotID,
+	}
+
+	got, err := newRequestPriorityPassHelper(repo, publisher).Do(ctx, in)
+	if err != nil {
+		t.Fatalf("RequestPriorityPass.Do(%+v) = %v, want %v",
+			in,
+			err,
+			nil,
+		)
+	}
+
+	if publisher.ctxErr != nil {
+		t.Errorf("RequestPriorityPass.Do(%+v) の publish 時の ctx.Err() = %v, want %v",
+			in,
+			publisher.ctxErr,
+			nil,
+		)
+	}
+
+	// 届かない宛先でリトライが続くため、待つ上限が付いていることを確かめる
+	if !publisher.hasDeadline {
+		t.Errorf("RequestPriorityPass.Do(%+v) の publish 時の ctx の期限 = %t, want %t",
+			in,
+			publisher.hasDeadline,
+			true,
+		)
+	}
+
+	if _, ok := repo.publishedAt[got.ID()]; !ok {
+		t.Errorf("RequestPriorityPass.Do(%+v) の publishedAt = 無し, want %v",
+			in,
+			fixedNow,
+		)
+	}
 }

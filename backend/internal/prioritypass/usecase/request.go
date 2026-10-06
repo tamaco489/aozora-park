@@ -11,6 +11,11 @@ import (
 	prioritypassport "github.com/tamaco489/aozora-park/backend/internal/prioritypass/usecase/port"
 )
 
+// publishTimeout は publish と publishedAt の記録に使える時間の上限
+//
+// 失敗しても publishedAt が null で残るだけなので、申込を返すのを長く待たせる価値がない
+const publishTimeout = 3 * time.Second
+
 // RequestPriorityPassInput は RequestPriorityPass の入力
 type RequestPriorityPassInput struct {
 	ParkID       prioritypassmodel.ParkID
@@ -85,6 +90,11 @@ func (u *RequestPriorityPass) Do(ctx context.Context, in RequestPriorityPassInpu
 // 失敗しても申込は巻き戻さずエラーも返さない、作成済みのものを呼び出し側が作り直すと二重の申込になるため
 // publishedAt が null のまま残ったものは reconciliation が検出して送り直す
 func (u *RequestPriorityPass) publish(ctx context.Context, pass *prioritypassmodel.PriorityPass) {
+	// 申込は作成済みのため、呼び出し元が切断しても送り切る
+	// 宛先に届かない間 SDK がリトライを繰り返すため、呼び出し元を待たせる上限をこちらで決める
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), publishTimeout)
+	defer cancel()
+
 	// トランザクションの外で送る、外部への送信を含めると保持の時間が伸びて衝突しやすくなるため
 	if err := u.publisher.PublishRequested(ctx, pass); err != nil {
 		u.logger.ErrorContext(ctx, "優先パスの申込の publish に失敗",
