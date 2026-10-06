@@ -79,6 +79,8 @@ resource "google_service_account_iam_member" "deployer_act_as" {
 }
 
 # 対象が api だけだった頃のアドレスから付け替える、再作成すると一時的に権限が外れるため
+#
+# stg に apply して state のアドレスが移ったら不要になる、永続的に要るものではない
 moved {
   from = google_cloud_run_v2_service_iam_member.deployer_developer
   to   = google_cloud_run_v2_service_iam_member.deployer_developer["api"]
