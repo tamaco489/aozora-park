@@ -6,6 +6,7 @@ import { NotFound } from "./NotFound";
 import { AttractionPage } from "./features/attraction/AttractionPage";
 import { InventoryPage } from "./features/inventory/InventoryPage";
 import { ParkPage } from "./features/park/ParkPage";
+import { PriorityPassPage } from "./features/prioritypass/PriorityPassPage";
 import { TicketTypePage } from "./features/tickettype/TicketTypePage";
 
 // 機能ごとにページを分ける、一覧の RPC ができるまで ID はパスに載せない
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="attractions" element={<AttractionPage />} />
         <Route path="ticket-types" element={<TicketTypePage />} />
         <Route path="inventory" element={<InventoryPage />} />
+        <Route path="priority-passes" element={<PriorityPassPage />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
