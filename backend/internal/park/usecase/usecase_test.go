@@ -8,14 +8,14 @@ import (
 	parkrepository "github.com/tamaco489/aozora-park/backend/internal/park/domain/repository"
 )
 
-// attractionKey はアトラクションを親のパークごとに分けて持つための鍵
-type attractionKey struct {
+// attractionKeyHelper はアトラクションを親のパークごとに分けて持つための鍵
+type attractionKeyHelper struct {
 	parkID parkmodel.ParkID
 	id     parkmodel.AttractionID
 }
 
-// ticketTypeKey は券種を親のパークごとに分けて持つための鍵
-type ticketTypeKey struct {
+// ticketTypeKeyHelper は券種を親のパークごとに分けて持つための鍵
+type ticketTypeKeyHelper struct {
 	parkID parkmodel.ParkID
 	id     parkmodel.TicketTypeID
 }
@@ -26,11 +26,11 @@ type fakeRepository struct {
 	createErr error
 	updateErr error
 
-	attractions         map[attractionKey]*parkmodel.Attraction
+	attractions         map[attractionKeyHelper]*parkmodel.Attraction
 	createAttractionErr error
 	updateAttractionErr error
 
-	ticketTypes         map[ticketTypeKey]*parkmodel.TicketType
+	ticketTypes         map[ticketTypeKeyHelper]*parkmodel.TicketType
 	createTicketTypeErr error
 	updateTicketTypeErr error
 }
@@ -47,8 +47,8 @@ var (
 func newFakeRepository() *fakeRepository {
 	return &fakeRepository{
 		parks:       map[parkmodel.ParkID]*parkmodel.Park{},
-		attractions: map[attractionKey]*parkmodel.Attraction{},
-		ticketTypes: map[ticketTypeKey]*parkmodel.TicketType{},
+		attractions: map[attractionKeyHelper]*parkmodel.Attraction{},
+		ticketTypes: map[ticketTypeKeyHelper]*parkmodel.TicketType{},
 	}
 }
 
@@ -105,7 +105,7 @@ func (r *fakeRepository) GetAttraction(
 	parkID parkmodel.ParkID,
 	id parkmodel.AttractionID,
 ) (*parkmodel.Attraction, error) {
-	attraction, ok := r.attractions[attractionKey{
+	attraction, ok := r.attractions[attractionKeyHelper{
 		parkID: parkID,
 		id:     id,
 	}]
@@ -135,7 +135,7 @@ func (r *fakeRepository) CreateAttraction(_ context.Context, attraction *parkmod
 		return r.createAttractionErr
 	}
 
-	key := attractionKey{
+	key := attractionKeyHelper{
 		parkID: attraction.ParkID(),
 		id:     attraction.ID(),
 	}
@@ -152,7 +152,7 @@ func (r *fakeRepository) UpdateAttraction(_ context.Context, attraction *parkmod
 		return r.updateAttractionErr
 	}
 
-	key := attractionKey{
+	key := attractionKeyHelper{
 		parkID: attraction.ParkID(),
 		id:     attraction.ID(),
 	}
@@ -169,7 +169,7 @@ func (r *fakeRepository) GetTicketType(
 	parkID parkmodel.ParkID,
 	id parkmodel.TicketTypeID,
 ) (*parkmodel.TicketType, error) {
-	ticketType, ok := r.ticketTypes[ticketTypeKey{
+	ticketType, ok := r.ticketTypes[ticketTypeKeyHelper{
 		parkID: parkID,
 		id:     id,
 	}]
@@ -199,7 +199,7 @@ func (r *fakeRepository) CreateTicketType(_ context.Context, ticketType *parkmod
 		return r.createTicketTypeErr
 	}
 
-	key := ticketTypeKey{
+	key := ticketTypeKeyHelper{
 		parkID: ticketType.ParkID(),
 		id:     ticketType.ID(),
 	}
@@ -216,7 +216,7 @@ func (r *fakeRepository) UpdateTicketType(_ context.Context, ticketType *parkmod
 		return r.updateTicketTypeErr
 	}
 
-	key := ticketTypeKey{
+	key := ticketTypeKeyHelper{
 		parkID: ticketType.ParkID(),
 		id:     ticketType.ID(),
 	}
@@ -259,7 +259,7 @@ func storeAttractionHelper(tb testing.TB, repo *fakeRepository) *parkmodel.Attra
 	if err != nil {
 		tb.Fatalf("RestoreAttraction() = %v, want nil", err)
 	}
-	repo.attractions[attractionKey{
+	repo.attractions[attractionKeyHelper{
 		parkID: attraction.ParkID(),
 		id:     attraction.ID(),
 	}] = attraction
@@ -287,7 +287,7 @@ func storeAttractionAsHelper(
 	if err != nil {
 		tb.Fatalf("RestoreAttraction() = %v, want nil", err)
 	}
-	repo.attractions[attractionKey{
+	repo.attractions[attractionKeyHelper{
 		parkID: parkID,
 		id:     id,
 	}] = attraction
@@ -316,7 +316,7 @@ func storeTicketTypeAsHelper(
 	if err != nil {
 		tb.Fatalf("RestoreTicketType() = %v, want nil", err)
 	}
-	repo.ticketTypes[ticketTypeKey{
+	repo.ticketTypes[ticketTypeKeyHelper{
 		parkID: parkID,
 		id:     id,
 	}] = ticketType
@@ -338,7 +338,7 @@ func storeTicketTypeHelper(tb testing.TB, repo *fakeRepository) *parkmodel.Ticke
 	if err != nil {
 		tb.Fatalf("RestoreTicketType() = %v, want nil", err)
 	}
-	repo.ticketTypes[ticketTypeKey{
+	repo.ticketTypes[ticketTypeKeyHelper{
 		parkID: ticketType.ParkID(),
 		id:     ticketType.ID(),
 	}] = ticketType

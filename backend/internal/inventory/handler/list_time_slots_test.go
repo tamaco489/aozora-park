@@ -11,7 +11,7 @@ import (
 )
 
 func TestConnectListTimeSlots(t *testing.T) {
-	handler := newHandler(t, newStoredRepository(t))
+	handler := newHandlerHelper(t, newStoredRepositoryHelper(t))
 
 	in := &inventoryv1.ListTimeSlotsRequest{
 		ParkId:       "park-1",
@@ -56,7 +56,7 @@ func TestConnectListTimeSlots(t *testing.T) {
 }
 
 func TestConnectListTimeSlotsEmpty(t *testing.T) {
-	handler := newHandler(t, newEmptyRepository())
+	handler := newHandlerHelper(t, newEmptyRepositoryHelper())
 
 	in := &inventoryv1.ListTimeSlotsRequest{
 		ParkId:       "park-1",

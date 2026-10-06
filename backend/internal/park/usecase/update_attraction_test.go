@@ -82,7 +82,7 @@ func TestUpdateAttractionDo(t *testing.T) {
 				)
 			}
 
-			key := attractionKey{
+			key := attractionKeyHelper{
 				parkID: "park-1",
 				id:     "attraction-1",
 			}

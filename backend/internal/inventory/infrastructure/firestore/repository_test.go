@@ -15,10 +15,10 @@ func TestMain(m *testing.M) {
 	os.Exit(firestoretest.Main(m))
 }
 
-// newRepository は保存先を用意する
+// newRepositoryHelper は保存先を用意する
 //
 // テスト間の分離はパークの識別子を分けて行う、同じコレクションを共有するため
-func newRepository(tb testing.TB) (*Repository, *gcpfirestore.Client) {
+func newRepositoryHelper(tb testing.TB) (*Repository, *gcpfirestore.Client) {
 	tb.Helper()
 
 	client := firestoretest.Client(tb)
@@ -26,8 +26,8 @@ func newRepository(tb testing.TB) (*Repository, *gcpfirestore.Client) {
 	return NewRepository(client), client
 }
 
-// seedDateInventory は枠を作成するジョブの代わりに入場枠を 1 件置く
-func seedDateInventory(
+// seedDateInventoryHelper は枠を作成するジョブの代わりに入場枠を 1 件置く
+func seedDateInventoryHelper(
 	tb testing.TB,
 	client *gcpfirestore.Client,
 	parkID inventorymodel.ParkID,
@@ -66,8 +66,8 @@ func seedDateInventory(
 	})
 }
 
-// seedTimeSlot は枠を作成するジョブの代わりに時間帯枠を 1 件置く
-func seedTimeSlot(
+// seedTimeSlotHelper は枠を作成するジョブの代わりに時間帯枠を 1 件置く
+func seedTimeSlotHelper(
 	tb testing.TB,
 	client *gcpfirestore.Client,
 	parkID inventorymodel.ParkID,

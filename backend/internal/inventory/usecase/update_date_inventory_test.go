@@ -90,7 +90,7 @@ func TestUpdateDateInventoryDo(t *testing.T) {
 			repo.updateErr = tt.updateErr
 
 			if tt.stored {
-				storeDateInventory(t, repo)
+				storeDateInventoryHelper(t, repo)
 			}
 
 			got, err := NewUpdateDateInventory(repo, repo).Do(t.Context(), tt.in)
@@ -108,7 +108,7 @@ func TestUpdateDateInventoryDo(t *testing.T) {
 					return
 				}
 				// 検証に失敗した入場枠が書き換わっていないことを確かめる
-				stored := repo.inventories[dateKey(storedParkID, storedDate)]
+				stored := repo.inventories[dateKeyHelper(storedParkID, storedDate)]
 				if stored.Capacity() != storedCapacity || stored.Remaining() != storedRemaining {
 					t.Errorf("UpdateDateInventory.Do(%+v) の失敗後 = (%d, %d), want (%d, %d)",
 						tt.in,
@@ -131,7 +131,7 @@ func TestUpdateDateInventoryDo(t *testing.T) {
 				)
 			}
 
-			stored := repo.inventories[dateKey(storedParkID, storedDate)]
+			stored := repo.inventories[dateKeyHelper(storedParkID, storedDate)]
 			if stored.Capacity() != tt.in.Capacity || stored.Remaining() != tt.in.Remaining {
 				t.Errorf("UpdateDateInventory.Do(%+v) の保存後 = (%d, %d), want (%d, %d)",
 					tt.in,

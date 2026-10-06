@@ -8,13 +8,13 @@ import (
 )
 
 func TestRepositoryGetDateInventory(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 
 	const (
 		parkID = inventorymodel.ParkID("park-get-date-inventory")
 		date   = inventorymodel.Date("2026-10-05")
 	)
-	seedDateInventory(
+	seedDateInventoryHelper(
 		t,
 		client,
 		parkID,
@@ -53,7 +53,7 @@ func TestRepositoryGetDateInventory(t *testing.T) {
 }
 
 func TestRepositoryGetDateInventoryNotFound(t *testing.T) {
-	repo, _ := newRepository(t)
+	repo, _ := newRepositoryHelper(t)
 
 	const (
 		parkID = inventorymodel.ParkID("park-get-date-inventory-not-found")
@@ -76,14 +76,14 @@ func TestRepositoryGetDateInventoryNotFound(t *testing.T) {
 }
 
 func TestRepositoryUpdateDateInventory(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	const (
 		parkID = inventorymodel.ParkID("park-update-date-inventory")
 		date   = inventorymodel.Date("2026-10-05")
 	)
-	seedDateInventory(
+	seedDateInventoryHelper(
 		t,
 		client,
 		parkID,
@@ -136,7 +136,7 @@ func TestRepositoryUpdateDateInventory(t *testing.T) {
 }
 
 func TestRepositoryUpdateDateInventoryNotFound(t *testing.T) {
-	repo, _ := newRepository(t)
+	repo, _ := newRepositoryHelper(t)
 
 	const (
 		parkID = inventorymodel.ParkID("park-update-date-inventory-not-found")

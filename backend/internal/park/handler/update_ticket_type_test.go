@@ -13,8 +13,8 @@ import (
 )
 
 func TestConnectUpdateTicketType(t *testing.T) {
-	handler, repo := newHandler(t, restore(t))
-	storeTicketType(t, repo)
+	handler, repo := newHandlerHelper(t, restoreHelper(t))
+	storeTicketTypeHelper(t, repo)
 
 	in := &parkv1.UpdateTicketTypeRequest{
 		ParkId:        "park-1",
@@ -48,7 +48,7 @@ func TestConnectUpdateTicketType(t *testing.T) {
 		)
 	}
 
-	stored := repo.ticketTypes[ticketTypeKey{
+	stored := repo.ticketTypes[ticketTypeKeyHelper{
 		parkID: "park-1",
 		id:     "ticket-type-1",
 	}]
@@ -62,7 +62,7 @@ func TestConnectUpdateTicketType(t *testing.T) {
 }
 
 func TestConnectUpdateTicketTypeNotFound(t *testing.T) {
-	handler, _ := newHandler(t, restore(t))
+	handler, _ := newHandlerHelper(t, restoreHelper(t))
 
 	in := &parkv1.UpdateTicketTypeRequest{
 		ParkId:        "park-1",

@@ -13,7 +13,7 @@ import (
 )
 
 func TestConnectUpdateDateInventory(t *testing.T) {
-	handler := newHandler(t, newStoredRepository(t))
+	handler := newHandlerHelper(t, newStoredRepositoryHelper(t))
 
 	in := &inventoryv1.UpdateDateInventoryRequest{
 		ParkId:    "park-1",
@@ -45,7 +45,7 @@ func TestConnectUpdateDateInventory(t *testing.T) {
 }
 
 func TestConnectUpdateDateInventoryInvalidRemaining(t *testing.T) {
-	handler := newHandler(t, newStoredRepository(t))
+	handler := newHandlerHelper(t, newStoredRepositoryHelper(t))
 
 	// protovalidate は残りが上限を超えるかを見ないため、ここまで届く
 	in := &inventoryv1.UpdateDateInventoryRequest{
@@ -66,7 +66,7 @@ func TestConnectUpdateDateInventoryInvalidRemaining(t *testing.T) {
 }
 
 func TestConnectUpdateDateInventoryNotFound(t *testing.T) {
-	handler := newHandler(t, newEmptyRepository())
+	handler := newHandlerHelper(t, newEmptyRepositoryHelper())
 
 	in := &inventoryv1.UpdateDateInventoryRequest{
 		ParkId:    "park-1",

@@ -36,11 +36,11 @@ func newFakeRepository() *fakeRepository {
 	}
 }
 
-func dateKey(parkID inventorymodel.ParkID, date inventorymodel.Date) string {
+func dateKeyHelper(parkID inventorymodel.ParkID, date inventorymodel.Date) string {
 	return parkID.String() + "/" + date.String()
 }
 
-func slotKey(
+func slotKeyHelper(
 	parkID inventorymodel.ParkID,
 	attractionID inventorymodel.AttractionID,
 	date inventorymodel.Date,
@@ -53,7 +53,7 @@ func (r *fakeRepository) GetDateInventory(
 	parkID inventorymodel.ParkID,
 	date inventorymodel.Date,
 ) (*inventorymodel.DateInventory, error) {
-	inventory, ok := r.inventories[dateKey(parkID, date)]
+	inventory, ok := r.inventories[dateKeyHelper(parkID, date)]
 	if !ok {
 		return nil, inventorymodel.ErrDateInventoryNotFound
 	}
@@ -74,7 +74,7 @@ func (r *fakeRepository) ListTimeSlots(
 	attractionID inventorymodel.AttractionID,
 	date inventorymodel.Date,
 ) ([]*inventorymodel.TimeSlot, error) {
-	return r.slots[slotKey(parkID, attractionID, date)], nil
+	return r.slots[slotKeyHelper(parkID, attractionID, date)], nil
 }
 
 func (r *fakeRepository) UpdateDateInventory(_ context.Context, inventory *inventorymodel.DateInventory) error {
@@ -82,7 +82,7 @@ func (r *fakeRepository) UpdateDateInventory(_ context.Context, inventory *inven
 		return r.updateErr
 	}
 
-	key := dateKey(inventory.ParkID(), inventory.Date())
+	key := dateKeyHelper(inventory.ParkID(), inventory.Date())
 	if _, ok := r.inventories[key]; !ok {
 		return inventorymodel.ErrDateInventoryNotFound
 	}
@@ -91,8 +91,8 @@ func (r *fakeRepository) UpdateDateInventory(_ context.Context, inventory *inven
 	return nil
 }
 
-// storeDateInventory は保存済みの入場枠を 1 件用意する
-func storeDateInventory(tb testing.TB, repo *fakeRepository) *inventorymodel.DateInventory {
+// storeDateInventoryHelper は保存済みの入場枠を 1 件用意する
+func storeDateInventoryHelper(tb testing.TB, repo *fakeRepository) *inventorymodel.DateInventory {
 	tb.Helper()
 
 	inventory, err := inventorymodel.RestoreDateInventory(
@@ -104,33 +104,33 @@ func storeDateInventory(tb testing.TB, repo *fakeRepository) *inventorymodel.Dat
 	if err != nil {
 		tb.Fatalf("RestoreDateInventory() = %v, want nil", err)
 	}
-	repo.inventories[dateKey(storedParkID, storedDate)] = inventory
+	repo.inventories[dateKeyHelper(storedParkID, storedDate)] = inventory
 
 	return inventory
 }
 
-// storeTimeSlots は保存済みの時間帯枠を開始時刻の昇順で用意する
-func storeTimeSlots(tb testing.TB, repo *fakeRepository) []*inventorymodel.TimeSlot {
+// storeTimeSlotsHelper は保存済みの時間帯枠を開始時刻の昇順で用意する
+func storeTimeSlotsHelper(tb testing.TB, repo *fakeRepository) []*inventorymodel.TimeSlot {
 	tb.Helper()
 
 	slots := []*inventorymodel.TimeSlot{
-		restoreTimeSlot(
+		restoreTimeSlotHelper(
 			tb,
 			"20261005_1000",
 			"10:00",
 		),
-		restoreTimeSlot(
+		restoreTimeSlotHelper(
 			tb,
 			"20261005_1100",
 			"11:00",
 		),
 	}
-	repo.slots[slotKey(storedParkID, storedAttractionID, storedDate)] = slots
+	repo.slots[slotKeyHelper(storedParkID, storedAttractionID, storedDate)] = slots
 
 	return slots
 }
 
-func restoreTimeSlot(
+func restoreTimeSlotHelper(
 	tb testing.TB,
 	id inventorymodel.TimeSlotID,
 	startTime string,

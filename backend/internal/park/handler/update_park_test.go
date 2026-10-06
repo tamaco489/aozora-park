@@ -11,7 +11,7 @@ import (
 )
 
 func TestConnectUpdatePark(t *testing.T) {
-	handler, repo := newHandler(t, restore(t))
+	handler, repo := newHandlerHelper(t, restoreHelper(t))
 
 	in := &parkv1.UpdateParkRequest{
 		ParkId:               "park-1",

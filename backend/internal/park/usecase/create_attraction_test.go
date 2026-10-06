@@ -95,7 +95,7 @@ func TestCreateAttractionDo(t *testing.T) {
 				return
 			}
 
-			key := attractionKey{
+			key := attractionKeyHelper{
 				parkID: got.ParkID(),
 				id:     got.ID(),
 			}

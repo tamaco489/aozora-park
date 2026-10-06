@@ -76,7 +76,7 @@ func TestUpdateTicketTypeDo(t *testing.T) {
 				)
 			}
 
-			key := ticketTypeKey{
+			key := ticketTypeKeyHelper{
 				parkID: "park-1",
 				id:     "ticket-type-1",
 			}

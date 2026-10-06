@@ -13,7 +13,7 @@ import (
 // ticketTypeParkID は券種のテストが使う親のパーク、他のテストとドキュメントを分ける
 const ticketTypeParkID = parkmodel.ParkID("park-for-ticket-type-test")
 
-func cleanupTicketType(
+func cleanupTicketTypeHelper(
 	tb testing.TB,
 	client *gcpfirestore.Client,
 	ticketType *parkmodel.TicketType,
@@ -33,7 +33,7 @@ func cleanupTicketType(
 }
 
 func TestRepositoryCreateAndGetTicketType(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	ticketType, err := parkmodel.NewTicketType(
@@ -46,7 +46,7 @@ func TestRepositoryCreateAndGetTicketType(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewTicketType() = %v, want nil", err)
 	}
-	cleanupTicketType(
+	cleanupTicketTypeHelper(
 		t,
 		client,
 		ticketType,
@@ -93,7 +93,7 @@ func TestRepositoryCreateAndGetTicketType(t *testing.T) {
 }
 
 func TestRepositoryCreateTicketTypeAlreadyExists(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	ticketType, err := parkmodel.NewTicketType(
@@ -106,7 +106,7 @@ func TestRepositoryCreateTicketTypeAlreadyExists(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewTicketType() = %v, want nil", err)
 	}
-	cleanupTicketType(
+	cleanupTicketTypeHelper(
 		t,
 		client,
 		ticketType,
@@ -129,7 +129,7 @@ func TestRepositoryCreateTicketTypeAlreadyExists(t *testing.T) {
 }
 
 func TestRepositoryGetTicketTypeNotFound(t *testing.T) {
-	repo, _ := newRepository(t)
+	repo, _ := newRepositoryHelper(t)
 
 	const id = parkmodel.TicketTypeID("ticket-type-does-not-exist")
 
@@ -148,7 +148,7 @@ func TestRepositoryGetTicketTypeNotFound(t *testing.T) {
 }
 
 func TestRepositoryUpdateTicketType(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	ticketType, err := parkmodel.NewTicketType(
@@ -161,7 +161,7 @@ func TestRepositoryUpdateTicketType(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewTicketType() = %v, want nil", err)
 	}
-	cleanupTicketType(
+	cleanupTicketTypeHelper(
 		t,
 		client,
 		ticketType,
@@ -214,7 +214,7 @@ func TestRepositoryUpdateTicketType(t *testing.T) {
 }
 
 func TestRepositoryUpdateTicketTypeNotFound(t *testing.T) {
-	repo, _ := newRepository(t)
+	repo, _ := newRepositoryHelper(t)
 
 	ticketType, err := parkmodel.RestoreTicketType(
 		ticketTypeParkID,
@@ -238,7 +238,7 @@ func TestRepositoryUpdateTicketTypeNotFound(t *testing.T) {
 }
 
 func TestRepositoryFindTicketTypeByName(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	// 他のテストが作る券種と表示名が重ならないようにする、親のパークを共有しているため
@@ -257,7 +257,7 @@ func TestRepositoryFindTicketTypeByName(t *testing.T) {
 			err,
 		)
 	}
-	cleanupTicketType(
+	cleanupTicketTypeHelper(
 		t,
 		client,
 		ticketType,
@@ -292,7 +292,7 @@ func TestRepositoryFindTicketTypeByName(t *testing.T) {
 }
 
 func TestRepositoryFindTicketTypeByNameNotFound(t *testing.T) {
-	repo, _ := newRepository(t)
+	repo, _ := newRepositoryHelper(t)
 
 	const name = "保存されていない券種の表示名"
 

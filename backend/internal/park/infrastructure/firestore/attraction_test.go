@@ -13,7 +13,7 @@ import (
 // attractionParkID はアトラクションのテストが使う親のパーク、他のテストとドキュメントを分ける
 const attractionParkID = parkmodel.ParkID("park-for-attraction-test")
 
-func newAttractionConfig(tb testing.TB) parkmodel.PriorityPassConfig {
+func newAttractionConfigHelper(tb testing.TB) parkmodel.PriorityPassConfig {
 	tb.Helper()
 
 	config, err := parkmodel.NewPriorityPassConfig(
@@ -30,7 +30,7 @@ func newAttractionConfig(tb testing.TB) parkmodel.PriorityPassConfig {
 	return config
 }
 
-func cleanupAttraction(
+func cleanupAttractionHelper(
 	tb testing.TB,
 	client *gcpfirestore.Client,
 	attraction *parkmodel.Attraction,
@@ -50,18 +50,18 @@ func cleanupAttraction(
 }
 
 func TestRepositoryCreateAndGetAttraction(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	attraction, err := parkmodel.NewAttraction(
 		attractionParkID,
 		"ジェットコースター",
-		newAttractionConfig(t),
+		newAttractionConfigHelper(t),
 	)
 	if err != nil {
 		t.Fatalf("NewAttraction() = %v, want nil", err)
 	}
-	cleanupAttraction(
+	cleanupAttractionHelper(
 		t,
 		client,
 		attraction,
@@ -107,18 +107,18 @@ func TestRepositoryCreateAndGetAttraction(t *testing.T) {
 }
 
 func TestRepositoryCreateAttractionAlreadyExists(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	attraction, err := parkmodel.NewAttraction(
 		attractionParkID,
 		"ジェットコースター",
-		newAttractionConfig(t),
+		newAttractionConfigHelper(t),
 	)
 	if err != nil {
 		t.Fatalf("NewAttraction() = %v, want nil", err)
 	}
-	cleanupAttraction(
+	cleanupAttractionHelper(
 		t,
 		client,
 		attraction,
@@ -141,7 +141,7 @@ func TestRepositoryCreateAttractionAlreadyExists(t *testing.T) {
 }
 
 func TestRepositoryGetAttractionNotFound(t *testing.T) {
-	repo, _ := newRepository(t)
+	repo, _ := newRepositoryHelper(t)
 
 	const id = parkmodel.AttractionID("attraction-does-not-exist")
 
@@ -160,18 +160,18 @@ func TestRepositoryGetAttractionNotFound(t *testing.T) {
 }
 
 func TestRepositoryUpdateAttraction(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	attraction, err := parkmodel.NewAttraction(
 		attractionParkID,
 		"ジェットコースター",
-		newAttractionConfig(t),
+		newAttractionConfigHelper(t),
 	)
 	if err != nil {
 		t.Fatalf("NewAttraction() = %v, want nil", err)
 	}
-	cleanupAttraction(
+	cleanupAttractionHelper(
 		t,
 		client,
 		attraction,
@@ -230,13 +230,13 @@ func TestRepositoryUpdateAttraction(t *testing.T) {
 }
 
 func TestRepositoryUpdateAttractionNotFound(t *testing.T) {
-	repo, _ := newRepository(t)
+	repo, _ := newRepositoryHelper(t)
 
 	attraction, err := parkmodel.RestoreAttraction(
 		attractionParkID,
 		"attraction-does-not-exist",
 		"ジェットコースター",
-		newAttractionConfig(t),
+		newAttractionConfigHelper(t),
 	)
 	if err != nil {
 		t.Fatalf("RestoreAttraction() = %v, want nil", err)
@@ -252,7 +252,7 @@ func TestRepositoryUpdateAttractionNotFound(t *testing.T) {
 }
 
 func TestRepositoryFindAttractionByName(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	// 他のテストが作るアトラクションと表示名が重ならないようにする、親のパークを共有しているため
@@ -261,7 +261,7 @@ func TestRepositoryFindAttractionByName(t *testing.T) {
 	attraction, err := parkmodel.NewAttraction(
 		attractionParkID,
 		name,
-		newAttractionConfig(t),
+		newAttractionConfigHelper(t),
 	)
 	if err != nil {
 		t.Fatalf("NewAttraction(%q) = %v, want nil",
@@ -269,7 +269,7 @@ func TestRepositoryFindAttractionByName(t *testing.T) {
 			err,
 		)
 	}
-	cleanupAttraction(t, client, attraction)
+	cleanupAttractionHelper(t, client, attraction)
 
 	if err := repo.CreateAttraction(ctx, attraction); err != nil {
 		t.Fatalf("Repository.CreateAttraction(%q) = %v, want nil",
@@ -300,7 +300,7 @@ func TestRepositoryFindAttractionByName(t *testing.T) {
 }
 
 func TestRepositoryFindAttractionByNameNotFound(t *testing.T) {
-	repo, _ := newRepository(t)
+	repo, _ := newRepositoryHelper(t)
 
 	const name = "保存されていないアトラクションの表示名"
 

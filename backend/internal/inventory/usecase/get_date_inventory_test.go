@@ -9,7 +9,7 @@ import (
 
 func TestGetDateInventoryDo(t *testing.T) {
 	repo := newFakeRepository()
-	storeDateInventory(t, repo)
+	storeDateInventoryHelper(t, repo)
 
 	tests := map[string]struct {
 		in      GetDateInventoryInput

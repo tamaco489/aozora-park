@@ -99,7 +99,7 @@ func TestCreateTicketTypeDo(t *testing.T) {
 				return
 			}
 
-			key := ticketTypeKey{
+			key := ticketTypeKeyHelper{
 				parkID: got.ParkID(),
 				id:     got.ID(),
 			}
