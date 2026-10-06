@@ -9,7 +9,7 @@ import (
 
 func TestGetDo(t *testing.T) {
 	repo := newFakeRepository()
-	store(t, repo)
+	storeHelper(t, repo)
 
 	tests := map[string]struct {
 		id      parkmodel.ParkID

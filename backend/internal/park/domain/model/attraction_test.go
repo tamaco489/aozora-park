@@ -6,8 +6,8 @@ import (
 	"testing"
 )
 
-// validConfig はテストで使う妥当な優先パスの条件を組み立てる
-func validConfig(tb testing.TB) PriorityPassConfig {
+// validConfigHelper はテストで使う妥当な優先パスの条件を組み立てる
+func validConfigHelper(tb testing.TB) PriorityPassConfig {
 	tb.Helper()
 
 	config, err := NewPriorityPassConfig(
@@ -219,7 +219,7 @@ func TestNewAttraction(t *testing.T) {
 			got, err := NewAttraction(
 				tt.parkID,
 				tt.name,
-				validConfig(t),
+				validConfigHelper(t),
 			)
 
 			if !errors.Is(err, tt.wantErr) {
@@ -281,7 +281,7 @@ func TestNewAttractionRejectsZeroConfig(t *testing.T) {
 }
 
 func TestNewAttractionGeneratesDistinctIDs(t *testing.T) {
-	config := validConfig(t)
+	config := validConfigHelper(t)
 
 	first, err := NewAttraction(
 		"park-1",
@@ -326,7 +326,7 @@ func TestRestoreAttraction(t *testing.T) {
 				"park-1",
 				tt.id,
 				"ジェットコースター",
-				validConfig(t),
+				validConfigHelper(t),
 			)
 
 			if !errors.Is(err, tt.wantErr) {
@@ -380,7 +380,7 @@ func TestAttraction_Update(t *testing.T) {
 				"park-1",
 				"attraction-1",
 				"ジェットコースター",
-				validConfig(t),
+				validConfigHelper(t),
 			)
 			if err != nil {
 				t.Fatalf("RestoreAttraction() = %v, want nil", err)
@@ -409,12 +409,12 @@ func TestAttraction_Update(t *testing.T) {
 
 			if tt.wantErr != nil {
 				// 検証に失敗したときは元の値を保つ
-				if attraction.Name() != "ジェットコースター" || attraction.PriorityPassConfig() != validConfig(t) {
+				if attraction.Name() != "ジェットコースター" || attraction.PriorityPassConfig() != validConfigHelper(t) {
 					t.Errorf("Attraction.Update() の失敗後 = (%q, %+v), want (%q, %+v)",
 						attraction.Name(),
 						attraction.PriorityPassConfig(),
 						"ジェットコースター",
-						validConfig(t),
+						validConfigHelper(t),
 					)
 				}
 				return

@@ -14,8 +14,8 @@ import (
 	"github.com/tamaco489/aozora-park/backend/internal/platform/serving/apperr"
 )
 
-// discardLogger は検証の対象がログではないため出力を捨てる
-func discardLogger() *slog.Logger {
+// discardLoggerHelper は検証の対象がログではないため出力を捨てる
+func discardLoggerHelper() *slog.Logger {
 	return slog.New(slog.NewTextHandler(io.Discard, nil))
 }
 
@@ -62,7 +62,7 @@ func TestError(t *testing.T) {
 				return nil, tt.err
 			}
 
-			_, err := Error(discardLogger())(next)(t.Context(), connect.NewRequest(&parkv1.GetParkRequest{}))
+			_, err := Error(discardLoggerHelper())(next)(t.Context(), connect.NewRequest(&parkv1.GetParkRequest{}))
 
 			got, ok := errors.AsType[*connect.Error](err)
 			if !ok {
@@ -100,7 +100,7 @@ func TestErrorPassesThroughSuccess(t *testing.T) {
 		return want, nil
 	}
 
-	got, err := Error(discardLogger())(next)(t.Context(), connect.NewRequest(&parkv1.GetParkRequest{}))
+	got, err := Error(discardLoggerHelper())(next)(t.Context(), connect.NewRequest(&parkv1.GetParkRequest{}))
 	if err != nil {
 		t.Fatalf("Error()(next)(...) = %v, want nil", err)
 	}

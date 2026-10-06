@@ -8,9 +8,9 @@ export function messageOf(err: unknown): string {
 
   switch (connectErr.code) {
     case Code.NotFound:
-      return "そのパークは見つかりません";
+      return "対象が見つかりません";
     case Code.AlreadyExists:
-      return "そのパークは既に登録されています";
+      return "対象は既に登録されています";
     case Code.InvalidArgument:
       return `入力が正しくありません: ${connectErr.rawMessage}`;
     case Code.Unavailable:

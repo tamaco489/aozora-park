@@ -2,9 +2,11 @@ package firestore
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	gcpfirestore "cloud.google.com/go/firestore"
+	"google.golang.org/api/iterator"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -47,6 +49,45 @@ func (r *Repository) GetTicketType(
 		)
 	}
 
+	return toTicketType(parkID, id, snapshot)
+}
+
+// FindTicketTypeByName は同じパークの中を表示名で引く
+//
+// 表示名の重複を usecase が判断するために使う、単一フィールドの等価条件のため索引は自動で作られる
+func (r *Repository) FindTicketTypeByName(
+	ctx context.Context,
+	parkID parkmodel.ParkID,
+	name string,
+) (*parkmodel.TicketType, error) {
+	iter := r.ticketTypesRef(parkID).Where("name", "==", name).Limit(1).Documents(ctx)
+	defer iter.Stop()
+
+	snapshot, err := iter.Next()
+	if errors.Is(err, iterator.Done) {
+		return nil, parkmodel.ErrTicketTypeNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("find ticket type by name %q of park %q: %w",
+			name,
+			parkID,
+			err,
+		)
+	}
+
+	return toTicketType(
+		parkID,
+		parkmodel.TicketTypeID(snapshot.Ref.ID),
+		snapshot,
+	)
+}
+
+// toTicketType は保存されている 1 件をドメインの型に組み立て直す
+func toTicketType(
+	parkID parkmodel.ParkID,
+	id parkmodel.TicketTypeID,
+	snapshot *gcpfirestore.DocumentSnapshot,
+) (*parkmodel.TicketType, error) {
 	var doc ticketTypeDocument
 	if err := snapshot.DataTo(&doc); err != nil {
 		return nil, fmt.Errorf("decode ticket type %q of park %q: %w",
@@ -118,7 +159,11 @@ func (r *Repository) UpdateTicketType(ctx context.Context, ticketType *parkmodel
 }
 
 func (r *Repository) ticketTypeDoc(parkID parkmodel.ParkID, id parkmodel.TicketTypeID) *gcpfirestore.DocumentRef {
-	return r.client.Collection(collection).Doc(parkID.String()).Collection(ticketTypeCollection).Doc(id.String())
+	return r.ticketTypesRef(parkID).Doc(id.String())
+}
+
+func (r *Repository) ticketTypesRef(parkID parkmodel.ParkID) *gcpfirestore.CollectionRef {
+	return r.client.Collection(collection).Doc(parkID.String()).Collection(ticketTypeCollection)
 }
 
 func toTicketTypeDocument(ticketType *parkmodel.TicketType) ticketTypeDocument {

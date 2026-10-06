@@ -7,7 +7,7 @@ import (
 )
 
 func TestRepositoryListTimeSlots(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 
 	const (
 		parkID       = inventorymodel.ParkID("park-list-time-slots")
@@ -17,7 +17,7 @@ func TestRepositoryListTimeSlots(t *testing.T) {
 	)
 
 	// 開始時刻の昇順で並ぶことを確かめるため、保存は昇順にしない
-	seedTimeSlot(
+	seedTimeSlotHelper(
 		t,
 		client,
 		parkID,
@@ -26,7 +26,7 @@ func TestRepositoryListTimeSlots(t *testing.T) {
 		date,
 		"11:00",
 	)
-	seedTimeSlot(
+	seedTimeSlotHelper(
 		t,
 		client,
 		parkID,
@@ -36,7 +36,7 @@ func TestRepositoryListTimeSlots(t *testing.T) {
 		"10:00",
 	)
 	// date で絞られることを確かめるための、別の日の枠
-	seedTimeSlot(
+	seedTimeSlotHelper(
 		t,
 		client,
 		parkID,
@@ -104,7 +104,7 @@ func TestRepositoryListTimeSlots(t *testing.T) {
 }
 
 func TestRepositoryListTimeSlotsEmpty(t *testing.T) {
-	repo, _ := newRepository(t)
+	repo, _ := newRepositoryHelper(t)
 
 	const (
 		parkID       = inventorymodel.ParkID("park-list-time-slots-empty")

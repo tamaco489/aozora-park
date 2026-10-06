@@ -30,11 +30,14 @@ export function ParkView() {
 
   return (
     <section>
-      <h2>参照する</h2>
+      <h3>参照する</h3>
+      <p className="hint">
+        控えた識別子を入れて、保存されている内容を確かめる
+      </p>
 
       <form onSubmit={handleSubmit}>
         <div className="field">
-          <label htmlFor="view-parkId">識別子</label>
+          <label htmlFor="view-parkId">パークの識別子</label>
           <input
             id="view-parkId"
             value={parkId}

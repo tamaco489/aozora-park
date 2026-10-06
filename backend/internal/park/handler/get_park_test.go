@@ -13,7 +13,7 @@ import (
 )
 
 func TestConnectGetPark(t *testing.T) {
-	handler, _ := newHandler(t, restore(t))
+	handler, _ := newHandlerHelper(t, restoreHelper(t))
 
 	in := &parkv1.GetParkRequest{ParkId: "park-1"}
 
@@ -40,7 +40,7 @@ func TestConnectGetPark(t *testing.T) {
 }
 
 func TestConnectGetParkNotFound(t *testing.T) {
-	handler, _ := newHandler(t)
+	handler, _ := newHandlerHelper(t)
 
 	in := &parkv1.GetParkRequest{ParkId: "park-2"}
 

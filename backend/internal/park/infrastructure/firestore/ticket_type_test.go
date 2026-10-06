@@ -13,7 +13,7 @@ import (
 // ticketTypeParkID は券種のテストが使う親のパーク、他のテストとドキュメントを分ける
 const ticketTypeParkID = parkmodel.ParkID("park-for-ticket-type-test")
 
-func cleanupTicketType(
+func cleanupTicketTypeHelper(
 	tb testing.TB,
 	client *gcpfirestore.Client,
 	ticketType *parkmodel.TicketType,
@@ -33,7 +33,7 @@ func cleanupTicketType(
 }
 
 func TestRepositoryCreateAndGetTicketType(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	ticketType, err := parkmodel.NewTicketType(
@@ -46,7 +46,7 @@ func TestRepositoryCreateAndGetTicketType(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewTicketType() = %v, want nil", err)
 	}
-	cleanupTicketType(
+	cleanupTicketTypeHelper(
 		t,
 		client,
 		ticketType,
@@ -93,7 +93,7 @@ func TestRepositoryCreateAndGetTicketType(t *testing.T) {
 }
 
 func TestRepositoryCreateTicketTypeAlreadyExists(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	ticketType, err := parkmodel.NewTicketType(
@@ -106,7 +106,7 @@ func TestRepositoryCreateTicketTypeAlreadyExists(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewTicketType() = %v, want nil", err)
 	}
-	cleanupTicketType(
+	cleanupTicketTypeHelper(
 		t,
 		client,
 		ticketType,
@@ -129,7 +129,7 @@ func TestRepositoryCreateTicketTypeAlreadyExists(t *testing.T) {
 }
 
 func TestRepositoryGetTicketTypeNotFound(t *testing.T) {
-	repo, _ := newRepository(t)
+	repo, _ := newRepositoryHelper(t)
 
 	const id = parkmodel.TicketTypeID("ticket-type-does-not-exist")
 
@@ -148,7 +148,7 @@ func TestRepositoryGetTicketTypeNotFound(t *testing.T) {
 }
 
 func TestRepositoryUpdateTicketType(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	ticketType, err := parkmodel.NewTicketType(
@@ -161,7 +161,7 @@ func TestRepositoryUpdateTicketType(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewTicketType() = %v, want nil", err)
 	}
-	cleanupTicketType(
+	cleanupTicketTypeHelper(
 		t,
 		client,
 		ticketType,
@@ -214,7 +214,7 @@ func TestRepositoryUpdateTicketType(t *testing.T) {
 }
 
 func TestRepositoryUpdateTicketTypeNotFound(t *testing.T) {
-	repo, _ := newRepository(t)
+	repo, _ := newRepositoryHelper(t)
 
 	ticketType, err := parkmodel.RestoreTicketType(
 		ticketTypeParkID,
@@ -231,6 +231,79 @@ func TestRepositoryUpdateTicketTypeNotFound(t *testing.T) {
 	if err := repo.UpdateTicketType(t.Context(), ticketType); !errors.Is(err, parkmodel.ErrTicketTypeNotFound) {
 		t.Errorf("Repository.UpdateTicketType(%q) = %v, want %v",
 			ticketType.ID(),
+			err,
+			parkmodel.ErrTicketTypeNotFound,
+		)
+	}
+}
+
+func TestRepositoryFindTicketTypeByName(t *testing.T) {
+	repo, client := newRepositoryHelper(t)
+	ctx := t.Context()
+
+	// 他のテストが作る券種と表示名が重ならないようにする、親のパークを共有しているため
+	const name = "名前引きのテスト用券種"
+
+	ticketType, err := parkmodel.NewTicketType(
+		ticketTypeParkID,
+		name,
+		8000,
+		"09:00",
+		"21:00",
+	)
+	if err != nil {
+		t.Fatalf("NewTicketType(%q) = %v, want nil",
+			name,
+			err,
+		)
+	}
+	cleanupTicketTypeHelper(
+		t,
+		client,
+		ticketType,
+	)
+
+	if err := repo.CreateTicketType(ctx, ticketType); err != nil {
+		t.Fatalf("Repository.CreateTicketType(%q) = %v, want nil",
+			ticketType.ID(),
+			err,
+		)
+	}
+
+	got, err := repo.FindTicketTypeByName(
+		ctx,
+		ticketTypeParkID,
+		name,
+	)
+	if err != nil {
+		t.Fatalf("Repository.FindTicketTypeByName(%q) = %v, want nil",
+			name,
+			err,
+		)
+	}
+
+	if got.ID() != ticketType.ID() {
+		t.Errorf("Repository.FindTicketTypeByName(%q) の ID = %q, want %q",
+			name,
+			got.ID(),
+			ticketType.ID(),
+		)
+	}
+}
+
+func TestRepositoryFindTicketTypeByNameNotFound(t *testing.T) {
+	repo, _ := newRepositoryHelper(t)
+
+	const name = "保存されていない券種の表示名"
+
+	_, err := repo.FindTicketTypeByName(
+		t.Context(),
+		ticketTypeParkID,
+		name,
+	)
+	if !errors.Is(err, parkmodel.ErrTicketTypeNotFound) {
+		t.Errorf("Repository.FindTicketTypeByName(%q) = %v, want %v",
+			name,
 			err,
 			parkmodel.ErrTicketTypeNotFound,
 		)

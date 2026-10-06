@@ -12,7 +12,7 @@ import (
 )
 
 func TestConnectCreatePark(t *testing.T) {
-	handler, repo := newHandler(t)
+	handler, repo := newHandlerHelper(t)
 
 	in := &parkv1.CreateParkRequest{
 		Name:                 "Aozora Park",

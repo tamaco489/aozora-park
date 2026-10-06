@@ -64,6 +64,8 @@ t.Errorf("CreatePurchase() の差分 (-want +got):\n%s", cmp.Diff(want, got))
 - ヘルパは `*testing.T` ではなく `testing.TB` を受け取る。Test と Benchmark と Fuzz から使い回せる
 - 冒頭で `tb.Helper()` を呼ぶ。失敗の行がヘルパの中ではなく呼び出し側に出る
 - **後始末は `defer` ではなく `t.Cleanup` に登録する。** ヘルパ内の `defer` はヘルパが return した時点で走ってしまう。並列サブテストがある場合も `t.Cleanup` でないと早すぎる
+- **ヘルパの名前に `Helper` の接尾辞を付ける** (`storeAttractionHelper`)。テストは実装と同じパッケージに置くため、`store` や `restore` のような一般的な名前がパッケージ全体の名前空間を占め、実装側で同じ語を使いたくなったときに衝突する。呼び出し側からテスト専用だと分かる効果もある
+- 接尾辞を付けるのは**テストだけが使う package レベルの関数と型**。`fake` や `stub` で始まるものは、その接頭辞が既にテスト専用を示しているため付けない
 - セットアップの失敗は `t.Fatal` でよい。検証の失敗は `t.Error` にして、1 回の実行で全部出す
 - **`t.Fatal` と `t.FailNow` をテスト以外の goroutine から呼ばない。** `runtime.Goexit` を呼ぶだけでテスト本体に失敗が伝わらない。goroutine の中では `t.Error` を使う
 - **`t.Cleanup` は panic では走らない。** コンテナや外部リソースの解放をこれだけに頼らない

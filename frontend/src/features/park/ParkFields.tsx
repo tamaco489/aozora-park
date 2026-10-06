@@ -13,17 +13,41 @@ type Props = {
   onChange: (values: ParkFieldValues) => void;
 };
 
+// 簡易入力のための候補、押すと入力欄に入る
+//
+// datalist はブラウザが候補を描くため見た目を揃えられない、自前のボタンにして CSS で整える
+const nameOptions = [
+  "あおぞらパーク 本園",
+  "あおぞらパーク 海浜",
+  "あおぞらパーク 山麓",
+  "あおぞらパーク 北園",
+  "あおぞらシーサイドパーク",
+];
+
 export function ParkFields({ idPrefix, values, onChange }: Props) {
   return (
     <>
       <div className="field">
         <label htmlFor={`${idPrefix}-name`}>表示名</label>
-        <input
-          id={`${idPrefix}-name`}
-          value={values.name}
-          onChange={(e) => onChange({ ...values, name: e.target.value })}
-          placeholder="あおぞらパーク 本園"
-        />
+        <div className="with-options">
+          <input
+            id={`${idPrefix}-name`}
+            value={values.name}
+            onChange={(e) => onChange({ ...values, name: e.target.value })}
+            placeholder="あおぞらパーク 本園"
+          />
+          <div className="options">
+            {nameOptions.map((name) => (
+              <button
+                key={name}
+                type="button"
+                onClick={() => onChange({ ...values, name })}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="field">

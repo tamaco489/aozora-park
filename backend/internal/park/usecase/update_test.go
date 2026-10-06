@@ -50,7 +50,7 @@ func TestUpdateDo(t *testing.T) {
 			repo.updateErr = tt.updateErr
 
 			if tt.stored {
-				store(t, repo)
+				storeHelper(t, repo)
 			}
 
 			got, err := NewUpdate(repo, repo).Do(t.Context(), tt.in)

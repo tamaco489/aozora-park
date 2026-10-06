@@ -13,7 +13,7 @@ import (
 // attractionParkID はアトラクションのテストが使う親のパーク、他のテストとドキュメントを分ける
 const attractionParkID = parkmodel.ParkID("park-for-attraction-test")
 
-func newAttractionConfig(tb testing.TB) parkmodel.PriorityPassConfig {
+func newAttractionConfigHelper(tb testing.TB) parkmodel.PriorityPassConfig {
 	tb.Helper()
 
 	config, err := parkmodel.NewPriorityPassConfig(
@@ -30,7 +30,7 @@ func newAttractionConfig(tb testing.TB) parkmodel.PriorityPassConfig {
 	return config
 }
 
-func cleanupAttraction(
+func cleanupAttractionHelper(
 	tb testing.TB,
 	client *gcpfirestore.Client,
 	attraction *parkmodel.Attraction,
@@ -50,18 +50,18 @@ func cleanupAttraction(
 }
 
 func TestRepositoryCreateAndGetAttraction(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	attraction, err := parkmodel.NewAttraction(
 		attractionParkID,
 		"ジェットコースター",
-		newAttractionConfig(t),
+		newAttractionConfigHelper(t),
 	)
 	if err != nil {
 		t.Fatalf("NewAttraction() = %v, want nil", err)
 	}
-	cleanupAttraction(
+	cleanupAttractionHelper(
 		t,
 		client,
 		attraction,
@@ -107,18 +107,18 @@ func TestRepositoryCreateAndGetAttraction(t *testing.T) {
 }
 
 func TestRepositoryCreateAttractionAlreadyExists(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	attraction, err := parkmodel.NewAttraction(
 		attractionParkID,
 		"ジェットコースター",
-		newAttractionConfig(t),
+		newAttractionConfigHelper(t),
 	)
 	if err != nil {
 		t.Fatalf("NewAttraction() = %v, want nil", err)
 	}
-	cleanupAttraction(
+	cleanupAttractionHelper(
 		t,
 		client,
 		attraction,
@@ -141,7 +141,7 @@ func TestRepositoryCreateAttractionAlreadyExists(t *testing.T) {
 }
 
 func TestRepositoryGetAttractionNotFound(t *testing.T) {
-	repo, _ := newRepository(t)
+	repo, _ := newRepositoryHelper(t)
 
 	const id = parkmodel.AttractionID("attraction-does-not-exist")
 
@@ -160,18 +160,18 @@ func TestRepositoryGetAttractionNotFound(t *testing.T) {
 }
 
 func TestRepositoryUpdateAttraction(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	attraction, err := parkmodel.NewAttraction(
 		attractionParkID,
 		"ジェットコースター",
-		newAttractionConfig(t),
+		newAttractionConfigHelper(t),
 	)
 	if err != nil {
 		t.Fatalf("NewAttraction() = %v, want nil", err)
 	}
-	cleanupAttraction(
+	cleanupAttractionHelper(
 		t,
 		client,
 		attraction,
@@ -230,13 +230,13 @@ func TestRepositoryUpdateAttraction(t *testing.T) {
 }
 
 func TestRepositoryUpdateAttractionNotFound(t *testing.T) {
-	repo, _ := newRepository(t)
+	repo, _ := newRepositoryHelper(t)
 
 	attraction, err := parkmodel.RestoreAttraction(
 		attractionParkID,
 		"attraction-does-not-exist",
 		"ジェットコースター",
-		newAttractionConfig(t),
+		newAttractionConfigHelper(t),
 	)
 	if err != nil {
 		t.Fatalf("RestoreAttraction() = %v, want nil", err)
@@ -245,6 +245,73 @@ func TestRepositoryUpdateAttractionNotFound(t *testing.T) {
 	if err := repo.UpdateAttraction(t.Context(), attraction); !errors.Is(err, parkmodel.ErrAttractionNotFound) {
 		t.Errorf("Repository.UpdateAttraction(%q) = %v, want %v",
 			attraction.ID(),
+			err,
+			parkmodel.ErrAttractionNotFound,
+		)
+	}
+}
+
+func TestRepositoryFindAttractionByName(t *testing.T) {
+	repo, client := newRepositoryHelper(t)
+	ctx := t.Context()
+
+	// 他のテストが作るアトラクションと表示名が重ならないようにする、親のパークを共有しているため
+	const name = "名前引きのテスト用アトラクション"
+
+	attraction, err := parkmodel.NewAttraction(
+		attractionParkID,
+		name,
+		newAttractionConfigHelper(t),
+	)
+	if err != nil {
+		t.Fatalf("NewAttraction(%q) = %v, want nil",
+			name,
+			err,
+		)
+	}
+	cleanupAttractionHelper(t, client, attraction)
+
+	if err := repo.CreateAttraction(ctx, attraction); err != nil {
+		t.Fatalf("Repository.CreateAttraction(%q) = %v, want nil",
+			attraction.ID(),
+			err,
+		)
+	}
+
+	got, err := repo.FindAttractionByName(
+		ctx,
+		attractionParkID,
+		name,
+	)
+	if err != nil {
+		t.Fatalf("Repository.FindAttractionByName(%q) = %v, want nil",
+			name,
+			err,
+		)
+	}
+
+	if got.ID() != attraction.ID() {
+		t.Errorf("Repository.FindAttractionByName(%q) の ID = %q, want %q",
+			name,
+			got.ID(),
+			attraction.ID(),
+		)
+	}
+}
+
+func TestRepositoryFindAttractionByNameNotFound(t *testing.T) {
+	repo, _ := newRepositoryHelper(t)
+
+	const name = "保存されていないアトラクションの表示名"
+
+	_, err := repo.FindAttractionByName(
+		t.Context(),
+		attractionParkID,
+		name,
+	)
+	if !errors.Is(err, parkmodel.ErrAttractionNotFound) {
+		t.Errorf("Repository.FindAttractionByName(%q) = %v, want %v",
+			name,
 			err,
 			parkmodel.ErrAttractionNotFound,
 		)
