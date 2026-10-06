@@ -53,6 +53,13 @@ h3 {
   font-size: 1rem;
 }
 
+/* 操作の前提を書く補足、見出しとフォームの間に置く */
+.hint {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  color: #52606d;
+}
+
 section {
   padding: 1rem 1.25rem;
   margin-bottom: 1.5rem;

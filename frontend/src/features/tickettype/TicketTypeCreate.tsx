@@ -50,6 +50,9 @@ export function TicketTypeCreate() {
   return (
     <section>
       <h3>登録する</h3>
+      <p className="hint">
+        パークの識別子が要る。価格は円で、無料の券種のために 0 を許す
+      </p>
 
       <form onSubmit={handleSubmit}>
         <div className="field">

@@ -53,6 +53,10 @@ export function AttractionUpdate() {
   return (
     <section>
       <h3>更新する</h3>
+      <p className="hint">
+        パークとアトラクションの識別子が要る。
+        部分更新ではないため、変更しない項目も現在の値を入れて送る
+      </p>
 
       <form onSubmit={handleSubmit}>
         <div className="field">

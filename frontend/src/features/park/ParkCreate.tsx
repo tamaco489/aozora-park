@@ -38,6 +38,10 @@ export function ParkCreate() {
   return (
     <section>
       <h3>登録する</h3>
+      <p className="hint">
+        識別子は登録時に自動で採番される。
+        登録後に表示される識別子を控える。以降のすべての操作で使う
+      </p>
 
       <form onSubmit={handleSubmit}>
         <ParkFields idPrefix="create" values={values} onChange={setValues} />

@@ -31,6 +31,9 @@ export function ParkView() {
   return (
     <section>
       <h3>参照する</h3>
+      <p className="hint">
+        控えた識別子を入れて、保存されている内容を確かめる
+      </p>
 
       <form onSubmit={handleSubmit}>
         <div className="field">

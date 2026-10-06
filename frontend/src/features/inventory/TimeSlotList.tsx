@@ -36,6 +36,9 @@ export function TimeSlotList() {
   return (
     <section>
       <h3>時間帯枠の一覧を見る</h3>
+      <p className="hint">
+        優先パスの対象にしたアトラクションの枠を、開始時刻の昇順で出す
+      </p>
 
       <form onSubmit={handleSubmit}>
         <div className="field">

@@ -34,6 +34,9 @@ export function DateInventoryView() {
   return (
     <section>
       <h3>入場枠を参照する</h3>
+      <p className="hint">
+        job generate が作った枠を日付で引く。枠が無い日は見つからないと返る
+      </p>
 
       <form onSubmit={handleSubmit}>
         <div className="field">

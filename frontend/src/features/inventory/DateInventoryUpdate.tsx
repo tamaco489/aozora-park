@@ -62,6 +62,9 @@ export function DateInventoryUpdate() {
   return (
     <section>
       <h3>入場枠を上書きする</h3>
+      <p className="hint">
+        保存済みの枠だけを書き換える。残りの人数は 0 以上、上限人数以下にする
+      </p>
 
       <form onSubmit={handleSubmit}>
         <div className="field">

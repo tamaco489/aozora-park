@@ -47,6 +47,10 @@ export function AttractionCreate() {
   return (
     <section>
       <h3>登録する</h3>
+      <p className="hint">
+        パークの識別子が要る。
+        優先パスの対象にすると、開始時刻から終了時刻までを間隔で刻んだ枠が job generate で作られる
+      </p>
 
       <form onSubmit={handleSubmit}>
         <div className="field">
