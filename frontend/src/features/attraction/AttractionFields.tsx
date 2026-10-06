@@ -17,7 +17,9 @@ type Props = {
   onChange: (values: AttractionFieldValues) => void;
 };
 
-// 簡易入力のための候補、protovalidate を殺さないよう datalist にして自由入力も残す
+// 簡易入力のための候補、押すと入力欄に入る
+//
+// datalist はブラウザが候補を描くため見た目を揃えられない、自前のボタンにして CSS で整える
 const nameOptions = [
   "そらとびコースター",
   "なみのりボート",
@@ -31,18 +33,25 @@ export function AttractionFields({ idPrefix, values, onChange }: Props) {
     <>
       <div className="field">
         <label htmlFor={`${idPrefix}-name`}>表示名</label>
-        <input
-          id={`${idPrefix}-name`}
-          list={`${idPrefix}-name-options`}
-          value={values.name}
-          onChange={(e) => onChange({ ...values, name: e.target.value })}
-          placeholder="そらとびコースター"
-        />
-        <datalist id={`${idPrefix}-name-options`}>
-          {nameOptions.map((name) => (
-            <option key={name} value={name} />
-          ))}
-        </datalist>
+        <div className="with-options">
+          <input
+            id={`${idPrefix}-name`}
+            value={values.name}
+            onChange={(e) => onChange({ ...values, name: e.target.value })}
+            placeholder="そらとびコースター"
+          />
+          <div className="options">
+            {nameOptions.map((name) => (
+              <button
+                key={name}
+                type="button"
+                onClick={() => onChange({ ...values, name })}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="field">
