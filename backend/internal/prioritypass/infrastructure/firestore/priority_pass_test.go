@@ -3,6 +3,7 @@ package firestore
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 
@@ -219,6 +220,82 @@ func TestRepositoryGetPriorityPassNotFound(t *testing.T) {
 	if !errors.Is(err, prioritypassmodel.ErrPriorityPassNotFound) {
 		t.Errorf("Repository.GetPriorityPass(%q) = %v, want %v",
 			id,
+			err,
+			prioritypassmodel.ErrPriorityPassNotFound,
+		)
+	}
+}
+
+// TestRepositoryMarkPriorityPassPublished は publish の後に印が入り、他の値が動かないことを確かめる
+func TestRepositoryMarkPriorityPassPublished(t *testing.T) {
+	repo, client := newRepositoryHelper(t)
+	ctx := t.Context()
+
+	const id = prioritypassmodel.PassID("pass-mark-published")
+	cleanupPriorityPassHelper(t, client, id)
+
+	if err := repo.CreatePriorityPass(ctx, restorePriorityPassHelper(t, id, prioritypassmodel.StatusRequested)); err != nil {
+		t.Fatalf("Repository.CreatePriorityPass(%q) = %v, want nil",
+			id,
+			err,
+		)
+	}
+
+	publishedAt := testNow.Add(time.Second)
+	if err := repo.MarkPriorityPassPublished(ctx, id, publishedAt); err != nil {
+		t.Fatalf("Repository.MarkPriorityPassPublished(%q, %v) = %v, want nil",
+			id,
+			publishedAt,
+			err,
+		)
+	}
+
+	snapshot, err := client.Collection(collection).Doc(id.String()).Get(ctx)
+	if err != nil {
+		t.Fatalf("Get(%q) = %v, want nil",
+			id,
+			err,
+		)
+	}
+
+	var got document
+	if err := snapshot.DataTo(&got); err != nil {
+		t.Fatalf("DataTo(%q) = %v, want nil",
+			id,
+			err,
+		)
+	}
+
+	want := document{
+		ParkID:       testParkID.String(),
+		TicketID:     testTicketID.String(),
+		AttractionID: testAttractionID.String(),
+		TimeSlotID:   testTimeSlotID.String(),
+		Status:       prioritypassmodel.StatusRequested.String(),
+		PublishedAt:  &publishedAt,
+		CreatedAt:    testNow,
+		UpdatedAt:    testNow,
+	}
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Repository.MarkPriorityPassPublished(%q, %v) の差分 (-want +got):\n%s",
+			id,
+			publishedAt,
+			diff,
+		)
+	}
+}
+
+// TestRepositoryMarkPriorityPassPublishedNotFound は作成していないものに印だけが残らないことを確かめる
+func TestRepositoryMarkPriorityPassPublishedNotFound(t *testing.T) {
+	repo, _ := newRepositoryHelper(t)
+
+	const id = prioritypassmodel.PassID("pass-mark-published-not-found")
+
+	err := repo.MarkPriorityPassPublished(t.Context(), id, testNow)
+	if !errors.Is(err, prioritypassmodel.ErrPriorityPassNotFound) {
+		t.Errorf("Repository.MarkPriorityPassPublished(%q, %v) = %v, want %v",
+			id,
+			testNow,
 			err,
 			prioritypassmodel.ErrPriorityPassNotFound,
 		)

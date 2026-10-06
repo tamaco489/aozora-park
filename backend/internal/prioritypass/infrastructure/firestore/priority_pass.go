@@ -37,6 +37,9 @@ type eventDocument struct {
 	Cause   string            `firestore:"cause"`
 }
 
+// fieldPublishedAt は publish の記録を後から埋めるときに指すフィールド (document の firestore タグと同じ値にする)
+const fieldPublishedAt = "publishedAt"
+
 // 作成の記録に使う値
 const (
 	eventActorAPI       = "api"
@@ -109,6 +112,36 @@ func (r *Repository) CreatePriorityPass(ctx context.Context, pass *prioritypassm
 		}
 		return fmt.Errorf("create priority pass %q: %w",
 			pass.ID(),
+			err,
+		)
+	}
+
+	return nil
+}
+
+// MarkPriorityPassPublished は publish できたことを示す印を後から埋める
+//
+// ドメインの状態ではなく publish の記録のため、ステータスと updatedAt は動かさない
+// 値が null のまま残ったものは reconciliation が拾う
+func (r *Repository) MarkPriorityPassPublished(
+	ctx context.Context,
+	id prioritypassmodel.PassID,
+	publishedAt time.Time,
+) error {
+	updates := []gcpfirestore.Update{
+		{
+			Path:  fieldPublishedAt,
+			Value: publishedAt,
+		},
+	}
+
+	// Update は対象が無いと失敗するため、作成していないドキュメントに印だけが残ることはない
+	if _, err := r.doc(id).Update(ctx, updates); err != nil {
+		if status.Code(err) == codes.NotFound {
+			return prioritypassmodel.ErrPriorityPassNotFound
+		}
+		return fmt.Errorf("mark priority pass %q published: %w",
+			id,
 			err,
 		)
 	}

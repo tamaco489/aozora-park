@@ -2,12 +2,15 @@ package handler
 
 import (
 	"context"
+	"io"
+	"log/slog"
 	"testing"
 	"time"
 
 	prioritypassmodel "github.com/tamaco489/aozora-park/backend/internal/prioritypass/domain/model"
 	prioritypassrepository "github.com/tamaco489/aozora-park/backend/internal/prioritypass/domain/repository"
 	prioritypassusecase "github.com/tamaco489/aozora-park/backend/internal/prioritypass/usecase"
+	prioritypassport "github.com/tamaco489/aozora-park/backend/internal/prioritypass/usecase/port"
 )
 
 // 保存済みの優先パスに使う値
@@ -57,6 +60,26 @@ func (r *fakeRepository) CreatePriorityPass(_ context.Context, pass *prioritypas
 	return nil
 }
 
+func (r *fakeRepository) MarkPriorityPassPublished(
+	_ context.Context,
+	id prioritypassmodel.PassID,
+	_ time.Time,
+) error {
+	if _, ok := r.passes[id]; !ok {
+		return prioritypassmodel.ErrPriorityPassNotFound
+	}
+	return nil
+}
+
+// fakePublisher は送り先を差し替えるためのインメモリ実装
+type fakePublisher struct{}
+
+var _ prioritypassport.Publisher = (*fakePublisher)(nil)
+
+func (p *fakePublisher) PublishRequested(_ context.Context, _ *prioritypassmodel.PriorityPass) error {
+	return nil
+}
+
 // newHandlerHelper は渡した保存先でハンドラを組み立てる
 func newHandlerHelper(tb testing.TB, repo *fakeRepository) *Connect {
 	tb.Helper()
@@ -64,6 +87,8 @@ func newHandlerHelper(tb testing.TB, repo *fakeRepository) *Connect {
 	return NewConnect(
 		prioritypassusecase.NewRequestPriorityPass(
 			repo,
+			&fakePublisher{},
+			slog.New(slog.NewTextHandler(io.Discard, nil)),
 			prioritypassusecase.WithClock(func() time.Time { return fixedNow }),
 		),
 		prioritypassusecase.NewGetPriorityPass(repo),
