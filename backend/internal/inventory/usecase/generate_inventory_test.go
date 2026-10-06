@@ -95,7 +95,7 @@ func (s *fakeMasterStore) CreateDateInventoryIfAbsent(
 	_ context.Context,
 	inventory *inventorymodel.DateInventory,
 ) (bool, error) {
-	key := dateKey(inventory.ParkID(), inventory.Date())
+	key := dateKeyHelper(inventory.ParkID(), inventory.Date())
 	if _, ok := s.inventories[key]; ok {
 		return false, nil
 	}
@@ -108,7 +108,7 @@ func (s *fakeMasterStore) CreateTimeSlotIfAbsent(
 	_ context.Context,
 	slot *inventorymodel.TimeSlot,
 ) (bool, error) {
-	key := slotKey(
+	key := slotKeyHelper(
 		slot.ParkID(),
 		slot.AttractionID(),
 		slot.Date(),
@@ -135,7 +135,7 @@ var generatedAt = time.Date(
 	time.UTC,
 )
 
-func newGenerateInventory(store *fakeMasterStore) *GenerateInventory {
+func newGenerateInventoryHelper(store *fakeMasterStore) *GenerateInventory {
 	return NewGenerateInventory(
 		store,
 		store,
@@ -146,7 +146,7 @@ func newGenerateInventory(store *fakeMasterStore) *GenerateInventory {
 func TestGenerateInventoryDo(t *testing.T) {
 	store := newFakeMasterStore(t, true)
 
-	got, err := newGenerateInventory(store).Do(t.Context())
+	got, err := newGenerateInventoryHelper(store).Do(t.Context())
 	if err != nil {
 		t.Fatalf("GenerateInventory.Do() のエラー = %v, want nil", err)
 	}
@@ -167,7 +167,7 @@ func TestGenerateInventoryDo(t *testing.T) {
 	first := inventorymodel.Date("2026-10-05")
 	last := inventorymodel.Date("2026-10-18")
 	for _, date := range []inventorymodel.Date{first, last} {
-		inventory, ok := store.inventories[dateKey(masterParkID, date)]
+		inventory, ok := store.inventories[dateKeyHelper(masterParkID, date)]
 		if !ok {
 			t.Fatalf("GenerateInventory.Do() が %q の入場枠を作成していない", date)
 		}
@@ -184,7 +184,7 @@ func TestGenerateInventoryDo(t *testing.T) {
 	}
 
 	// 開始時刻はゼロ埋めする、文字列の昇順が時刻の昇順と一致しないと一覧の並びが壊れる
-	slotKeyOfFirst := slotKey(
+	slotKeyOfFirst := slotKeyHelper(
 		masterParkID,
 		masterAttractionID,
 		first,
@@ -207,7 +207,7 @@ func TestGenerateInventoryDo(t *testing.T) {
 
 func TestGenerateInventoryDoTwice(t *testing.T) {
 	store := newFakeMasterStore(t, true)
-	generator := newGenerateInventory(store)
+	generator := newGenerateInventoryHelper(store)
 	ctx := t.Context()
 
 	if _, err := generator.Do(ctx); err != nil {
@@ -216,7 +216,7 @@ func TestGenerateInventoryDoTwice(t *testing.T) {
 
 	// 既にある枠の残りを運営が減らしても、再実行で初期値に戻らないことを確かめる
 	date := inventorymodel.Date("2026-10-05")
-	inventory := store.inventories[dateKey(masterParkID, date)]
+	inventory := store.inventories[dateKeyHelper(masterParkID, date)]
 	if err := inventory.Overwrite(masterDailyCapacity, 1); err != nil {
 		t.Fatalf("DateInventory.Overwrite(%d, 1) = %v, want nil",
 			masterDailyCapacity,
@@ -248,7 +248,7 @@ func TestGenerateInventoryDoTwice(t *testing.T) {
 		)
 	}
 
-	if got := store.inventories[dateKey(masterParkID, date)].Remaining(); got != 1 {
+	if got := store.inventories[dateKeyHelper(masterParkID, date)].Remaining(); got != 1 {
 		t.Errorf("2 回目の GenerateInventory.Do() の %q の残り = %d, want %d",
 			date,
 			got,
@@ -260,7 +260,7 @@ func TestGenerateInventoryDoTwice(t *testing.T) {
 func TestGenerateInventoryDoPriorityPassDisabled(t *testing.T) {
 	store := newFakeMasterStore(t, false)
 
-	got, err := newGenerateInventory(store).Do(t.Context())
+	got, err := newGenerateInventoryHelper(store).Do(t.Context())
 	if err != nil {
 		t.Fatalf("GenerateInventory.Do() のエラー = %v, want nil", err)
 	}

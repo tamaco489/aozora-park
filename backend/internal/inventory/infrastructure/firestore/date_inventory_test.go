@@ -165,7 +165,7 @@ func TestRepositoryUpdateDateInventoryNotFound(t *testing.T) {
 }
 
 func TestRepositoryCreateDateInventoryIfAbsent(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	const (

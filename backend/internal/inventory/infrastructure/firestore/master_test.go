@@ -9,8 +9,8 @@ import (
 	inventorymodel "github.com/tamaco489/aozora-park/backend/internal/inventory/domain/model"
 )
 
-// seedPark は park が登録する代わりにパークを 1 件置く
-func seedPark(
+// seedParkHelper は park が登録する代わりにパークを 1 件置く
+func seedParkHelper(
 	tb testing.TB,
 	client *gcpfirestore.Client,
 	parkID inventorymodel.ParkID,
@@ -43,8 +43,8 @@ func seedPark(
 	})
 }
 
-// seedAttraction は park が登録する代わりにアトラクションを 1 件置く
-func seedAttraction(
+// seedAttractionHelper は park が登録する代わりにアトラクションを 1 件置く
+func seedAttractionHelper(
 	tb testing.TB,
 	client *gcpfirestore.Client,
 	parkID inventorymodel.ParkID,
@@ -85,10 +85,10 @@ func seedAttraction(
 }
 
 func TestRepositoryListParks(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 
 	const parkID = inventorymodel.ParkID("park-list-parks")
-	seedPark(
+	seedParkHelper(
 		t,
 		client,
 		parkID,
@@ -126,21 +126,21 @@ func TestRepositoryListParks(t *testing.T) {
 }
 
 func TestRepositoryListAttractions(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 
 	const (
 		parkID     = inventorymodel.ParkID("park-list-attractions")
 		enabledID  = inventorymodel.AttractionID("attraction-enabled")
 		disabledID = inventorymodel.AttractionID("attraction-disabled")
 	)
-	seedAttraction(
+	seedAttractionHelper(
 		t,
 		client,
 		parkID,
 		enabledID,
 		true,
 	)
-	seedAttraction(
+	seedAttractionHelper(
 		t,
 		client,
 		parkID,
@@ -182,7 +182,7 @@ func TestRepositoryListAttractions(t *testing.T) {
 }
 
 func TestRepositoryListAttractionsEmpty(t *testing.T) {
-	repo, _ := newRepository(t)
+	repo, _ := newRepositoryHelper(t)
 
 	const parkID = inventorymodel.ParkID("park-list-attractions-empty")
 

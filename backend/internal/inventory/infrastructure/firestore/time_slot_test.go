@@ -139,7 +139,7 @@ func TestRepositoryListTimeSlotsEmpty(t *testing.T) {
 }
 
 func TestRepositoryCreateTimeSlotIfAbsent(t *testing.T) {
-	repo, client := newRepository(t)
+	repo, client := newRepositoryHelper(t)
 	ctx := t.Context()
 
 	const (
