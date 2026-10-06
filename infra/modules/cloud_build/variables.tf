@@ -13,17 +13,15 @@ variable "artifact_registry_repository_id" {
   type        = string
 }
 
-variable "api_service_name" {
-  description = "The name of the Cloud Run service for the api that the deployer deploys to."
-  type        = string
-}
-
-variable "api_service_account_email" {
-  description = "The email of the service account the api runs as."
-  type        = string
+variable "run_services" {
+  description = "The Cloud Run services the deployer builds and deploys, keyed by the service name."
+  type = map(object({
+    name                  = string
+    service_account_email = string
+  }))
 }
 
 variable "enable_tag_trigger" {
-  description = "Whether to create the trigger that deploys the api on a tag push."
+  description = "Whether to create the triggers that deploy each service on a tag push."
   type        = bool
 }
