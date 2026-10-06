@@ -404,6 +404,86 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/aozorapark.park.v1.UpdateTicketTypeResponse'
+  /aozorapark.prioritypass.v1.PriorityPassService/GetPriorityPass:
+    post:
+      tags:
+        - PriorityPassService
+      summary: GetPriorityPass
+      description: GetPriorityPass は優先パスを 1 件取得する
+      operationId: aozorapark.prioritypass.v1.PriorityPassService.GetPriorityPass
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aozorapark.prioritypass.v1.GetPriorityPassRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aozorapark.prioritypass.v1.GetPriorityPassResponse'
+  /aozorapark.prioritypass.v1.PriorityPassService/RequestPriorityPass:
+    post:
+      tags:
+        - PriorityPassService
+      summary: RequestPriorityPass
+      description: RequestPriorityPass は来園者が時間帯枠を指定して優先パスを申し込む
+      operationId: aozorapark.prioritypass.v1.PriorityPassService.RequestPriorityPass
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aozorapark.prioritypass.v1.RequestPriorityPassRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aozorapark.prioritypass.v1.RequestPriorityPassResponse'
 components:
   schemas:
     aozorapark.inventory.v1.DateInventory:
@@ -956,6 +1036,104 @@ components:
           description: ticket_type は更新後の券種
       title: UpdateTicketTypeResponse
       additionalProperties: false
+    aozorapark.prioritypass.v1.GetPriorityPassRequest:
+      type: object
+      properties:
+        passId:
+          type: string
+          title: pass_id
+          minLength: 1
+          description: pass_id は取得する優先パスの識別子
+      title: GetPriorityPassRequest
+      additionalProperties: false
+    aozorapark.prioritypass.v1.GetPriorityPassResponse:
+      type: object
+      properties:
+        priorityPass:
+          allOf:
+            - $ref: '#/components/schemas/aozorapark.prioritypass.v1.PriorityPass'
+          title: priority_pass
+          description: priority_pass は取得した優先パス
+      title: GetPriorityPassResponse
+      additionalProperties: false
+    aozorapark.prioritypass.v1.PriorityPass:
+      type: object
+      properties:
+        passId:
+          type: string
+          title: pass_id
+          description: pass_id は優先パスの識別子
+        parkId:
+          type: string
+          title: park_id
+          description: park_id は優先パスが属するパークの識別子
+        ticketId:
+          type: string
+          title: ticket_id
+          description: ticket_id は申込に使った券の識別子
+        attractionId:
+          type: string
+          title: attraction_id
+          description: attraction_id は優先パスの対象となるアトラクションの識別子
+        timeSlotId:
+          type: string
+          title: time_slot_id
+          description: time_slot_id は希望する時間帯枠の識別子、YYYYMMDD_HHMM の形
+        status:
+          allOf:
+            - $ref: '#/components/schemas/aozorapark.prioritypass.v1.PriorityPassStatus'
+          title: status
+          description: status は優先パスの状態
+      title: PriorityPass
+      additionalProperties: false
+      description: PriorityPass はアトラクションの時間帯枠に対する優先パス
+    aozorapark.prioritypass.v1.PriorityPassStatus:
+      type: string
+      title: PriorityPassStatus
+      enum:
+        - PRIORITY_PASS_STATUS_UNSPECIFIED
+        - PRIORITY_PASS_STATUS_REQUESTED
+        - PRIORITY_PASS_STATUS_ISSUED
+        - PRIORITY_PASS_STATUS_SOLD_OUT
+      description: |-
+        PriorityPassStatus は優先パスの状態
+
+         却下を表す REJECTED は、券との突き合わせを行う tickets ができたときに足す
+    aozorapark.prioritypass.v1.RequestPriorityPassRequest:
+      type: object
+      properties:
+        parkId:
+          type: string
+          title: park_id
+          minLength: 1
+          description: park_id は優先パスが属するパークの識別子
+        ticketId:
+          type: string
+          title: ticket_id
+          minLength: 1
+          description: ticket_id は申込に使う券の識別子、券との突き合わせは行わない
+        attractionId:
+          type: string
+          title: attraction_id
+          minLength: 1
+          description: attraction_id は優先パスの対象となるアトラクションの識別子
+        timeSlotId:
+          type: string
+          title: time_slot_id
+          pattern: ^[0-9]{8}_[0-9]{4}$
+          description: time_slot_id は希望する時間帯枠の識別子、YYYYMMDD_HHMM の形
+      title: RequestPriorityPassRequest
+      additionalProperties: false
+    aozorapark.prioritypass.v1.RequestPriorityPassResponse:
+      type: object
+      properties:
+        priorityPass:
+          allOf:
+            - $ref: '#/components/schemas/aozorapark.prioritypass.v1.PriorityPass'
+          title: priority_pass
+          description: priority_pass は受け付けた優先パス
+      title: RequestPriorityPassResponse
+      additionalProperties: false
     connect-protocol-version:
       type: number
       examples:
@@ -1031,3 +1209,8 @@ tags:
        枠の作成は専用のジョブが行うため、この service は持たない
   - name: ParkService
     description: ParkService はパークのマスタを操作する
+  - name: PriorityPassService
+    description: |-
+      PriorityPassService は優先パスの申込を受け付け、申込を参照する
+
+       時間帯枠の割当は非同期に行うため、この service は持たない

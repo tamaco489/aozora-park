@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package aozorapark.prioritypass.v1;
+
+import "aozorapark/prioritypass/v1/prioritypass.proto";
+import "buf/validate/validate.proto";
+
+// PriorityPassService は優先パスの申込を受け付け、申込を参照する
+//
+// 時間帯枠の割当は非同期に行うため、この service は持たない
+service PriorityPassService {
+  // RequestPriorityPass は来園者が時間帯枠を指定して優先パスを申し込む
+  rpc RequestPriorityPass(RequestPriorityPassRequest) returns (RequestPriorityPassResponse) {}
+
+  // GetPriorityPass は優先パスを 1 件取得する
+  rpc GetPriorityPass(GetPriorityPassRequest) returns (GetPriorityPassResponse) {}
+}
+
+message RequestPriorityPassRequest {
+  // park_id は優先パスが属するパークの識別子
+  string park_id = 1 [(buf.validate.field).string.min_len = 1];
+
+  // ticket_id は申込に使う券の識別子、券との突き合わせは行わない
+  string ticket_id = 2 [(buf.validate.field).string.min_len = 1];
+
+  // attraction_id は優先パスの対象となるアトラクションの識別子
+  string attraction_id = 3 [(buf.validate.field).string.min_len = 1];
+
+  // time_slot_id は希望する時間帯枠の識別子、YYYYMMDD_HHMM の形
+  string time_slot_id = 4 [(buf.validate.field).string.pattern = "^[0-9]{8}_[0-9]{4}$"];
+}
+
+message RequestPriorityPassResponse {
+  // priority_pass は受け付けた優先パス
+  PriorityPass priority_pass = 1;
+}
+
+message GetPriorityPassRequest {
+  // pass_id は取得する優先パスの識別子
+  string pass_id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message GetPriorityPassResponse {
+  // priority_pass は取得した優先パス
+  PriorityPass priority_pass = 1;
+}

@@ -149,7 +149,7 @@ func TestRepositoryCreateTimeSlotIfAbsent(t *testing.T) {
 		startTime    = "09:00"
 		capacity     = int32(30)
 	)
-	cleanupTimeSlot(
+	cleanupTimeSlotHelper(
 		t,
 		client,
 		parkID,
