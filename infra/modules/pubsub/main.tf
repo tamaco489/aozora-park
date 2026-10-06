@@ -2,6 +2,14 @@
 #
 # DLQ への退避と、push 用 SA の OIDC トークンの作成を Google 側の主体が行うため、この 2 つを明示的に許可する
 # メールアドレスの組み立てにプロジェクト番号が要るので、プロジェクトを引いて取り出す
+#
+# このエージェントは API を有効にしただけでは作られず、初回利用か明示的な作成で実体ができる
+# 存在しないまま IAM を付けると 400 で落ちるため、環境ごとに 1 度だけ手で作成しておく
+#
+#   gcloud beta services identity create --service=pubsub.googleapis.com --project=<プロジェクト ID>
+#
+# google_project_service_identity で Terraform に持たせることもできるが、google-beta の provider が要る
+# provider を増やさず手作業に寄せる判断をしているため、ここでは参照だけにする
 data "google_project" "this" {
   project_id = var.project_id
 }
