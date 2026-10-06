@@ -2,11 +2,14 @@ package usecase
 
 import (
 	"context"
+	"io"
+	"log/slog"
 	"testing"
 	"time"
 
 	prioritypassmodel "github.com/tamaco489/aozora-park/backend/internal/prioritypass/domain/model"
 	prioritypassrepository "github.com/tamaco489/aozora-park/backend/internal/prioritypass/domain/repository"
+	prioritypassport "github.com/tamaco489/aozora-park/backend/internal/prioritypass/usecase/port"
 )
 
 // 申込に使う値、テストの入力と区別できるよう 1 か所に置く
@@ -27,8 +30,10 @@ var fixedNow = time.Date(
 
 // fakeRepository は Reader と Writer を満たすインメモリの保存先
 type fakeRepository struct {
-	passes    map[prioritypassmodel.PassID]*prioritypassmodel.PriorityPass
-	createErr error
+	passes      map[prioritypassmodel.PassID]*prioritypassmodel.PriorityPass
+	publishedAt map[prioritypassmodel.PassID]time.Time
+	createErr   error
+	markErr     error
 }
 
 var (
@@ -37,7 +42,10 @@ var (
 )
 
 func newFakeRepository() *fakeRepository {
-	return &fakeRepository{passes: map[prioritypassmodel.PassID]*prioritypassmodel.PriorityPass{}}
+	return &fakeRepository{
+		passes:      map[prioritypassmodel.PassID]*prioritypassmodel.PriorityPass{},
+		publishedAt: map[prioritypassmodel.PassID]time.Time{},
+	}
 }
 
 func (r *fakeRepository) GetPriorityPass(
@@ -73,6 +81,45 @@ func (r *fakeRepository) CreatePriorityPass(_ context.Context, pass *prioritypas
 	r.passes[pass.ID()] = pass
 
 	return nil
+}
+
+func (r *fakeRepository) MarkPriorityPassPublished(
+	_ context.Context,
+	id prioritypassmodel.PassID,
+	publishedAt time.Time,
+) error {
+	if r.markErr != nil {
+		return r.markErr
+	}
+
+	if _, ok := r.passes[id]; !ok {
+		return prioritypassmodel.ErrPriorityPassNotFound
+	}
+	r.publishedAt[id] = publishedAt
+
+	return nil
+}
+
+// fakePublisher は送り先を差し替えるためのインメモリ実装
+type fakePublisher struct {
+	published []prioritypassmodel.PassID
+	err       error
+}
+
+var _ prioritypassport.Publisher = (*fakePublisher)(nil)
+
+func (p *fakePublisher) PublishRequested(_ context.Context, pass *prioritypassmodel.PriorityPass) error {
+	if p.err != nil {
+		return p.err
+	}
+	p.published = append(p.published, pass.ID())
+
+	return nil
+}
+
+// discardLoggerHelper は検査に使わないログの出力先を捨てる
+func discardLoggerHelper() *slog.Logger {
+	return slog.New(slog.NewTextHandler(io.Discard, nil))
 }
 
 // storePriorityPassHelper は保存済みの優先パスを 1 件用意する

@@ -15,7 +15,7 @@ const defaultPort = "8080"
 type Config struct {
 	Port      string     // Port は HTTP サーバの待ち受けポート
 	LogLevel  slog.Level // LogLevel は構造化ログを出力する下限
-	ProjectID string     // ProjectID は Firestore の接続先となる GCP プロジェクト
+	ProjectID string     // ProjectID は Firestore と Pub/Sub の接続先となる GCP プロジェクト
 }
 
 // Load は環境変数を読んで Config を組み立てる
