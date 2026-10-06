@@ -1,0 +1,98 @@
+package usecase
+
+import (
+	"context"
+	"testing"
+	"time"
+
+	prioritypassmodel "github.com/tamaco489/aozora-park/backend/internal/prioritypass/domain/model"
+	prioritypassrepository "github.com/tamaco489/aozora-park/backend/internal/prioritypass/domain/repository"
+)
+
+// 申込に使う値、テストの入力と区別できるよう 1 か所に置く
+const (
+	storedPassID       = prioritypassmodel.PassID("pass-1")
+	storedParkID       = prioritypassmodel.ParkID("park-1")
+	storedTicketID     = prioritypassmodel.TicketID("ticket-1")
+	storedAttractionID = prioritypassmodel.AttractionID("attraction-1")
+	storedTimeSlotID   = prioritypassmodel.TimeSlotID("20261005_1000")
+)
+
+// fixedNow は WithClock で差し替える時刻、createdAt の値そのものを検証するため固定する
+var fixedNow = time.Date(
+	2026, 10, 5,
+	9, 0, 0, 0,
+	time.UTC,
+)
+
+// fakeRepository は Reader と Writer を満たすインメモリの保存先
+type fakeRepository struct {
+	passes    map[prioritypassmodel.PassID]*prioritypassmodel.PriorityPass
+	createErr error
+}
+
+var (
+	_ prioritypassrepository.Reader = (*fakeRepository)(nil)
+	_ prioritypassrepository.Writer = (*fakeRepository)(nil)
+)
+
+func newFakeRepository() *fakeRepository {
+	return &fakeRepository{passes: map[prioritypassmodel.PassID]*prioritypassmodel.PriorityPass{}}
+}
+
+func (r *fakeRepository) GetPriorityPass(
+	_ context.Context,
+	id prioritypassmodel.PassID,
+) (*prioritypassmodel.PriorityPass, error) {
+	pass, ok := r.passes[id]
+	if !ok {
+		return nil, prioritypassmodel.ErrPriorityPassNotFound
+	}
+
+	// infrastructure は読み出すたびにドキュメントから組み立て直すため、フェイクも保存済みの実体を渡さない
+	return prioritypassmodel.RestorePriorityPass(
+		pass.ID(),
+		pass.ParkID(),
+		pass.TicketID(),
+		pass.AttractionID(),
+		pass.TimeSlotID(),
+		pass.Status(),
+		pass.CreatedAt(),
+		pass.UpdatedAt(),
+	)
+}
+
+func (r *fakeRepository) CreatePriorityPass(_ context.Context, pass *prioritypassmodel.PriorityPass) error {
+	if r.createErr != nil {
+		return r.createErr
+	}
+
+	if _, ok := r.passes[pass.ID()]; ok {
+		return prioritypassmodel.ErrPriorityPassAlreadyExists
+	}
+	r.passes[pass.ID()] = pass
+
+	return nil
+}
+
+// storePriorityPassHelper は保存済みの優先パスを 1 件用意する
+func storePriorityPassHelper(tb testing.TB, repo *fakeRepository) *prioritypassmodel.PriorityPass {
+	tb.Helper()
+
+	pass, err := prioritypassmodel.RestorePriorityPass(
+		storedPassID,
+		storedParkID,
+		storedTicketID,
+		storedAttractionID,
+		storedTimeSlotID,
+		prioritypassmodel.StatusRequested,
+		fixedNow,
+		fixedNow,
+	)
+	if err != nil {
+		tb.Fatalf("RestorePriorityPass() = %v, want nil", err)
+	}
+	repo.passes[storedPassID] = pass
+
+	return pass
+}

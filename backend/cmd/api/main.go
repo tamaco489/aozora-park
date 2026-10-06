@@ -10,6 +10,7 @@ import (
 
 	"github.com/tamaco489/aozora-park/backend/gen/aozorapark/inventory/v1/inventoryv1connect"
 	"github.com/tamaco489/aozora-park/backend/gen/aozorapark/park/v1/parkv1connect"
+	"github.com/tamaco489/aozora-park/backend/gen/aozorapark/prioritypass/v1/prioritypassv1connect"
 	"github.com/tamaco489/aozora-park/backend/internal/inventory"
 	"github.com/tamaco489/aozora-park/backend/internal/park"
 	"github.com/tamaco489/aozora-park/backend/internal/platform/client/firestore"
@@ -17,6 +18,7 @@ import (
 	"github.com/tamaco489/aozora-park/backend/internal/platform/observability/logging"
 	"github.com/tamaco489/aozora-park/backend/internal/platform/serving/httpx"
 	"github.com/tamaco489/aozora-park/backend/internal/platform/serving/interceptor"
+	"github.com/tamaco489/aozora-park/backend/internal/prioritypass"
 )
 
 func main() {
@@ -52,16 +54,19 @@ func run() error {
 	mux.Handle(grpchealth.NewHandler(grpchealth.NewStaticChecker(
 		parkv1connect.ParkServiceName,
 		inventoryv1connect.InventoryServiceName,
+		prioritypassv1connect.PriorityPassServiceName,
 	), opts))
 
 	// 結線は機能パッケージ側に閉じるため、ここは組み立て関数を呼んで登録するだけにする
 	mux.Handle(parkv1connect.NewParkServiceHandler(park.NewConnectHandler(firestoreClient), opts))
 	mux.Handle(inventoryv1connect.NewInventoryServiceHandler(inventory.NewConnectHandler(firestoreClient), opts))
+	mux.Handle(prioritypassv1connect.NewPriorityPassServiceHandler(prioritypass.NewConnectHandler(firestoreClient), opts))
 
 	// grpcui と buf curl がサービス一覧を引けるようにする
 	reflector := grpcreflect.NewStaticReflector(
 		parkv1connect.ParkServiceName,
 		inventoryv1connect.InventoryServiceName,
+		prioritypassv1connect.PriorityPassServiceName,
 		grpchealth.HealthV1ServiceName,
 	)
 
