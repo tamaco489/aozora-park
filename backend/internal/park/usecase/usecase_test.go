@@ -115,6 +115,21 @@ func (r *fakeRepository) GetAttraction(
 	return attraction, nil
 }
 
+func (r *fakeRepository) FindAttractionByName(
+	_ context.Context,
+	parkID parkmodel.ParkID,
+	name string,
+) (*parkmodel.Attraction, error) {
+	// 実装は索引で 1 件に絞るが、フェイクは件数が少ないため総当たりで足りる
+	for key, attraction := range r.attractions {
+		if key.parkID == parkID && attraction.Name() == name {
+			return attraction, nil
+		}
+	}
+
+	return nil, parkmodel.ErrAttractionNotFound
+}
+
 func (r *fakeRepository) CreateAttraction(_ context.Context, attraction *parkmodel.Attraction) error {
 	if r.createAttractionErr != nil {
 		return r.createAttractionErr
@@ -162,6 +177,21 @@ func (r *fakeRepository) GetTicketType(
 		return nil, parkmodel.ErrTicketTypeNotFound
 	}
 	return ticketType, nil
+}
+
+func (r *fakeRepository) FindTicketTypeByName(
+	_ context.Context,
+	parkID parkmodel.ParkID,
+	name string,
+) (*parkmodel.TicketType, error) {
+	// 実装は索引で 1 件に絞るが、フェイクは件数が少ないため総当たりで足りる
+	for key, ticketType := range r.ticketTypes {
+		if key.parkID == parkID && ticketType.Name() == name {
+			return ticketType, nil
+		}
+	}
+
+	return nil, parkmodel.ErrTicketTypeNotFound
 }
 
 func (r *fakeRepository) CreateTicketType(_ context.Context, ticketType *parkmodel.TicketType) error {
@@ -238,6 +268,62 @@ func storeAttraction(tb testing.TB, repo *fakeRepository) *parkmodel.Attraction 
 }
 
 // storeTicketType は保存済みの券種を 1 件用意する
+// storeAttractionAs は表示名の重複を確かめるために、親と識別子と表示名を指定して 1 件積む
+func storeAttractionAs(
+	tb testing.TB,
+	repo *fakeRepository,
+	parkID parkmodel.ParkID,
+	id parkmodel.AttractionID,
+	name string,
+) *parkmodel.Attraction {
+	tb.Helper()
+
+	attraction, err := parkmodel.RestoreAttraction(
+		parkID,
+		id,
+		name,
+		priorityPassConfig(tb),
+	)
+	if err != nil {
+		tb.Fatalf("RestoreAttraction() = %v, want nil", err)
+	}
+	repo.attractions[attractionKey{
+		parkID: parkID,
+		id:     id,
+	}] = attraction
+
+	return attraction
+}
+
+// storeTicketTypeAs は storeAttractionAs と同じ目的で券種を 1 件積む
+func storeTicketTypeAs(
+	tb testing.TB,
+	repo *fakeRepository,
+	parkID parkmodel.ParkID,
+	id parkmodel.TicketTypeID,
+	name string,
+) *parkmodel.TicketType {
+	tb.Helper()
+
+	ticketType, err := parkmodel.RestoreTicketType(
+		parkID,
+		id,
+		name,
+		8000,
+		"09:00",
+		"21:00",
+	)
+	if err != nil {
+		tb.Fatalf("RestoreTicketType() = %v, want nil", err)
+	}
+	repo.ticketTypes[ticketTypeKey{
+		parkID: parkID,
+		id:     id,
+	}] = ticketType
+
+	return ticketType
+}
+
 func storeTicketType(tb testing.TB, repo *fakeRepository) *parkmodel.TicketType {
 	tb.Helper()
 

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 
 	parkmodel "github.com/tamaco489/aozora-park/backend/internal/park/domain/model"
 	parkrepository "github.com/tamaco489/aozora-park/backend/internal/park/domain/repository"
@@ -46,6 +47,15 @@ func (u *UpdateTicketType) Do(ctx context.Context, in UpdateTicketTypeInput) (*p
 		return nil, err
 	}
 
+	if err := u.ensureNameFree(
+		ctx,
+		in.ParkID,
+		in.Name,
+		in.ID,
+	); err != nil {
+		return nil, err
+	}
+
 	err = ticketType.Update(
 		in.Name,
 		in.Price,
@@ -61,4 +71,29 @@ func (u *UpdateTicketType) Do(ctx context.Context, in UpdateTicketTypeInput) (*p
 	}
 
 	return ticketType, nil
+}
+
+// ensureNameFree は同じパークに同じ表示名の券種が無いことを確かめる
+//
+// 自分自身は除く、表示名を変えない更新を弾かないため
+// 競合の扱いは CreateTicketType.ensureNameFree と同じ
+func (u *UpdateTicketType) ensureNameFree(
+	ctx context.Context,
+	parkID parkmodel.ParkID,
+	name string,
+	self parkmodel.TicketTypeID,
+) error {
+	found, err := u.reader.FindTicketTypeByName(ctx, parkID, name)
+	if errors.Is(err, parkmodel.ErrTicketTypeNotFound) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	if found.ID() == self {
+		return nil
+	}
+
+	return parkmodel.ErrTicketTypeNameTaken
 }

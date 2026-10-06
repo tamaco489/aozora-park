@@ -127,3 +127,74 @@ func TestUpdateAttractionDo(t *testing.T) {
 		})
 	}
 }
+
+func TestUpdateAttractionDoNameTaken(t *testing.T) {
+	tests := map[string]struct {
+		name    string
+		wantErr error
+	}{
+		"正常系_表示名を変えない場合_自分自身は重複とみなされないこと": {
+			name: "そらとびコースター",
+		},
+		"正常系_どれとも重ならない表示名にする場合_入れ替わること": {
+			name: "ゆめみの観覧車",
+		},
+		"異常系_同じパークの他のアトラクションの表示名にする場合_ErrAttractionNameTakenになること": {
+			name:    "なみのりボート",
+			wantErr: parkmodel.ErrAttractionNameTaken,
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			repo := newFakeRepository()
+			storeAttractionAs(
+				t,
+				repo,
+				"park-1",
+				"attraction-1",
+				"そらとびコースター",
+			)
+			storeAttractionAs(
+				t,
+				repo,
+				"park-1",
+				"attraction-2",
+				"なみのりボート",
+			)
+
+			in := UpdateAttractionInput{
+				ParkID:          "park-1",
+				ID:              "attraction-1",
+				Name:            tt.name,
+				Enabled:         true,
+				StartTime:       "09:00",
+				EndTime:         "18:00",
+				IntervalMinutes: 30,
+				CapacityPerSlot: 10,
+			}
+
+			got, err := NewUpdateAttraction(repo, repo).Do(t.Context(), in)
+
+			if !errors.Is(err, tt.wantErr) {
+				t.Fatalf("UpdateAttraction.Do(%+v) のエラー = %v, want %v",
+					in,
+					err,
+					tt.wantErr,
+				)
+			}
+
+			if tt.wantErr != nil {
+				return
+			}
+
+			if got.Name() != tt.name {
+				t.Errorf("UpdateAttraction.Do(%+v) の Name = %q, want %q",
+					in,
+					got.Name(),
+					tt.name,
+				)
+			}
+		})
+	}
+}

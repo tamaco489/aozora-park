@@ -52,6 +52,12 @@ var ErrAttractionAlreadyExists = apperr.New(
 	"アトラクションが既に存在する",
 )
 
+var ErrAttractionNameTaken = apperr.New(
+	apperr.KindConflict,
+	"PARK_ATTRACTION_NAME_TAKEN",
+	"同じ表示名のアトラクションが同じパークに既にある",
+)
+
 var ErrAttractionInvalidID = apperr.New(
 	apperr.KindInvalidArgument,
 	"PARK_ATTRACTION_INVALID_ID",
@@ -98,6 +104,12 @@ var ErrTicketTypeAlreadyExists = apperr.New(
 	apperr.KindConflict,
 	"PARK_TICKET_TYPE_ALREADY_EXISTS",
 	"券種が既に存在する",
+)
+
+var ErrTicketTypeNameTaken = apperr.New(
+	apperr.KindConflict,
+	"PARK_TICKET_TYPE_NAME_TAKEN",
+	"同じ表示名の券種が同じパークに既にある",
 )
 
 var ErrTicketTypeInvalidID = apperr.New(

@@ -77,9 +77,9 @@ func newHandler(tb testing.TB, stored ...*parkmodel.Park) (*Connect, *fakeReposi
 		parkusecase.NewCreate(repo),
 		parkusecase.NewGet(repo),
 		parkusecase.NewUpdate(repo, repo),
-		parkusecase.NewCreateAttraction(repo, repo),
+		parkusecase.NewCreateAttraction(repo, repo, repo),
 		parkusecase.NewUpdateAttraction(repo, repo),
-		parkusecase.NewCreateTicketType(repo, repo),
+		parkusecase.NewCreateTicketType(repo, repo, repo),
 		parkusecase.NewUpdateTicketType(repo, repo),
 	)
 
@@ -116,6 +116,21 @@ func (r *fakeRepository) GetAttraction(
 	return attraction, nil
 }
 
+func (r *fakeRepository) FindAttractionByName(
+	_ context.Context,
+	parkID parkmodel.ParkID,
+	name string,
+) (*parkmodel.Attraction, error) {
+	// 実装は索引で 1 件に絞るが、フェイクは件数が少ないため総当たりで足りる
+	for key, attraction := range r.attractions {
+		if key.parkID == parkID && attraction.Name() == name {
+			return attraction, nil
+		}
+	}
+
+	return nil, parkmodel.ErrAttractionNotFound
+}
+
 func (r *fakeRepository) CreateAttraction(_ context.Context, attraction *parkmodel.Attraction) error {
 	r.attractions[attractionKey{
 		parkID: attraction.ParkID(),
@@ -150,6 +165,21 @@ func (r *fakeRepository) GetTicketType(
 		return nil, parkmodel.ErrTicketTypeNotFound
 	}
 	return ticketType, nil
+}
+
+func (r *fakeRepository) FindTicketTypeByName(
+	_ context.Context,
+	parkID parkmodel.ParkID,
+	name string,
+) (*parkmodel.TicketType, error) {
+	// 実装は索引で 1 件に絞るが、フェイクは件数が少ないため総当たりで足りる
+	for key, ticketType := range r.ticketTypes {
+		if key.parkID == parkID && ticketType.Name() == name {
+			return ticketType, nil
+		}
+	}
+
+	return nil, parkmodel.ErrTicketTypeNotFound
 }
 
 func (r *fakeRepository) CreateTicketType(_ context.Context, ticketType *parkmodel.TicketType) error {

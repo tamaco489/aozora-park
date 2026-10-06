@@ -112,3 +112,72 @@ func TestUpdateTicketTypeDo(t *testing.T) {
 		})
 	}
 }
+
+func TestUpdateTicketTypeDoNameTaken(t *testing.T) {
+	tests := map[string]struct {
+		name    string
+		wantErr error
+	}{
+		"正常系_表示名を変えない場合_自分自身は重複とみなされないこと": {
+			name: "1 日券 おとな",
+		},
+		"正常系_どれとも重ならない表示名にする場合_入れ替わること": {
+			name: "年間パス おとな",
+		},
+		"異常系_同じパークの他の券種の表示名にする場合_ErrTicketTypeNameTakenになること": {
+			name:    "1 日券 こども",
+			wantErr: parkmodel.ErrTicketTypeNameTaken,
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			repo := newFakeRepository()
+			storeTicketTypeAs(
+				t,
+				repo,
+				"park-1",
+				"ticket-type-1",
+				"1 日券 おとな",
+			)
+			storeTicketTypeAs(
+				t,
+				repo,
+				"park-1",
+				"ticket-type-2",
+				"1 日券 こども",
+			)
+
+			in := UpdateTicketTypeInput{
+				ParkID:        "park-1",
+				ID:            "ticket-type-1",
+				Name:          tt.name,
+				Price:         8000,
+				EntryTimeFrom: "09:00",
+				EntryTimeTo:   "21:00",
+			}
+
+			got, err := NewUpdateTicketType(repo, repo).Do(t.Context(), in)
+
+			if !errors.Is(err, tt.wantErr) {
+				t.Fatalf("UpdateTicketType.Do(%+v) のエラー = %v, want %v",
+					in,
+					err,
+					tt.wantErr,
+				)
+			}
+
+			if tt.wantErr != nil {
+				return
+			}
+
+			if got.Name() != tt.name {
+				t.Errorf("UpdateTicketType.Do(%+v) の Name = %q, want %q",
+					in,
+					got.Name(),
+					tt.name,
+				)
+			}
+		})
+	}
+}

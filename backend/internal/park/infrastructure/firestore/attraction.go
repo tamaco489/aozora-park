@@ -2,9 +2,11 @@ package firestore
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	gcpfirestore "cloud.google.com/go/firestore"
+	"google.golang.org/api/iterator"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -54,6 +56,45 @@ func (r *Repository) GetAttraction(
 		)
 	}
 
+	return toAttraction(parkID, id, snapshot)
+}
+
+// FindAttractionByName は同じパークの中を表示名で引く
+//
+// 表示名の重複を usecase が判断するために使う、単一フィールドの等価条件のため索引は自動で作られる
+func (r *Repository) FindAttractionByName(
+	ctx context.Context,
+	parkID parkmodel.ParkID,
+	name string,
+) (*parkmodel.Attraction, error) {
+	iter := r.attractionsRef(parkID).Where("name", "==", name).Limit(1).Documents(ctx)
+	defer iter.Stop()
+
+	snapshot, err := iter.Next()
+	if errors.Is(err, iterator.Done) {
+		return nil, parkmodel.ErrAttractionNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("find attraction by name %q of park %q: %w",
+			name,
+			parkID,
+			err,
+		)
+	}
+
+	return toAttraction(
+		parkID,
+		parkmodel.AttractionID(snapshot.Ref.ID),
+		snapshot,
+	)
+}
+
+// toAttraction は保存されている 1 件をドメインの型に組み立て直す
+func toAttraction(
+	parkID parkmodel.ParkID,
+	id parkmodel.AttractionID,
+	snapshot *gcpfirestore.DocumentSnapshot,
+) (*parkmodel.Attraction, error) {
 	var doc attractionDocument
 	if err := snapshot.DataTo(&doc); err != nil {
 		return nil, fmt.Errorf("decode attraction %q of park %q: %w",
@@ -136,7 +177,11 @@ func (r *Repository) UpdateAttraction(ctx context.Context, attraction *parkmodel
 }
 
 func (r *Repository) attractionDoc(parkID parkmodel.ParkID, id parkmodel.AttractionID) *gcpfirestore.DocumentRef {
-	return r.client.Collection(collection).Doc(parkID.String()).Collection(attractionCollection).Doc(id.String())
+	return r.attractionsRef(parkID).Doc(id.String())
+}
+
+func (r *Repository) attractionsRef(parkID parkmodel.ParkID) *gcpfirestore.CollectionRef {
+	return r.client.Collection(collection).Doc(parkID.String()).Collection(attractionCollection)
 }
 
 func toAttractionDocument(attraction *parkmodel.Attraction) attractionDocument {
