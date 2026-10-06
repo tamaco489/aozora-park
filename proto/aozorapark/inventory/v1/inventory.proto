@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package aozorapark.inventory.v1;
+
+// DateInventory はパークの特定の日の入場枠
+message DateInventory {
+  // park_id は枠が属するパークの識別子
+  string park_id = 1;
+
+  // date は枠の日付、YYYY-MM-DD
+  string date = 2;
+
+  // capacity はその日に受け入れる上限人数、単位は人
+  int32 capacity = 3;
+
+  // remaining はその日の残りの人数、単位は人
+  int32 remaining = 4;
+}
+
+// TimeSlot はアトラクションの時間帯ごとの枠
+message TimeSlot {
+  // park_id は枠が属するパークの識別子
+  string park_id = 1;
+
+  // attraction_id は枠が属するアトラクションの識別子
+  string attraction_id = 2;
+
+  // time_slot_id は時間帯枠の識別子、YYYYMMDD_HHMM の形
+  string time_slot_id = 3;
+
+  // date は枠の日付、YYYY-MM-DD
+  string date = 4;
+
+  // start_time は枠の開始時刻、HH:MM
+  string start_time = 5;
+
+  // capacity はその時間帯に発行する上限枚数、単位は枚
+  int32 capacity = 6;
+
+  // remaining はその時間帯の残りの枚数、単位は枚
+  int32 remaining = 7;
+}

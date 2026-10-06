@@ -367,6 +367,58 @@ var ErrSoldOut = apperr.New(apperr.KindConflict, "PURCHASE_SOLD_OUT", "在庫が
 - 構造体フィールドのコメントは行末に置く (`Field T // Field は ...`)
 - センチネルエラーの `var (...)` は 1 件ごとに空行で区切る
 
+### 1 行 1 要素に改行する
+
+**要素が横に並ぶと、どこまでが 1 つの要素かを目で区切る必要があり、要素を足したときの差分も行単位で追えない。** 次の 4 つは `gofmt` が整えないため、手で改行する。
+
+| 対象                             | 改行する条件     |
+| -------------------------------- | ---------------- |
+| 関数・メソッド・インタフェースの宣言 | 引数が 3 つ以上  |
+| 関数の呼び出し                   | 引数が 3 つ以上  |
+| 書式文字列を先頭に取る呼び出し   | 引数が 3 つ以上  |
+| 構造体リテラル                   | フィールドが 2 つ以上 |
+
+**型の省略は展開する。** 省略したまま改行すると型を持たない行ができ、かえって読みにくくなる。
+
+```go
+// 良い例
+func Restore(
+    id ParkID,
+    name string,
+    defaultDailyCapacity int32,
+    inventoryDays int32,
+) (*Park, error)
+
+// 悪い例、defaultDailyCapacity の行に型が無い
+func Restore(
+    id ParkID,
+    name string,
+    defaultDailyCapacity,
+    inventoryDays int32,
+) (*Park, error)
+```
+
+**`t.Fatalf` や `fmt.Errorf` のように書式文字列を先頭に取るものは、書式を呼び出しの行に残す。** 書式を単独の行に落とすと、書式と値の対応が読み取りにくくなる。
+
+```go
+t.Fatalf("CreatePark(%q, %d, %d) のエラー = %v, want %v",
+    name,
+    defaultDailyCapacity,
+    inventoryDays,
+    err,
+    tt.wantErr,
+)
+```
+
+構造体リテラルは式の途中にあっても改行する。フィールドが 1 つだけのものは対象にしない。
+
+```go
+repo.ticketTypes[ticketTypeKey{
+    parkID: ticketType.ParkID(),
+    id:     ticketType.ID(),
+}] = ticketType
+```
+
 ### modernize の扱い
 
 - `errors.As` ではなく `errors.AsType[T]` を使う (Go 1.26)

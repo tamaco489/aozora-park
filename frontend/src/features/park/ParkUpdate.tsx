@@ -60,11 +60,14 @@ export function ParkUpdate() {
 
   return (
     <section>
-      <h2>更新する</h2>
+      <h3>更新する</h3>
+      <p className="hint">
+        部分更新ではない。変更しない項目も現在の値を入れて送る
+      </p>
 
       <form onSubmit={handleSubmit}>
         <div className="field">
-          <label htmlFor="update-parkId">識別子</label>
+          <label htmlFor="update-parkId">パークの識別子</label>
           <input
             id="update-parkId"
             className="narrow"

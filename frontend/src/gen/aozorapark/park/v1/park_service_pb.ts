@@ -4,7 +4,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Park } from "./park_pb";
+import type { Attraction, Park, TicketType } from "./park_pb";
 import { file_aozorapark_park_v1_park } from "./park_pb";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file aozorapark/park/v1/park_service.proto.
  */
 export const file_aozorapark_park_v1_park_service: GenFile = /*@__PURE__*/
-  fileDesc("CiVhb3pvcmFwYXJrL3BhcmsvdjEvcGFya19zZXJ2aWNlLnByb3RvEhJhb3pvcmFwYXJrLnBhcmsudjEieAoRQ3JlYXRlUGFya1JlcXVlc3QSFwoEbmFtZRgBIAEoCUIJukgGcgQQARhkEicKFmRlZmF1bHRfZGFpbHlfY2FwYWNpdHkYAiABKAVCB7pIBBoCIAASIQoOaW52ZW50b3J5X2RheXMYAyABKAVCCbpIBhoEGFooASI8ChJDcmVhdGVQYXJrUmVzcG9uc2USJgoEcGFyaxgBIAEoCzIYLmFvem9yYXBhcmsucGFyay52MS5QYXJrIioKDkdldFBhcmtSZXF1ZXN0EhgKB3BhcmtfaWQYASABKAlCB7pIBHICEAEiOQoPR2V0UGFya1Jlc3BvbnNlEiYKBHBhcmsYASABKAsyGC5hb3pvcmFwYXJrLnBhcmsudjEuUGFyayKSAQoRVXBkYXRlUGFya1JlcXVlc3QSGAoHcGFya19pZBgBIAEoCUIHukgEcgIQARIXCgRuYW1lGAIgASgJQgm6SAZyBBABGGQSJwoWZGVmYXVsdF9kYWlseV9jYXBhY2l0eRgDIAEoBUIHukgEGgIgABIhCg5pbnZlbnRvcnlfZGF5cxgEIAEoBUIJukgGGgQYWigBIjwKElVwZGF0ZVBhcmtSZXNwb25zZRImCgRwYXJrGAEgASgLMhguYW96b3JhcGFyay5wYXJrLnYxLlBhcmsyoQIKC1BhcmtTZXJ2aWNlEl0KCkNyZWF0ZVBhcmsSJS5hb3pvcmFwYXJrLnBhcmsudjEuQ3JlYXRlUGFya1JlcXVlc3QaJi5hb3pvcmFwYXJrLnBhcmsudjEuQ3JlYXRlUGFya1Jlc3BvbnNlIgASVAoHR2V0UGFyaxIiLmFvem9yYXBhcmsucGFyay52MS5HZXRQYXJrUmVxdWVzdBojLmFvem9yYXBhcmsucGFyay52MS5HZXRQYXJrUmVzcG9uc2UiABJdCgpVcGRhdGVQYXJrEiUuYW96b3JhcGFyay5wYXJrLnYxLlVwZGF0ZVBhcmtSZXF1ZXN0GiYuYW96b3JhcGFyay5wYXJrLnYxLlVwZGF0ZVBhcmtSZXNwb25zZSIAQtwBChZjb20uYW96b3JhcGFyay5wYXJrLnYxQhBQYXJrU2VydmljZVByb3RvUAFaRmdpdGh1Yi5jb20vdGFtYWNvNDg5L2Fvem9yYS1wYXJrL2JhY2tlbmQvZ2VuL2Fvem9yYXBhcmsvcGFyay92MTtwYXJrdjGiAgNBUFiqAhJBb3pvcmFwYXJrLlBhcmsuVjHKAhJBb3pvcmFwYXJrXFBhcmtcVjHiAh5Bb3pvcmFwYXJrXFBhcmtcVjFcR1BCTWV0YWRhdGHqAhRBb3pvcmFwYXJrOjpQYXJrOjpWMWIGcHJvdG8z", [file_aozorapark_park_v1_park, file_buf_validate_validate]);
+  fileDesc("CiVhb3pvcmFwYXJrL3BhcmsvdjEvcGFya19zZXJ2aWNlLnByb3RvEhJhb3pvcmFwYXJrLnBhcmsudjEieAoRQ3JlYXRlUGFya1JlcXVlc3QSFwoEbmFtZRgBIAEoCUIJukgGcgQQARhkEicKFmRlZmF1bHRfZGFpbHlfY2FwYWNpdHkYAiABKAVCB7pIBBoCIAASIQoOaW52ZW50b3J5X2RheXMYAyABKAVCCbpIBhoEGFooASI8ChJDcmVhdGVQYXJrUmVzcG9uc2USJgoEcGFyaxgBIAEoCzIYLmFvem9yYXBhcmsucGFyay52MS5QYXJrIioKDkdldFBhcmtSZXF1ZXN0EhgKB3BhcmtfaWQYASABKAlCB7pIBHICEAEiOQoPR2V0UGFya1Jlc3BvbnNlEiYKBHBhcmsYASABKAsyGC5hb3pvcmFwYXJrLnBhcmsudjEuUGFyayKSAQoRVXBkYXRlUGFya1JlcXVlc3QSGAoHcGFya19pZBgBIAEoCUIHukgEcgIQARIXCgRuYW1lGAIgASgJQgm6SAZyBBABGGQSJwoWZGVmYXVsdF9kYWlseV9jYXBhY2l0eRgDIAEoBUIHukgEGgIgABIhCg5pbnZlbnRvcnlfZGF5cxgEIAEoBUIJukgGGgQYWigBIjwKElVwZGF0ZVBhcmtSZXNwb25zZRImCgRwYXJrGAEgASgLMhguYW96b3JhcGFyay5wYXJrLnYxLlBhcmsimgIKF0NyZWF0ZUF0dHJhY3Rpb25SZXF1ZXN0EhgKB3BhcmtfaWQYASABKAlCB7pIBHICEAESFwoEbmFtZRgCIAEoCUIJukgGcgQQARhkEg8KB2VuYWJsZWQYAyABKAgSOgoKc3RhcnRfdGltZRgEIAEoCUImukgjciEyH14oWzAxXVswLTldfDJbMC0zXSk6WzAtNV1bMC05XSQSOAoIZW5kX3RpbWUYBSABKAlCJrpII3IhMh9eKFswMV1bMC05XXwyWzAtM10pOlswLTVdWzAtOV0kEiEKEGludGVydmFsX21pbnV0ZXMYBiABKAVCB7pIBBoCKAESIgoRY2FwYWNpdHlfcGVyX3Nsb3QYByABKAVCB7pIBBoCKAEiTgoYQ3JlYXRlQXR0cmFjdGlvblJlc3BvbnNlEjIKCmF0dHJhY3Rpb24YASABKAsyHi5hb3pvcmFwYXJrLnBhcmsudjEuQXR0cmFjdGlvbiK6AgoXVXBkYXRlQXR0cmFjdGlvblJlcXVlc3QSGAoHcGFya19pZBgBIAEoCUIHukgEcgIQARIeCg1hdHRyYWN0aW9uX2lkGAIgASgJQge6SARyAhABEhcKBG5hbWUYAyABKAlCCbpIBnIEEAEYZBIPCgdlbmFibGVkGAQgASgIEjoKCnN0YXJ0X3RpbWUYBSABKAlCJrpII3IhMh9eKFswMV1bMC05XXwyWzAtM10pOlswLTVdWzAtOV0kEjgKCGVuZF90aW1lGAYgASgJQia6SCNyITIfXihbMDFdWzAtOV18MlswLTNdKTpbMC01XVswLTldJBIhChBpbnRlcnZhbF9taW51dGVzGAcgASgFQge6SAQaAigBEiIKEWNhcGFjaXR5X3Blcl9zbG90GAggASgFQge6SAQaAigBIk4KGFVwZGF0ZUF0dHJhY3Rpb25SZXNwb25zZRIyCgphdHRyYWN0aW9uGAEgASgLMh4uYW96b3JhcGFyay5wYXJrLnYxLkF0dHJhY3Rpb24i5AEKF0NyZWF0ZVRpY2tldFR5cGVSZXF1ZXN0EhgKB3BhcmtfaWQYASABKAlCB7pIBHICEAESFwoEbmFtZRgCIAEoCUIJukgGcgQQARhkEhYKBXByaWNlGAMgASgDQge6SAQiAigAEj8KD2VudHJ5X3RpbWVfZnJvbRgEIAEoCUImukgjciEyH14oWzAxXVswLTldfDJbMC0zXSk6WzAtNV1bMC05XSQSPQoNZW50cnlfdGltZV90bxgFIAEoCUImukgjciEyH14oWzAxXVswLTldfDJbMC0zXSk6WzAtNV1bMC05XSQiTwoYQ3JlYXRlVGlja2V0VHlwZVJlc3BvbnNlEjMKC3RpY2tldF90eXBlGAEgASgLMh4uYW96b3JhcGFyay5wYXJrLnYxLlRpY2tldFR5cGUihQIKF1VwZGF0ZVRpY2tldFR5cGVSZXF1ZXN0EhgKB3BhcmtfaWQYASABKAlCB7pIBHICEAESHwoOdGlja2V0X3R5cGVfaWQYAiABKAlCB7pIBHICEAESFwoEbmFtZRgDIAEoCUIJukgGcgQQARhkEhYKBXByaWNlGAQgASgDQge6SAQiAigAEj8KD2VudHJ5X3RpbWVfZnJvbRgFIAEoCUImukgjciEyH14oWzAxXVswLTldfDJbMC0zXSk6WzAtNV1bMC05XSQSPQoNZW50cnlfdGltZV90bxgGIAEoCUImukgjciEyH14oWzAxXVswLTldfDJbMC0zXSk6WzAtNV1bMC05XSQiTwoYVXBkYXRlVGlja2V0VHlwZVJlc3BvbnNlEjMKC3RpY2tldF90eXBlGAEgASgLMh4uYW96b3JhcGFyay5wYXJrLnYxLlRpY2tldFR5cGUy5QUKC1BhcmtTZXJ2aWNlEl0KCkNyZWF0ZVBhcmsSJS5hb3pvcmFwYXJrLnBhcmsudjEuQ3JlYXRlUGFya1JlcXVlc3QaJi5hb3pvcmFwYXJrLnBhcmsudjEuQ3JlYXRlUGFya1Jlc3BvbnNlIgASVAoHR2V0UGFyaxIiLmFvem9yYXBhcmsucGFyay52MS5HZXRQYXJrUmVxdWVzdBojLmFvem9yYXBhcmsucGFyay52MS5HZXRQYXJrUmVzcG9uc2UiABJdCgpVcGRhdGVQYXJrEiUuYW96b3JhcGFyay5wYXJrLnYxLlVwZGF0ZVBhcmtSZXF1ZXN0GiYuYW96b3JhcGFyay5wYXJrLnYxLlVwZGF0ZVBhcmtSZXNwb25zZSIAEm8KEENyZWF0ZUF0dHJhY3Rpb24SKy5hb3pvcmFwYXJrLnBhcmsudjEuQ3JlYXRlQXR0cmFjdGlvblJlcXVlc3QaLC5hb3pvcmFwYXJrLnBhcmsudjEuQ3JlYXRlQXR0cmFjdGlvblJlc3BvbnNlIgASbwoQVXBkYXRlQXR0cmFjdGlvbhIrLmFvem9yYXBhcmsucGFyay52MS5VcGRhdGVBdHRyYWN0aW9uUmVxdWVzdBosLmFvem9yYXBhcmsucGFyay52MS5VcGRhdGVBdHRyYWN0aW9uUmVzcG9uc2UiABJvChBDcmVhdGVUaWNrZXRUeXBlEisuYW96b3JhcGFyay5wYXJrLnYxLkNyZWF0ZVRpY2tldFR5cGVSZXF1ZXN0GiwuYW96b3JhcGFyay5wYXJrLnYxLkNyZWF0ZVRpY2tldFR5cGVSZXNwb25zZSIAEm8KEFVwZGF0ZVRpY2tldFR5cGUSKy5hb3pvcmFwYXJrLnBhcmsudjEuVXBkYXRlVGlja2V0VHlwZVJlcXVlc3QaLC5hb3pvcmFwYXJrLnBhcmsudjEuVXBkYXRlVGlja2V0VHlwZVJlc3BvbnNlIgBC3AEKFmNvbS5hb3pvcmFwYXJrLnBhcmsudjFCEFBhcmtTZXJ2aWNlUHJvdG9QAVpGZ2l0aHViLmNvbS90YW1hY280ODkvYW96b3JhLXBhcmsvYmFja2VuZC9nZW4vYW96b3JhcGFyay9wYXJrL3YxO3Bhcmt2MaICA0FQWKoCEkFvem9yYXBhcmsuUGFyay5WMcoCEkFvem9yYXBhcmtcUGFya1xWMeICHkFvem9yYXBhcmtcUGFya1xWMVxHUEJNZXRhZGF0YeoCFEFvem9yYXBhcms6OlBhcms6OlYxYgZwcm90bzM", [file_aozorapark_park_v1_park, file_buf_validate_validate]);
 
 /**
  * @generated from message aozorapark.park.v1.CreateParkRequest
@@ -165,6 +165,312 @@ export const UpdateParkResponseSchema: GenMessage<UpdateParkResponse> = /*@__PUR
   messageDesc(file_aozorapark_park_v1_park_service, 5);
 
 /**
+ * @generated from message aozorapark.park.v1.CreateAttractionRequest
+ */
+export type CreateAttractionRequest = Message<"aozorapark.park.v1.CreateAttractionRequest"> & {
+  /**
+   * park_id はアトラクションを登録するパークの識別子
+   *
+   * @generated from field: string park_id = 1;
+   */
+  parkId: string;
+
+  /**
+   * name はアトラクションの表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+   *
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * enabled はアトラクションが優先パスの対象かどうか
+   *
+   * @generated from field: bool enabled = 3;
+   */
+  enabled: boolean;
+
+  /**
+   * start_time は時間帯枠を生成しはじめる時刻、無効でも後から有効にするため常に妥当な値を求める
+   *
+   * @generated from field: string start_time = 4;
+   */
+  startTime: string;
+
+  /**
+   * end_time は時間帯枠の生成を終える時刻、start_time より後であることは usecase を通さない経路もあるため domain/model が判断する
+   *
+   * @generated from field: string end_time = 5;
+   */
+  endTime: string;
+
+  /**
+   * interval_minutes は時間帯枠を刻む間隔、単位は分
+   *
+   * @generated from field: int32 interval_minutes = 6;
+   */
+  intervalMinutes: number;
+
+  /**
+   * capacity_per_slot は時間帯枠 1 つあたりに発行できる優先パスの上限、単位は枚
+   *
+   * @generated from field: int32 capacity_per_slot = 7;
+   */
+  capacityPerSlot: number;
+};
+
+/**
+ * Describes the message aozorapark.park.v1.CreateAttractionRequest.
+ * Use `create(CreateAttractionRequestSchema)` to create a new message.
+ */
+export const CreateAttractionRequestSchema: GenMessage<CreateAttractionRequest> = /*@__PURE__*/
+  messageDesc(file_aozorapark_park_v1_park_service, 6);
+
+/**
+ * @generated from message aozorapark.park.v1.CreateAttractionResponse
+ */
+export type CreateAttractionResponse = Message<"aozorapark.park.v1.CreateAttractionResponse"> & {
+  /**
+   * attraction は登録されたアトラクション
+   *
+   * @generated from field: aozorapark.park.v1.Attraction attraction = 1;
+   */
+  attraction?: Attraction | undefined;
+};
+
+/**
+ * Describes the message aozorapark.park.v1.CreateAttractionResponse.
+ * Use `create(CreateAttractionResponseSchema)` to create a new message.
+ */
+export const CreateAttractionResponseSchema: GenMessage<CreateAttractionResponse> = /*@__PURE__*/
+  messageDesc(file_aozorapark_park_v1_park_service, 7);
+
+/**
+ * @generated from message aozorapark.park.v1.UpdateAttractionRequest
+ */
+export type UpdateAttractionRequest = Message<"aozorapark.park.v1.UpdateAttractionRequest"> & {
+  /**
+   * park_id は属するパークの識別子
+   *
+   * @generated from field: string park_id = 1;
+   */
+  parkId: string;
+
+  /**
+   * attraction_id は更新するアトラクションの識別子
+   *
+   * @generated from field: string attraction_id = 2;
+   */
+  attractionId: string;
+
+  /**
+   * name はアトラクションの表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+   *
+   * @generated from field: string name = 3;
+   */
+  name: string;
+
+  /**
+   * enabled はアトラクションが優先パスの対象かどうか
+   *
+   * @generated from field: bool enabled = 4;
+   */
+  enabled: boolean;
+
+  /**
+   * start_time は時間帯枠を生成しはじめる時刻、無効でも後から有効にするため常に妥当な値を求める
+   *
+   * @generated from field: string start_time = 5;
+   */
+  startTime: string;
+
+  /**
+   * end_time は時間帯枠の生成を終える時刻、start_time より後であることは usecase を通さない経路もあるため domain/model が判断する
+   *
+   * @generated from field: string end_time = 6;
+   */
+  endTime: string;
+
+  /**
+   * interval_minutes は時間帯枠を刻む間隔、単位は分
+   *
+   * @generated from field: int32 interval_minutes = 7;
+   */
+  intervalMinutes: number;
+
+  /**
+   * capacity_per_slot は時間帯枠 1 つあたりに発行できる優先パスの上限、単位は枚
+   *
+   * @generated from field: int32 capacity_per_slot = 8;
+   */
+  capacityPerSlot: number;
+};
+
+/**
+ * Describes the message aozorapark.park.v1.UpdateAttractionRequest.
+ * Use `create(UpdateAttractionRequestSchema)` to create a new message.
+ */
+export const UpdateAttractionRequestSchema: GenMessage<UpdateAttractionRequest> = /*@__PURE__*/
+  messageDesc(file_aozorapark_park_v1_park_service, 8);
+
+/**
+ * @generated from message aozorapark.park.v1.UpdateAttractionResponse
+ */
+export type UpdateAttractionResponse = Message<"aozorapark.park.v1.UpdateAttractionResponse"> & {
+  /**
+   * attraction は更新後のアトラクション
+   *
+   * @generated from field: aozorapark.park.v1.Attraction attraction = 1;
+   */
+  attraction?: Attraction | undefined;
+};
+
+/**
+ * Describes the message aozorapark.park.v1.UpdateAttractionResponse.
+ * Use `create(UpdateAttractionResponseSchema)` to create a new message.
+ */
+export const UpdateAttractionResponseSchema: GenMessage<UpdateAttractionResponse> = /*@__PURE__*/
+  messageDesc(file_aozorapark_park_v1_park_service, 9);
+
+/**
+ * @generated from message aozorapark.park.v1.CreateTicketTypeRequest
+ */
+export type CreateTicketTypeRequest = Message<"aozorapark.park.v1.CreateTicketTypeRequest"> & {
+  /**
+   * park_id は券種を登録するパークの識別子
+   *
+   * @generated from field: string park_id = 1;
+   */
+  parkId: string;
+
+  /**
+   * name は券種の表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+   *
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * price は販売価格、単位は円、無料の券種があるため 0 を許す
+   *
+   * @generated from field: int64 price = 3;
+   */
+  price: bigint;
+
+  /**
+   * entry_time_from は入場できる時間帯の開始時刻
+   *
+   * @generated from field: string entry_time_from = 4;
+   */
+  entryTimeFrom: string;
+
+  /**
+   * entry_time_to は入場できる時間帯の終了時刻、entry_time_from より後であることは usecase を通さない経路もあるため domain/model が判断する
+   *
+   * @generated from field: string entry_time_to = 5;
+   */
+  entryTimeTo: string;
+};
+
+/**
+ * Describes the message aozorapark.park.v1.CreateTicketTypeRequest.
+ * Use `create(CreateTicketTypeRequestSchema)` to create a new message.
+ */
+export const CreateTicketTypeRequestSchema: GenMessage<CreateTicketTypeRequest> = /*@__PURE__*/
+  messageDesc(file_aozorapark_park_v1_park_service, 10);
+
+/**
+ * @generated from message aozorapark.park.v1.CreateTicketTypeResponse
+ */
+export type CreateTicketTypeResponse = Message<"aozorapark.park.v1.CreateTicketTypeResponse"> & {
+  /**
+   * ticket_type は登録された券種
+   *
+   * @generated from field: aozorapark.park.v1.TicketType ticket_type = 1;
+   */
+  ticketType?: TicketType | undefined;
+};
+
+/**
+ * Describes the message aozorapark.park.v1.CreateTicketTypeResponse.
+ * Use `create(CreateTicketTypeResponseSchema)` to create a new message.
+ */
+export const CreateTicketTypeResponseSchema: GenMessage<CreateTicketTypeResponse> = /*@__PURE__*/
+  messageDesc(file_aozorapark_park_v1_park_service, 11);
+
+/**
+ * @generated from message aozorapark.park.v1.UpdateTicketTypeRequest
+ */
+export type UpdateTicketTypeRequest = Message<"aozorapark.park.v1.UpdateTicketTypeRequest"> & {
+  /**
+   * park_id は属するパークの識別子
+   *
+   * @generated from field: string park_id = 1;
+   */
+  parkId: string;
+
+  /**
+   * ticket_type_id は更新する券種の識別子
+   *
+   * @generated from field: string ticket_type_id = 2;
+   */
+  ticketTypeId: string;
+
+  /**
+   * name は券種の表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+   *
+   * @generated from field: string name = 3;
+   */
+  name: string;
+
+  /**
+   * price は販売価格、単位は円、無料の券種があるため 0 を許す
+   *
+   * @generated from field: int64 price = 4;
+   */
+  price: bigint;
+
+  /**
+   * entry_time_from は入場できる時間帯の開始時刻
+   *
+   * @generated from field: string entry_time_from = 5;
+   */
+  entryTimeFrom: string;
+
+  /**
+   * entry_time_to は入場できる時間帯の終了時刻、entry_time_from より後であることは usecase を通さない経路もあるため domain/model が判断する
+   *
+   * @generated from field: string entry_time_to = 6;
+   */
+  entryTimeTo: string;
+};
+
+/**
+ * Describes the message aozorapark.park.v1.UpdateTicketTypeRequest.
+ * Use `create(UpdateTicketTypeRequestSchema)` to create a new message.
+ */
+export const UpdateTicketTypeRequestSchema: GenMessage<UpdateTicketTypeRequest> = /*@__PURE__*/
+  messageDesc(file_aozorapark_park_v1_park_service, 12);
+
+/**
+ * @generated from message aozorapark.park.v1.UpdateTicketTypeResponse
+ */
+export type UpdateTicketTypeResponse = Message<"aozorapark.park.v1.UpdateTicketTypeResponse"> & {
+  /**
+   * ticket_type は更新後の券種
+   *
+   * @generated from field: aozorapark.park.v1.TicketType ticket_type = 1;
+   */
+  ticketType?: TicketType | undefined;
+};
+
+/**
+ * Describes the message aozorapark.park.v1.UpdateTicketTypeResponse.
+ * Use `create(UpdateTicketTypeResponseSchema)` to create a new message.
+ */
+export const UpdateTicketTypeResponseSchema: GenMessage<UpdateTicketTypeResponse> = /*@__PURE__*/
+  messageDesc(file_aozorapark_park_v1_park_service, 13);
+
+/**
  * ParkService はパークのマスタを操作する
  *
  * @generated from service aozorapark.park.v1.ParkService
@@ -199,6 +505,46 @@ export const ParkService: GenService<{
     methodKind: "unary";
     input: typeof UpdateParkRequestSchema;
     output: typeof UpdateParkResponseSchema;
+  },
+  /**
+   * CreateAttraction はパークにアトラクションを新しく登録する
+   *
+   * @generated from rpc aozorapark.park.v1.ParkService.CreateAttraction
+   */
+  createAttraction: {
+    methodKind: "unary";
+    input: typeof CreateAttractionRequestSchema;
+    output: typeof CreateAttractionResponseSchema;
+  },
+  /**
+   * UpdateAttraction は表示名と優先パスの条件を更新する
+   *
+   * @generated from rpc aozorapark.park.v1.ParkService.UpdateAttraction
+   */
+  updateAttraction: {
+    methodKind: "unary";
+    input: typeof UpdateAttractionRequestSchema;
+    output: typeof UpdateAttractionResponseSchema;
+  },
+  /**
+   * CreateTicketType はパークに券種を新しく登録する
+   *
+   * @generated from rpc aozorapark.park.v1.ParkService.CreateTicketType
+   */
+  createTicketType: {
+    methodKind: "unary";
+    input: typeof CreateTicketTypeRequestSchema;
+    output: typeof CreateTicketTypeResponseSchema;
+  },
+  /**
+   * UpdateTicketType は表示名と価格と入場できる時間帯を更新する
+   *
+   * @generated from rpc aozorapark.park.v1.ParkService.UpdateTicketType
+   */
+  updateTicketType: {
+    methodKind: "unary";
+    input: typeof UpdateTicketTypeRequestSchema;
+    output: typeof UpdateTicketTypeResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_aozorapark_park_v1_park_service, 0);

@@ -337,6 +337,564 @@ func (x *UpdateParkResponse) GetPark() *Park {
 	return nil
 }
 
+type CreateAttractionRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// park_id はアトラクションを登録するパークの識別子
+	ParkId string `protobuf:"bytes,1,opt,name=park_id,json=parkId,proto3" json:"park_id,omitempty"`
+	// name はアトラクションの表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// enabled はアトラクションが優先パスの対象かどうか
+	Enabled bool `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// start_time は時間帯枠を生成しはじめる時刻、無効でも後から有効にするため常に妥当な値を求める
+	StartTime string `protobuf:"bytes,4,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	// end_time は時間帯枠の生成を終える時刻、start_time より後であることは usecase を通さない経路もあるため domain/model が判断する
+	EndTime string `protobuf:"bytes,5,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	// interval_minutes は時間帯枠を刻む間隔、単位は分
+	IntervalMinutes int32 `protobuf:"varint,6,opt,name=interval_minutes,json=intervalMinutes,proto3" json:"interval_minutes,omitempty"`
+	// capacity_per_slot は時間帯枠 1 つあたりに発行できる優先パスの上限、単位は枚
+	CapacityPerSlot int32 `protobuf:"varint,7,opt,name=capacity_per_slot,json=capacityPerSlot,proto3" json:"capacity_per_slot,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *CreateAttractionRequest) Reset() {
+	*x = CreateAttractionRequest{}
+	mi := &file_aozorapark_park_v1_park_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateAttractionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateAttractionRequest) ProtoMessage() {}
+
+func (x *CreateAttractionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_aozorapark_park_v1_park_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateAttractionRequest.ProtoReflect.Descriptor instead.
+func (*CreateAttractionRequest) Descriptor() ([]byte, []int) {
+	return file_aozorapark_park_v1_park_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CreateAttractionRequest) GetParkId() string {
+	if x != nil {
+		return x.ParkId
+	}
+	return ""
+}
+
+func (x *CreateAttractionRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateAttractionRequest) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+func (x *CreateAttractionRequest) GetStartTime() string {
+	if x != nil {
+		return x.StartTime
+	}
+	return ""
+}
+
+func (x *CreateAttractionRequest) GetEndTime() string {
+	if x != nil {
+		return x.EndTime
+	}
+	return ""
+}
+
+func (x *CreateAttractionRequest) GetIntervalMinutes() int32 {
+	if x != nil {
+		return x.IntervalMinutes
+	}
+	return 0
+}
+
+func (x *CreateAttractionRequest) GetCapacityPerSlot() int32 {
+	if x != nil {
+		return x.CapacityPerSlot
+	}
+	return 0
+}
+
+type CreateAttractionResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// attraction は登録されたアトラクション
+	Attraction    *Attraction `protobuf:"bytes,1,opt,name=attraction,proto3" json:"attraction,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateAttractionResponse) Reset() {
+	*x = CreateAttractionResponse{}
+	mi := &file_aozorapark_park_v1_park_service_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateAttractionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateAttractionResponse) ProtoMessage() {}
+
+func (x *CreateAttractionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_aozorapark_park_v1_park_service_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateAttractionResponse.ProtoReflect.Descriptor instead.
+func (*CreateAttractionResponse) Descriptor() ([]byte, []int) {
+	return file_aozorapark_park_v1_park_service_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CreateAttractionResponse) GetAttraction() *Attraction {
+	if x != nil {
+		return x.Attraction
+	}
+	return nil
+}
+
+type UpdateAttractionRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// park_id は属するパークの識別子
+	ParkId string `protobuf:"bytes,1,opt,name=park_id,json=parkId,proto3" json:"park_id,omitempty"`
+	// attraction_id は更新するアトラクションの識別子
+	AttractionId string `protobuf:"bytes,2,opt,name=attraction_id,json=attractionId,proto3" json:"attraction_id,omitempty"`
+	// name はアトラクションの表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// enabled はアトラクションが優先パスの対象かどうか
+	Enabled bool `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// start_time は時間帯枠を生成しはじめる時刻、無効でも後から有効にするため常に妥当な値を求める
+	StartTime string `protobuf:"bytes,5,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	// end_time は時間帯枠の生成を終える時刻、start_time より後であることは usecase を通さない経路もあるため domain/model が判断する
+	EndTime string `protobuf:"bytes,6,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	// interval_minutes は時間帯枠を刻む間隔、単位は分
+	IntervalMinutes int32 `protobuf:"varint,7,opt,name=interval_minutes,json=intervalMinutes,proto3" json:"interval_minutes,omitempty"`
+	// capacity_per_slot は時間帯枠 1 つあたりに発行できる優先パスの上限、単位は枚
+	CapacityPerSlot int32 `protobuf:"varint,8,opt,name=capacity_per_slot,json=capacityPerSlot,proto3" json:"capacity_per_slot,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *UpdateAttractionRequest) Reset() {
+	*x = UpdateAttractionRequest{}
+	mi := &file_aozorapark_park_v1_park_service_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateAttractionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateAttractionRequest) ProtoMessage() {}
+
+func (x *UpdateAttractionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_aozorapark_park_v1_park_service_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateAttractionRequest.ProtoReflect.Descriptor instead.
+func (*UpdateAttractionRequest) Descriptor() ([]byte, []int) {
+	return file_aozorapark_park_v1_park_service_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *UpdateAttractionRequest) GetParkId() string {
+	if x != nil {
+		return x.ParkId
+	}
+	return ""
+}
+
+func (x *UpdateAttractionRequest) GetAttractionId() string {
+	if x != nil {
+		return x.AttractionId
+	}
+	return ""
+}
+
+func (x *UpdateAttractionRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UpdateAttractionRequest) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+func (x *UpdateAttractionRequest) GetStartTime() string {
+	if x != nil {
+		return x.StartTime
+	}
+	return ""
+}
+
+func (x *UpdateAttractionRequest) GetEndTime() string {
+	if x != nil {
+		return x.EndTime
+	}
+	return ""
+}
+
+func (x *UpdateAttractionRequest) GetIntervalMinutes() int32 {
+	if x != nil {
+		return x.IntervalMinutes
+	}
+	return 0
+}
+
+func (x *UpdateAttractionRequest) GetCapacityPerSlot() int32 {
+	if x != nil {
+		return x.CapacityPerSlot
+	}
+	return 0
+}
+
+type UpdateAttractionResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// attraction は更新後のアトラクション
+	Attraction    *Attraction `protobuf:"bytes,1,opt,name=attraction,proto3" json:"attraction,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateAttractionResponse) Reset() {
+	*x = UpdateAttractionResponse{}
+	mi := &file_aozorapark_park_v1_park_service_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateAttractionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateAttractionResponse) ProtoMessage() {}
+
+func (x *UpdateAttractionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_aozorapark_park_v1_park_service_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateAttractionResponse.ProtoReflect.Descriptor instead.
+func (*UpdateAttractionResponse) Descriptor() ([]byte, []int) {
+	return file_aozorapark_park_v1_park_service_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *UpdateAttractionResponse) GetAttraction() *Attraction {
+	if x != nil {
+		return x.Attraction
+	}
+	return nil
+}
+
+type CreateTicketTypeRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// park_id は券種を登録するパークの識別子
+	ParkId string `protobuf:"bytes,1,opt,name=park_id,json=parkId,proto3" json:"park_id,omitempty"`
+	// name は券種の表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// price は販売価格、単位は円、無料の券種があるため 0 を許す
+	Price int64 `protobuf:"varint,3,opt,name=price,proto3" json:"price,omitempty"`
+	// entry_time_from は入場できる時間帯の開始時刻
+	EntryTimeFrom string `protobuf:"bytes,4,opt,name=entry_time_from,json=entryTimeFrom,proto3" json:"entry_time_from,omitempty"`
+	// entry_time_to は入場できる時間帯の終了時刻、entry_time_from より後であることは usecase を通さない経路もあるため domain/model が判断する
+	EntryTimeTo   string `protobuf:"bytes,5,opt,name=entry_time_to,json=entryTimeTo,proto3" json:"entry_time_to,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateTicketTypeRequest) Reset() {
+	*x = CreateTicketTypeRequest{}
+	mi := &file_aozorapark_park_v1_park_service_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateTicketTypeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateTicketTypeRequest) ProtoMessage() {}
+
+func (x *CreateTicketTypeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_aozorapark_park_v1_park_service_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateTicketTypeRequest.ProtoReflect.Descriptor instead.
+func (*CreateTicketTypeRequest) Descriptor() ([]byte, []int) {
+	return file_aozorapark_park_v1_park_service_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *CreateTicketTypeRequest) GetParkId() string {
+	if x != nil {
+		return x.ParkId
+	}
+	return ""
+}
+
+func (x *CreateTicketTypeRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateTicketTypeRequest) GetPrice() int64 {
+	if x != nil {
+		return x.Price
+	}
+	return 0
+}
+
+func (x *CreateTicketTypeRequest) GetEntryTimeFrom() string {
+	if x != nil {
+		return x.EntryTimeFrom
+	}
+	return ""
+}
+
+func (x *CreateTicketTypeRequest) GetEntryTimeTo() string {
+	if x != nil {
+		return x.EntryTimeTo
+	}
+	return ""
+}
+
+type CreateTicketTypeResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ticket_type は登録された券種
+	TicketType    *TicketType `protobuf:"bytes,1,opt,name=ticket_type,json=ticketType,proto3" json:"ticket_type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateTicketTypeResponse) Reset() {
+	*x = CreateTicketTypeResponse{}
+	mi := &file_aozorapark_park_v1_park_service_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateTicketTypeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateTicketTypeResponse) ProtoMessage() {}
+
+func (x *CreateTicketTypeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_aozorapark_park_v1_park_service_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateTicketTypeResponse.ProtoReflect.Descriptor instead.
+func (*CreateTicketTypeResponse) Descriptor() ([]byte, []int) {
+	return file_aozorapark_park_v1_park_service_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *CreateTicketTypeResponse) GetTicketType() *TicketType {
+	if x != nil {
+		return x.TicketType
+	}
+	return nil
+}
+
+type UpdateTicketTypeRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// park_id は属するパークの識別子
+	ParkId string `protobuf:"bytes,1,opt,name=park_id,json=parkId,proto3" json:"park_id,omitempty"`
+	// ticket_type_id は更新する券種の識別子
+	TicketTypeId string `protobuf:"bytes,2,opt,name=ticket_type_id,json=ticketTypeId,proto3" json:"ticket_type_id,omitempty"`
+	// name は券種の表示名、100 文字の上限は一覧や通知での表示が壊れないための歯止め
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// price は販売価格、単位は円、無料の券種があるため 0 を許す
+	Price int64 `protobuf:"varint,4,opt,name=price,proto3" json:"price,omitempty"`
+	// entry_time_from は入場できる時間帯の開始時刻
+	EntryTimeFrom string `protobuf:"bytes,5,opt,name=entry_time_from,json=entryTimeFrom,proto3" json:"entry_time_from,omitempty"`
+	// entry_time_to は入場できる時間帯の終了時刻、entry_time_from より後であることは usecase を通さない経路もあるため domain/model が判断する
+	EntryTimeTo   string `protobuf:"bytes,6,opt,name=entry_time_to,json=entryTimeTo,proto3" json:"entry_time_to,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateTicketTypeRequest) Reset() {
+	*x = UpdateTicketTypeRequest{}
+	mi := &file_aozorapark_park_v1_park_service_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateTicketTypeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateTicketTypeRequest) ProtoMessage() {}
+
+func (x *UpdateTicketTypeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_aozorapark_park_v1_park_service_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateTicketTypeRequest.ProtoReflect.Descriptor instead.
+func (*UpdateTicketTypeRequest) Descriptor() ([]byte, []int) {
+	return file_aozorapark_park_v1_park_service_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *UpdateTicketTypeRequest) GetParkId() string {
+	if x != nil {
+		return x.ParkId
+	}
+	return ""
+}
+
+func (x *UpdateTicketTypeRequest) GetTicketTypeId() string {
+	if x != nil {
+		return x.TicketTypeId
+	}
+	return ""
+}
+
+func (x *UpdateTicketTypeRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UpdateTicketTypeRequest) GetPrice() int64 {
+	if x != nil {
+		return x.Price
+	}
+	return 0
+}
+
+func (x *UpdateTicketTypeRequest) GetEntryTimeFrom() string {
+	if x != nil {
+		return x.EntryTimeFrom
+	}
+	return ""
+}
+
+func (x *UpdateTicketTypeRequest) GetEntryTimeTo() string {
+	if x != nil {
+		return x.EntryTimeTo
+	}
+	return ""
+}
+
+type UpdateTicketTypeResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ticket_type は更新後の券種
+	TicketType    *TicketType `protobuf:"bytes,1,opt,name=ticket_type,json=ticketType,proto3" json:"ticket_type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateTicketTypeResponse) Reset() {
+	*x = UpdateTicketTypeResponse{}
+	mi := &file_aozorapark_park_v1_park_service_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateTicketTypeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateTicketTypeResponse) ProtoMessage() {}
+
+func (x *UpdateTicketTypeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_aozorapark_park_v1_park_service_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateTicketTypeResponse.ProtoReflect.Descriptor instead.
+func (*UpdateTicketTypeResponse) Descriptor() ([]byte, []int) {
+	return file_aozorapark_park_v1_park_service_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *UpdateTicketTypeResponse) GetTicketType() *TicketType {
+	if x != nil {
+		return x.TicketType
+	}
+	return nil
+}
+
 var File_aozorapark_park_v1_park_service_proto protoreflect.FileDescriptor
 
 const file_aozorapark_park_v1_park_service_proto_rawDesc = "" +
@@ -358,13 +916,63 @@ const file_aozorapark_park_v1_park_service_proto_rawDesc = "" +
 	"\x16default_daily_capacity\x18\x03 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\x14defaultDailyCapacity\x120\n" +
 	"\x0einventory_days\x18\x04 \x01(\x05B\t\xbaH\x06\x1a\x04\x18Z(\x01R\rinventoryDays\"B\n" +
 	"\x12UpdateParkResponse\x12,\n" +
-	"\x04park\x18\x01 \x01(\v2\x18.aozorapark.park.v1.ParkR\x04park2\xa1\x02\n" +
+	"\x04park\x18\x01 \x01(\v2\x18.aozorapark.park.v1.ParkR\x04park\"\xe7\x02\n" +
+	"\x17CreateAttractionRequest\x12 \n" +
+	"\apark_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06parkId\x12\x1d\n" +
+	"\x04name\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18dR\x04name\x12\x18\n" +
+	"\aenabled\x18\x03 \x01(\bR\aenabled\x12E\n" +
+	"\n" +
+	"start_time\x18\x04 \x01(\tB&\xbaH#r!2\x1f^([01][0-9]|2[0-3]):[0-5][0-9]$R\tstartTime\x12A\n" +
+	"\bend_time\x18\x05 \x01(\tB&\xbaH#r!2\x1f^([01][0-9]|2[0-3]):[0-5][0-9]$R\aendTime\x122\n" +
+	"\x10interval_minutes\x18\x06 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\x0fintervalMinutes\x123\n" +
+	"\x11capacity_per_slot\x18\a \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\x0fcapacityPerSlot\"Z\n" +
+	"\x18CreateAttractionResponse\x12>\n" +
+	"\n" +
+	"attraction\x18\x01 \x01(\v2\x1e.aozorapark.park.v1.AttractionR\n" +
+	"attraction\"\x95\x03\n" +
+	"\x17UpdateAttractionRequest\x12 \n" +
+	"\apark_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06parkId\x12,\n" +
+	"\rattraction_id\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\fattractionId\x12\x1d\n" +
+	"\x04name\x18\x03 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18dR\x04name\x12\x18\n" +
+	"\aenabled\x18\x04 \x01(\bR\aenabled\x12E\n" +
+	"\n" +
+	"start_time\x18\x05 \x01(\tB&\xbaH#r!2\x1f^([01][0-9]|2[0-3]):[0-5][0-9]$R\tstartTime\x12A\n" +
+	"\bend_time\x18\x06 \x01(\tB&\xbaH#r!2\x1f^([01][0-9]|2[0-3]):[0-5][0-9]$R\aendTime\x122\n" +
+	"\x10interval_minutes\x18\a \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\x0fintervalMinutes\x123\n" +
+	"\x11capacity_per_slot\x18\b \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\x0fcapacityPerSlot\"Z\n" +
+	"\x18UpdateAttractionResponse\x12>\n" +
+	"\n" +
+	"attraction\x18\x01 \x01(\v2\x1e.aozorapark.park.v1.AttractionR\n" +
+	"attraction\"\x95\x02\n" +
+	"\x17CreateTicketTypeRequest\x12 \n" +
+	"\apark_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06parkId\x12\x1d\n" +
+	"\x04name\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18dR\x04name\x12\x1d\n" +
+	"\x05price\x18\x03 \x01(\x03B\a\xbaH\x04\"\x02(\x00R\x05price\x12N\n" +
+	"\x0fentry_time_from\x18\x04 \x01(\tB&\xbaH#r!2\x1f^([01][0-9]|2[0-3]):[0-5][0-9]$R\rentryTimeFrom\x12J\n" +
+	"\rentry_time_to\x18\x05 \x01(\tB&\xbaH#r!2\x1f^([01][0-9]|2[0-3]):[0-5][0-9]$R\ventryTimeTo\"[\n" +
+	"\x18CreateTicketTypeResponse\x12?\n" +
+	"\vticket_type\x18\x01 \x01(\v2\x1e.aozorapark.park.v1.TicketTypeR\n" +
+	"ticketType\"\xc4\x02\n" +
+	"\x17UpdateTicketTypeRequest\x12 \n" +
+	"\apark_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06parkId\x12-\n" +
+	"\x0eticket_type_id\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\fticketTypeId\x12\x1d\n" +
+	"\x04name\x18\x03 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18dR\x04name\x12\x1d\n" +
+	"\x05price\x18\x04 \x01(\x03B\a\xbaH\x04\"\x02(\x00R\x05price\x12N\n" +
+	"\x0fentry_time_from\x18\x05 \x01(\tB&\xbaH#r!2\x1f^([01][0-9]|2[0-3]):[0-5][0-9]$R\rentryTimeFrom\x12J\n" +
+	"\rentry_time_to\x18\x06 \x01(\tB&\xbaH#r!2\x1f^([01][0-9]|2[0-3]):[0-5][0-9]$R\ventryTimeTo\"[\n" +
+	"\x18UpdateTicketTypeResponse\x12?\n" +
+	"\vticket_type\x18\x01 \x01(\v2\x1e.aozorapark.park.v1.TicketTypeR\n" +
+	"ticketType2\xe5\x05\n" +
 	"\vParkService\x12]\n" +
 	"\n" +
 	"CreatePark\x12%.aozorapark.park.v1.CreateParkRequest\x1a&.aozorapark.park.v1.CreateParkResponse\"\x00\x12T\n" +
 	"\aGetPark\x12\".aozorapark.park.v1.GetParkRequest\x1a#.aozorapark.park.v1.GetParkResponse\"\x00\x12]\n" +
 	"\n" +
-	"UpdatePark\x12%.aozorapark.park.v1.UpdateParkRequest\x1a&.aozorapark.park.v1.UpdateParkResponse\"\x00B\xdc\x01\n" +
+	"UpdatePark\x12%.aozorapark.park.v1.UpdateParkRequest\x1a&.aozorapark.park.v1.UpdateParkResponse\"\x00\x12o\n" +
+	"\x10CreateAttraction\x12+.aozorapark.park.v1.CreateAttractionRequest\x1a,.aozorapark.park.v1.CreateAttractionResponse\"\x00\x12o\n" +
+	"\x10UpdateAttraction\x12+.aozorapark.park.v1.UpdateAttractionRequest\x1a,.aozorapark.park.v1.UpdateAttractionResponse\"\x00\x12o\n" +
+	"\x10CreateTicketType\x12+.aozorapark.park.v1.CreateTicketTypeRequest\x1a,.aozorapark.park.v1.CreateTicketTypeResponse\"\x00\x12o\n" +
+	"\x10UpdateTicketType\x12+.aozorapark.park.v1.UpdateTicketTypeRequest\x1a,.aozorapark.park.v1.UpdateTicketTypeResponse\"\x00B\xdc\x01\n" +
 	"\x16com.aozorapark.park.v1B\x10ParkServiceProtoP\x01ZFgithub.com/tamaco489/aozora-park/backend/gen/aozorapark/park/v1;parkv1\xa2\x02\x03APX\xaa\x02\x12Aozorapark.Park.V1\xca\x02\x12Aozorapark\\Park\\V1\xe2\x02\x1eAozorapark\\Park\\V1\\GPBMetadata\xea\x02\x14Aozorapark::Park::V1b\x06proto3"
 
 var (
@@ -379,31 +987,53 @@ func file_aozorapark_park_v1_park_service_proto_rawDescGZIP() []byte {
 	return file_aozorapark_park_v1_park_service_proto_rawDescData
 }
 
-var file_aozorapark_park_v1_park_service_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_aozorapark_park_v1_park_service_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_aozorapark_park_v1_park_service_proto_goTypes = []any{
-	(*CreateParkRequest)(nil),  // 0: aozorapark.park.v1.CreateParkRequest
-	(*CreateParkResponse)(nil), // 1: aozorapark.park.v1.CreateParkResponse
-	(*GetParkRequest)(nil),     // 2: aozorapark.park.v1.GetParkRequest
-	(*GetParkResponse)(nil),    // 3: aozorapark.park.v1.GetParkResponse
-	(*UpdateParkRequest)(nil),  // 4: aozorapark.park.v1.UpdateParkRequest
-	(*UpdateParkResponse)(nil), // 5: aozorapark.park.v1.UpdateParkResponse
-	(*Park)(nil),               // 6: aozorapark.park.v1.Park
+	(*CreateParkRequest)(nil),        // 0: aozorapark.park.v1.CreateParkRequest
+	(*CreateParkResponse)(nil),       // 1: aozorapark.park.v1.CreateParkResponse
+	(*GetParkRequest)(nil),           // 2: aozorapark.park.v1.GetParkRequest
+	(*GetParkResponse)(nil),          // 3: aozorapark.park.v1.GetParkResponse
+	(*UpdateParkRequest)(nil),        // 4: aozorapark.park.v1.UpdateParkRequest
+	(*UpdateParkResponse)(nil),       // 5: aozorapark.park.v1.UpdateParkResponse
+	(*CreateAttractionRequest)(nil),  // 6: aozorapark.park.v1.CreateAttractionRequest
+	(*CreateAttractionResponse)(nil), // 7: aozorapark.park.v1.CreateAttractionResponse
+	(*UpdateAttractionRequest)(nil),  // 8: aozorapark.park.v1.UpdateAttractionRequest
+	(*UpdateAttractionResponse)(nil), // 9: aozorapark.park.v1.UpdateAttractionResponse
+	(*CreateTicketTypeRequest)(nil),  // 10: aozorapark.park.v1.CreateTicketTypeRequest
+	(*CreateTicketTypeResponse)(nil), // 11: aozorapark.park.v1.CreateTicketTypeResponse
+	(*UpdateTicketTypeRequest)(nil),  // 12: aozorapark.park.v1.UpdateTicketTypeRequest
+	(*UpdateTicketTypeResponse)(nil), // 13: aozorapark.park.v1.UpdateTicketTypeResponse
+	(*Park)(nil),                     // 14: aozorapark.park.v1.Park
+	(*Attraction)(nil),               // 15: aozorapark.park.v1.Attraction
+	(*TicketType)(nil),               // 16: aozorapark.park.v1.TicketType
 }
 var file_aozorapark_park_v1_park_service_proto_depIdxs = []int32{
-	6, // 0: aozorapark.park.v1.CreateParkResponse.park:type_name -> aozorapark.park.v1.Park
-	6, // 1: aozorapark.park.v1.GetParkResponse.park:type_name -> aozorapark.park.v1.Park
-	6, // 2: aozorapark.park.v1.UpdateParkResponse.park:type_name -> aozorapark.park.v1.Park
-	0, // 3: aozorapark.park.v1.ParkService.CreatePark:input_type -> aozorapark.park.v1.CreateParkRequest
-	2, // 4: aozorapark.park.v1.ParkService.GetPark:input_type -> aozorapark.park.v1.GetParkRequest
-	4, // 5: aozorapark.park.v1.ParkService.UpdatePark:input_type -> aozorapark.park.v1.UpdateParkRequest
-	1, // 6: aozorapark.park.v1.ParkService.CreatePark:output_type -> aozorapark.park.v1.CreateParkResponse
-	3, // 7: aozorapark.park.v1.ParkService.GetPark:output_type -> aozorapark.park.v1.GetParkResponse
-	5, // 8: aozorapark.park.v1.ParkService.UpdatePark:output_type -> aozorapark.park.v1.UpdateParkResponse
-	6, // [6:9] is the sub-list for method output_type
-	3, // [3:6] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	14, // 0: aozorapark.park.v1.CreateParkResponse.park:type_name -> aozorapark.park.v1.Park
+	14, // 1: aozorapark.park.v1.GetParkResponse.park:type_name -> aozorapark.park.v1.Park
+	14, // 2: aozorapark.park.v1.UpdateParkResponse.park:type_name -> aozorapark.park.v1.Park
+	15, // 3: aozorapark.park.v1.CreateAttractionResponse.attraction:type_name -> aozorapark.park.v1.Attraction
+	15, // 4: aozorapark.park.v1.UpdateAttractionResponse.attraction:type_name -> aozorapark.park.v1.Attraction
+	16, // 5: aozorapark.park.v1.CreateTicketTypeResponse.ticket_type:type_name -> aozorapark.park.v1.TicketType
+	16, // 6: aozorapark.park.v1.UpdateTicketTypeResponse.ticket_type:type_name -> aozorapark.park.v1.TicketType
+	0,  // 7: aozorapark.park.v1.ParkService.CreatePark:input_type -> aozorapark.park.v1.CreateParkRequest
+	2,  // 8: aozorapark.park.v1.ParkService.GetPark:input_type -> aozorapark.park.v1.GetParkRequest
+	4,  // 9: aozorapark.park.v1.ParkService.UpdatePark:input_type -> aozorapark.park.v1.UpdateParkRequest
+	6,  // 10: aozorapark.park.v1.ParkService.CreateAttraction:input_type -> aozorapark.park.v1.CreateAttractionRequest
+	8,  // 11: aozorapark.park.v1.ParkService.UpdateAttraction:input_type -> aozorapark.park.v1.UpdateAttractionRequest
+	10, // 12: aozorapark.park.v1.ParkService.CreateTicketType:input_type -> aozorapark.park.v1.CreateTicketTypeRequest
+	12, // 13: aozorapark.park.v1.ParkService.UpdateTicketType:input_type -> aozorapark.park.v1.UpdateTicketTypeRequest
+	1,  // 14: aozorapark.park.v1.ParkService.CreatePark:output_type -> aozorapark.park.v1.CreateParkResponse
+	3,  // 15: aozorapark.park.v1.ParkService.GetPark:output_type -> aozorapark.park.v1.GetParkResponse
+	5,  // 16: aozorapark.park.v1.ParkService.UpdatePark:output_type -> aozorapark.park.v1.UpdateParkResponse
+	7,  // 17: aozorapark.park.v1.ParkService.CreateAttraction:output_type -> aozorapark.park.v1.CreateAttractionResponse
+	9,  // 18: aozorapark.park.v1.ParkService.UpdateAttraction:output_type -> aozorapark.park.v1.UpdateAttractionResponse
+	11, // 19: aozorapark.park.v1.ParkService.CreateTicketType:output_type -> aozorapark.park.v1.CreateTicketTypeResponse
+	13, // 20: aozorapark.park.v1.ParkService.UpdateTicketType:output_type -> aozorapark.park.v1.UpdateTicketTypeResponse
+	14, // [14:21] is the sub-list for method output_type
+	7,  // [7:14] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_aozorapark_park_v1_park_service_proto_init() }
@@ -418,7 +1048,7 @@ func file_aozorapark_park_v1_park_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_aozorapark_park_v1_park_service_proto_rawDesc), len(file_aozorapark_park_v1_park_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -32,7 +32,10 @@ func Load() (*Config, error) {
 
 	if v := os.Getenv("LOG_LEVEL"); v != "" {
 		if err := cfg.LogLevel.UnmarshalText([]byte(v)); err != nil {
-			return nil, fmt.Errorf("LOG_LEVEL %q: %w", v, err)
+			return nil, fmt.Errorf("LOG_LEVEL %q: %w",
+				v,
+				err,
+			)
 		}
 	}
 

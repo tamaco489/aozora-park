@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -10,7 +9,7 @@ import (
 
 func TestGetDo(t *testing.T) {
 	repo := newFakeRepository()
-	store(t, repo)
+	storeHelper(t, repo)
 
 	tests := map[string]struct {
 		id      parkmodel.ParkID
@@ -27,14 +26,22 @@ func TestGetDo(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := NewGet(repo).Do(context.Background(), tt.id)
+			got, err := NewGet(repo).Do(t.Context(), tt.id)
 
 			if !errors.Is(err, tt.wantErr) {
-				t.Fatalf("Get.Do(%q) のエラー = %v, want %v", tt.id, err, tt.wantErr)
+				t.Fatalf("Get.Do(%q) のエラー = %v, want %v",
+					tt.id,
+					err,
+					tt.wantErr,
+				)
 			}
 
 			if tt.wantErr == nil && got.ID() != tt.id {
-				t.Errorf("Get.Do(%q) の ID = %q, want %q", tt.id, got.ID(), tt.id)
+				t.Errorf("Get.Do(%q) の ID = %q, want %q",
+					tt.id,
+					got.ID(),
+					tt.id,
+				)
 			}
 		})
 	}

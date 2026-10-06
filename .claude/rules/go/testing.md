@@ -64,9 +64,40 @@ t.Errorf("CreatePurchase() の差分 (-want +got):\n%s", cmp.Diff(want, got))
 - ヘルパは `*testing.T` ではなく `testing.TB` を受け取る。Test と Benchmark と Fuzz から使い回せる
 - 冒頭で `tb.Helper()` を呼ぶ。失敗の行がヘルパの中ではなく呼び出し側に出る
 - **後始末は `defer` ではなく `t.Cleanup` に登録する。** ヘルパ内の `defer` はヘルパが return した時点で走ってしまう。並列サブテストがある場合も `t.Cleanup` でないと早すぎる
+- **ヘルパの名前に `Helper` の接尾辞を付ける** (`storeAttractionHelper`)。テストは実装と同じパッケージに置くため、`store` や `restore` のような一般的な名前がパッケージ全体の名前空間を占め、実装側で同じ語を使いたくなったときに衝突する。呼び出し側からテスト専用だと分かる効果もある
+- 接尾辞を付けるのは**テストだけが使う package レベルの関数と型**。`fake` や `stub` で始まるものは、その接頭辞が既にテスト専用を示しているため付けない
 - セットアップの失敗は `t.Fatal` でよい。検証の失敗は `t.Error` にして、1 回の実行で全部出す
 - **`t.Fatal` と `t.FailNow` をテスト以外の goroutine から呼ばない。** `runtime.Goexit` を呼ぶだけでテスト本体に失敗が伝わらない。goroutine の中では `t.Error` を使う
 - **`t.Cleanup` は panic では走らない。** コンテナや外部リソースの解放をこれだけに頼らない
+
+### テストのコンテキスト
+
+**テストの中で `context.Background()` を使わず、`t.Context()` (ヘルパでは `tb.Context()`) を使う。** テストが終わったあとに残った呼び出しが自動で打ち切られるため、後始末漏れに気づける。`testing.TB` にも `Context()` があるので、ヘルパからも呼べる。
+
+> [!IMPORTANT]
+> **`t.Cleanup` に登録した関数の中では `t.Context()` を使わない。** `t.Context()` が返すコンテキストは、**Cleanup が走る直前に取り消される**。取り消し済みのコンテキストを渡された gRPC の呼び出しは送信前に失敗するため、後始末が必ず落ちる。
+
+テスト本体で作った `ctx` を Cleanup のクロージャが捕まえている形も同じ理由で壊れる。**Cleanup の中では `context.Background()` を使う。**
+
+```go
+func TestXxx(t *testing.T) {
+    ctx := t.Context()
+
+    doc := client.Collection("xxx").Doc(t.Name())
+    t.Cleanup(func() {
+        // t.Context() は Cleanup の直前に取り消されるため、後始末は取り消されないものを使う
+        if _, err := doc.Delete(context.Background()); err != nil {
+            t.Errorf("doc.Delete() = %v, want nil", err)
+        }
+    })
+
+    // ここから先は ctx を使う
+}
+```
+
+`t.Context()` の取り消しは副作用ではなく機能で、Cleanup が「テストが起こした goroutine やサーバが `ctx.Done()` で止まるのを待つ」ために使える。**止まるのを待つ側が `t.Context()`、外部リソースを消す側が `context.Background()`** と覚える。
+
+`TestMain` と、`*testing.T` を受け取らない起動処理 (`firestoretest` のコンテナ起動など) には `t` が無いため `context.Background()` のままにする。
 
 ### Fuzz
 

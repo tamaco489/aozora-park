@@ -16,3 +16,57 @@ message Park {
   // inventory_days は入場枠を先行して生成する日数
   int32 inventory_days = 4;
 }
+
+// PriorityPassConfig は優先パスの時間帯枠を生成する条件
+message PriorityPassConfig {
+  // enabled はアトラクションが優先パスの対象かどうか
+  bool enabled = 1;
+
+  // start_time は時間帯枠を生成しはじめる時刻、HH:MM の 24 時間表記
+  string start_time = 2;
+
+  // end_time は時間帯枠の生成を終える時刻、HH:MM の 24 時間表記で start_time より後
+  string end_time = 3;
+
+  // interval_minutes は時間帯枠を刻む間隔、単位は分
+  int32 interval_minutes = 4;
+
+  // capacity_per_slot は時間帯枠 1 つあたりに発行できる優先パスの上限、単位は枚
+  int32 capacity_per_slot = 5;
+}
+
+// Attraction はパークに属するアトラクション
+message Attraction {
+  // attraction_id はアトラクションの識別子
+  string attraction_id = 1;
+
+  // park_id は属するパークの識別子
+  string park_id = 2;
+
+  // name はアトラクションの表示名
+  string name = 3;
+
+  // priority_pass_config は優先パスの時間帯枠を生成する条件
+  PriorityPassConfig priority_pass_config = 4;
+}
+
+// TicketType はパークが販売する券種
+message TicketType {
+  // ticket_type_id は券種の識別子
+  string ticket_type_id = 1;
+
+  // park_id は属するパークの識別子
+  string park_id = 2;
+
+  // name は券種の表示名
+  string name = 3;
+
+  // price は販売価格、単位は円
+  int64 price = 4;
+
+  // entry_time_from は入場できる時間帯の開始時刻、HH:MM の 24 時間表記
+  string entry_time_from = 5;
+
+  // entry_time_to は入場できる時間帯の終了時刻、HH:MM の 24 時間表記で entry_time_from より後
+  string entry_time_to = 6;
+}

@@ -20,5 +20,9 @@ func NewConnectHandler(client *gcpfirestore.Client) parkv1connect.ParkServiceHan
 		parkusecase.NewCreate(parks),
 		parkusecase.NewGet(parks),
 		parkusecase.NewUpdate(parks, parks),
+		parkusecase.NewCreateAttraction(parks, parks, parks),
+		parkusecase.NewUpdateAttraction(parks, parks),
+		parkusecase.NewCreateTicketType(parks, parks, parks),
+		parkusecase.NewUpdateTicketType(parks, parks),
 	)
 }

@@ -30,7 +30,12 @@ func Log(logger *slog.Logger) connect.UnaryInterceptorFunc {
 			if err != nil {
 				level = slog.LevelWarn
 			}
-			logger.LogAttrs(ctx, level, "rpc", attrs...)
+			logger.LogAttrs(
+				ctx,
+				level,
+				"rpc",
+				attrs...,
+			)
 
 			return res, err
 		}

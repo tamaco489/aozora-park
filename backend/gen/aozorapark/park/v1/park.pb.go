@@ -94,6 +94,252 @@ func (x *Park) GetInventoryDays() int32 {
 	return 0
 }
 
+// PriorityPassConfig は優先パスの時間帯枠を生成する条件
+type PriorityPassConfig struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// enabled はアトラクションが優先パスの対象かどうか
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// start_time は時間帯枠を生成しはじめる時刻、HH:MM の 24 時間表記
+	StartTime string `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	// end_time は時間帯枠の生成を終える時刻、HH:MM の 24 時間表記で start_time より後
+	EndTime string `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	// interval_minutes は時間帯枠を刻む間隔、単位は分
+	IntervalMinutes int32 `protobuf:"varint,4,opt,name=interval_minutes,json=intervalMinutes,proto3" json:"interval_minutes,omitempty"`
+	// capacity_per_slot は時間帯枠 1 つあたりに発行できる優先パスの上限、単位は枚
+	CapacityPerSlot int32 `protobuf:"varint,5,opt,name=capacity_per_slot,json=capacityPerSlot,proto3" json:"capacity_per_slot,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *PriorityPassConfig) Reset() {
+	*x = PriorityPassConfig{}
+	mi := &file_aozorapark_park_v1_park_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PriorityPassConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PriorityPassConfig) ProtoMessage() {}
+
+func (x *PriorityPassConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_aozorapark_park_v1_park_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PriorityPassConfig.ProtoReflect.Descriptor instead.
+func (*PriorityPassConfig) Descriptor() ([]byte, []int) {
+	return file_aozorapark_park_v1_park_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *PriorityPassConfig) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+func (x *PriorityPassConfig) GetStartTime() string {
+	if x != nil {
+		return x.StartTime
+	}
+	return ""
+}
+
+func (x *PriorityPassConfig) GetEndTime() string {
+	if x != nil {
+		return x.EndTime
+	}
+	return ""
+}
+
+func (x *PriorityPassConfig) GetIntervalMinutes() int32 {
+	if x != nil {
+		return x.IntervalMinutes
+	}
+	return 0
+}
+
+func (x *PriorityPassConfig) GetCapacityPerSlot() int32 {
+	if x != nil {
+		return x.CapacityPerSlot
+	}
+	return 0
+}
+
+// Attraction はパークに属するアトラクション
+type Attraction struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// attraction_id はアトラクションの識別子
+	AttractionId string `protobuf:"bytes,1,opt,name=attraction_id,json=attractionId,proto3" json:"attraction_id,omitempty"`
+	// park_id は属するパークの識別子
+	ParkId string `protobuf:"bytes,2,opt,name=park_id,json=parkId,proto3" json:"park_id,omitempty"`
+	// name はアトラクションの表示名
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// priority_pass_config は優先パスの時間帯枠を生成する条件
+	PriorityPassConfig *PriorityPassConfig `protobuf:"bytes,4,opt,name=priority_pass_config,json=priorityPassConfig,proto3" json:"priority_pass_config,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *Attraction) Reset() {
+	*x = Attraction{}
+	mi := &file_aozorapark_park_v1_park_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Attraction) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Attraction) ProtoMessage() {}
+
+func (x *Attraction) ProtoReflect() protoreflect.Message {
+	mi := &file_aozorapark_park_v1_park_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Attraction.ProtoReflect.Descriptor instead.
+func (*Attraction) Descriptor() ([]byte, []int) {
+	return file_aozorapark_park_v1_park_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Attraction) GetAttractionId() string {
+	if x != nil {
+		return x.AttractionId
+	}
+	return ""
+}
+
+func (x *Attraction) GetParkId() string {
+	if x != nil {
+		return x.ParkId
+	}
+	return ""
+}
+
+func (x *Attraction) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Attraction) GetPriorityPassConfig() *PriorityPassConfig {
+	if x != nil {
+		return x.PriorityPassConfig
+	}
+	return nil
+}
+
+// TicketType はパークが販売する券種
+type TicketType struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ticket_type_id は券種の識別子
+	TicketTypeId string `protobuf:"bytes,1,opt,name=ticket_type_id,json=ticketTypeId,proto3" json:"ticket_type_id,omitempty"`
+	// park_id は属するパークの識別子
+	ParkId string `protobuf:"bytes,2,opt,name=park_id,json=parkId,proto3" json:"park_id,omitempty"`
+	// name は券種の表示名
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// price は販売価格、単位は円
+	Price int64 `protobuf:"varint,4,opt,name=price,proto3" json:"price,omitempty"`
+	// entry_time_from は入場できる時間帯の開始時刻、HH:MM の 24 時間表記
+	EntryTimeFrom string `protobuf:"bytes,5,opt,name=entry_time_from,json=entryTimeFrom,proto3" json:"entry_time_from,omitempty"`
+	// entry_time_to は入場できる時間帯の終了時刻、HH:MM の 24 時間表記で entry_time_from より後
+	EntryTimeTo   string `protobuf:"bytes,6,opt,name=entry_time_to,json=entryTimeTo,proto3" json:"entry_time_to,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TicketType) Reset() {
+	*x = TicketType{}
+	mi := &file_aozorapark_park_v1_park_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TicketType) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TicketType) ProtoMessage() {}
+
+func (x *TicketType) ProtoReflect() protoreflect.Message {
+	mi := &file_aozorapark_park_v1_park_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TicketType.ProtoReflect.Descriptor instead.
+func (*TicketType) Descriptor() ([]byte, []int) {
+	return file_aozorapark_park_v1_park_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *TicketType) GetTicketTypeId() string {
+	if x != nil {
+		return x.TicketTypeId
+	}
+	return ""
+}
+
+func (x *TicketType) GetParkId() string {
+	if x != nil {
+		return x.ParkId
+	}
+	return ""
+}
+
+func (x *TicketType) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *TicketType) GetPrice() int64 {
+	if x != nil {
+		return x.Price
+	}
+	return 0
+}
+
+func (x *TicketType) GetEntryTimeFrom() string {
+	if x != nil {
+		return x.EntryTimeFrom
+	}
+	return ""
+}
+
+func (x *TicketType) GetEntryTimeTo() string {
+	if x != nil {
+		return x.EntryTimeTo
+	}
+	return ""
+}
+
 var File_aozorapark_park_v1_park_proto protoreflect.FileDescriptor
 
 const file_aozorapark_park_v1_park_proto_rawDesc = "" +
@@ -103,7 +349,28 @@ const file_aozorapark_park_v1_park_proto_rawDesc = "" +
 	"\apark_id\x18\x01 \x01(\tR\x06parkId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x124\n" +
 	"\x16default_daily_capacity\x18\x03 \x01(\x05R\x14defaultDailyCapacity\x12%\n" +
-	"\x0einventory_days\x18\x04 \x01(\x05R\rinventoryDaysB\xd5\x01\n" +
+	"\x0einventory_days\x18\x04 \x01(\x05R\rinventoryDays\"\xbf\x01\n" +
+	"\x12PriorityPassConfig\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\x12\x1d\n" +
+	"\n" +
+	"start_time\x18\x02 \x01(\tR\tstartTime\x12\x19\n" +
+	"\bend_time\x18\x03 \x01(\tR\aendTime\x12)\n" +
+	"\x10interval_minutes\x18\x04 \x01(\x05R\x0fintervalMinutes\x12*\n" +
+	"\x11capacity_per_slot\x18\x05 \x01(\x05R\x0fcapacityPerSlot\"\xb8\x01\n" +
+	"\n" +
+	"Attraction\x12#\n" +
+	"\rattraction_id\x18\x01 \x01(\tR\fattractionId\x12\x17\n" +
+	"\apark_id\x18\x02 \x01(\tR\x06parkId\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12X\n" +
+	"\x14priority_pass_config\x18\x04 \x01(\v2&.aozorapark.park.v1.PriorityPassConfigR\x12priorityPassConfig\"\xc1\x01\n" +
+	"\n" +
+	"TicketType\x12$\n" +
+	"\x0eticket_type_id\x18\x01 \x01(\tR\fticketTypeId\x12\x17\n" +
+	"\apark_id\x18\x02 \x01(\tR\x06parkId\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x14\n" +
+	"\x05price\x18\x04 \x01(\x03R\x05price\x12&\n" +
+	"\x0fentry_time_from\x18\x05 \x01(\tR\rentryTimeFrom\x12\"\n" +
+	"\rentry_time_to\x18\x06 \x01(\tR\ventryTimeToB\xd5\x01\n" +
 	"\x16com.aozorapark.park.v1B\tParkProtoP\x01ZFgithub.com/tamaco489/aozora-park/backend/gen/aozorapark/park/v1;parkv1\xa2\x02\x03APX\xaa\x02\x12Aozorapark.Park.V1\xca\x02\x12Aozorapark\\Park\\V1\xe2\x02\x1eAozorapark\\Park\\V1\\GPBMetadata\xea\x02\x14Aozorapark::Park::V1b\x06proto3"
 
 var (
@@ -118,16 +385,20 @@ func file_aozorapark_park_v1_park_proto_rawDescGZIP() []byte {
 	return file_aozorapark_park_v1_park_proto_rawDescData
 }
 
-var file_aozorapark_park_v1_park_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_aozorapark_park_v1_park_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_aozorapark_park_v1_park_proto_goTypes = []any{
-	(*Park)(nil), // 0: aozorapark.park.v1.Park
+	(*Park)(nil),               // 0: aozorapark.park.v1.Park
+	(*PriorityPassConfig)(nil), // 1: aozorapark.park.v1.PriorityPassConfig
+	(*Attraction)(nil),         // 2: aozorapark.park.v1.Attraction
+	(*TicketType)(nil),         // 3: aozorapark.park.v1.TicketType
 }
 var file_aozorapark_park_v1_park_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	1, // 0: aozorapark.park.v1.Attraction.priority_pass_config:type_name -> aozorapark.park.v1.PriorityPassConfig
+	1, // [1:1] is the sub-list for method output_type
+	1, // [1:1] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_aozorapark_park_v1_park_proto_init() }
@@ -141,7 +412,7 @@ func file_aozorapark_park_v1_park_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_aozorapark_park_v1_park_proto_rawDesc), len(file_aozorapark_park_v1_park_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

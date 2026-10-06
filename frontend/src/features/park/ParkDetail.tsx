@@ -4,7 +4,7 @@ import type { Park } from "../../gen/aozorapark/park/v1/park_pb";
 export function ParkDetail({ park }: { park: Park }) {
   return (
     <dl>
-      <dt>識別子</dt>
+      <dt>パークの識別子</dt>
       <dd>{park.parkId}</dd>
       <dt>表示名</dt>
       <dd>{park.name}</dd>
