@@ -91,6 +91,15 @@ docker-stop:
 # ==========================================================================================
 # deploy: stg への手動デプロイ
 # ==========================================================================================
+# stg の Firestore に枠を作成する
+#
+# 今日から inventoryDays 日分の dateInventories と timeSlots を作る。既にあるものは作らない
+# priorityPassConfig.enabled が true のアトラクションだけが対象になる
+# 定期実行の仕組み (Cloud Run jobs と Scheduler) がまだ無いため、当面は手で実行する
+[doc("stg の Firestore に枠を作成する")]
+generate-inventory-stg:
+    env -u FIRESTORE_EMULATOR_HOST -u PUBSUB_EMULATOR_HOST {{ stg_env }} go run ./cmd/job generate
+
 # stg の api へデプロイする (例: just deploy-api-stg main)
 #
 # 指定した ref のコミットを Cloud Build がビルドし、Cloud Run の api を差し替える
