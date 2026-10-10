@@ -221,7 +221,7 @@ Creating a park or an attraction does not create any slots; `generate` in `cmd/j
 
 > [!NOTE]
 > Nothing runs that generation on a schedule yet (no Cloud Run job, no Cloud Scheduler).
-> For now the command above is run by hand. Putting it on CD is tracked in #135.
+> For now the command above is run by hand. Wiring it to a Cloud Run job and adding it to CD is part of milestone 10.
 
 A `timeSlotId` is shaped `YYYYMMDD_HHMM`. The time slot screen shows the start time but not the identifier, so it is assembled from the date and the time.
 A `ticketId` is never matched against a ticket, so any string will do.

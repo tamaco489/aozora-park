@@ -221,7 +221,7 @@ just generate-inventory-stg
 
 > [!NOTE]
 > この枠の作成を定期実行する仕組み (Cloud Run jobs と Cloud Scheduler) はまだありません。
-> 当面は上のコマンドを手で実行します。CD に載せるのは #135 で扱います。
+> 当面は上のコマンドを手で実行します。Cloud Run jobs への配線と CD への追加はマイルストーン 10 で扱います。
 
 申し込む `timeSlotId` は `YYYYMMDD_HHMM` の形です。時間帯枠の画面は開始時刻を表示しますが識別子は出さないため、日付と時刻から組み立てます。
 `ticketId` は券との突き合わせを行わないため、任意の文字列で構いません。
