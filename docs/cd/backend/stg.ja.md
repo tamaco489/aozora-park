@@ -7,11 +7,8 @@
 `main` へマージした後に、手元から 1 コマンドで stg の Cloud Run を更新します。構成の全体像は[backend のデプロイの構成](./README.ja.md)にあります。
 ビルドとデプロイは Cloud Build が GCP の中で実行し、ソースは GitHub から Developer Connect 経由で取得します。
 
-対象は `api` と `priority-pass-issuer` です。**`main` への push では常に両方をビルドします。**
-変更の内容から対象を絞らないのは、`internal/platform` や `go.mod` を触ると結局どちらも対象になるためです。
-
-絞れるのは人が意図して起こすときだけで、手元からはサービス名を並べ、`workflow_dispatch` では `services` に JSON の配列を渡します。
-知らないサービス名はスクリプトが弾きます。`gcloud run deploy` は知らない名前を渡されると新しい Cloud Run サービスを作成するためです。
+**サービスごとに 1 つのレシピを用意しています。** 出したいサービスだけを指定する形にして、まとめて出すレシピは置いていません。
+`main` へのマージでは、サービスごとのワークフローがそれぞれ起動するため、手で両方を出す場面はほとんどありません。
 
 ## 前提
 
@@ -32,22 +29,22 @@ gcloud auth login
 
 ```sh
 cd backend
-just deploy-stg <ref>                       # 全サービスをデプロイする
-just deploy-stg <ref> <サービス名>...       # 指定したサービスだけをデプロイする
+just deploy-api-stg <ref>                      # api をデプロイする
+just deploy-priority-pass-issuer-stg <ref>     # priority-pass-issuer をデプロイする
 ```
 
-**`<ref>` は省略できません。** どのコミットが stg に出るかを取り違えないためで、`main` を出すときも `just deploy-stg main` と書きます。
+**`<ref>` は省略できません。** どのコミットが stg に出るかを取り違えないためで、`main` を出すときも `just deploy-api-stg main` と書きます。
 まず `origin/<ref>` として解決し、無ければ `<ref>` をそのまま `git rev-parse` に渡します。ローカルのタグやブランチ名も指定できます。
 解決した SHA をイメージのタグに使うため、どのコミットが動いているかをイメージから追えます。
 
-処理の流れは次のとおりです。2 から 4 はサービスごとに 1 ビルドずつ、順番に実行されます。
+処理の流れは次のとおりです。1 回の実行で 1 サービスだけを配信します。
 
-| 順  | 実行するもの | 内容                                                                                       |
-| --- | ------------ | ------------------------------------------------------------------------------------------ |
-| 1   | 手元         | ref をコミットの SHA に解決し、サービスごとに `gcloud beta builds submit` でビルドを投げる |
-| 2   | Cloud Build  | Developer Connect のリンクから、その SHA のソースを取得する                                |
-| 3   | Cloud Build  | `backend/Dockerfile` でイメージを組み立て、Artifact Registry に push する                  |
-| 4   | Cloud Build  | push したイメージをダイジェストで指定し、そのサービスの Cloud Run にデプロイする           |
+| 順  | 実行するもの | 内容                                                                             |
+| --- | ------------ | -------------------------------------------------------------------------------- |
+| 1   | 手元         | ref をコミットの SHA に解決し、`gcloud beta builds submit` でビルドを投げる      |
+| 2   | Cloud Build  | Developer Connect のリンクから、その SHA のソースを取得する                      |
+| 3   | Cloud Build  | `backend/Dockerfile` でイメージを組み立て、Artifact Registry に push する        |
+| 4   | Cloud Build  | push したイメージをダイジェストで指定し、そのサービスの Cloud Run にデプロイする |
 
 ビルドは `sa-deployer` で走ります。ログはコマンドの出力に流れます。
 履歴は [Cloud Build の一覧](https://console.cloud.google.com/cloud-build/builds?project=stg-aozora-park)で見られます。リージョンは `asia-northeast1` を選びます。
@@ -124,16 +121,16 @@ gcloud run services update-traffic <サービス名> \
 
 ## 仕組みと、prd との違い
 
-| 項目                 | stg                                                                  | prd                                     |
-| -------------------- | -------------------------------------------------------------------- | --------------------------------------- |
-| 自動の起点           | `main` への push。`cd-backend-stg` が起動する                        | `<サービス名>/v1.2.3` の形のタグの push |
-| 手で起こす           | `workflow_dispatch`、または `just deploy-stg <ref> [サービス名...]`  | 無し                                    |
-| デプロイ対象         | 常に全サービス                                                       | タグの接頭辞が指すサービスだけ          |
-| Cloud Build のトリガ | 作らない。Developer Connect のリポジトリは手動のトリガを作れないため | サービスごとに作る (Terraform で定義)   |
-| 承認                 | 無し                                                                 | 必須。タグの push だけでは走らない      |
-| イメージのタグ       | コミットの SHA                                                       | コミットの SHA                          |
+| 項目                 | stg                                                                             | prd                                     |
+| -------------------- | ------------------------------------------------------------------------------- | --------------------------------------- |
+| 自動の起点           | `main` への push。`cd-<サービス名>-stg` が起動する                              | `<サービス名>/v1.2.3` の形のタグの push |
+| 手で起こす           | サービスごとの `workflow_dispatch`、または `just deploy-<サービス名>-stg <ref>` | 無し                                    |
+| デプロイ対象         | ワークフロー 1 本につき 1 サービス                                              | タグの接頭辞が指すサービスだけ          |
+| Cloud Build のトリガ | 作らない。Developer Connect のリポジトリは手動のトリガを作れないため            | サービスごとに作る (Terraform で定義)   |
+| 承認                 | 無し                                                                            | 必須。タグの push だけでは走らない      |
+| イメージのタグ       | コミットの SHA                                                                  | コミットの SHA                          |
 
 - Terraform は Cloud Run の `image` を `ignore_changes` で無視します。デプロイでの差し替えを drift にしないためです。
 - GitHub Actions が行うのは Cloud Build の起動だけです。ビルドとデプロイは `sa-deployer` が GCP の中で行うため、デプロイの権限を GitHub 側に出していません。
-- ここに書いた手順は手元から起こす場合のものです。`main` に入った変更は `cd-backend-stg` が自動で配信するため、通常は実行する必要がありません。
+- ここに書いた手順は手元から起こす場合のものです。`main` に入った変更は `cd-<サービス名>-stg` が自動で配信するため、通常は実行する必要がありません。
 - 接続 (Developer Connect) の作成手順は、設計ドキュメントの「5. Developer Connect の接続」にあります。

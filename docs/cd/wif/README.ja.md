@@ -147,7 +147,7 @@ eyJhbGciOiJSUzI1NiIsImtpZCI6ImNjNDEzNTI3LTE3M2YtNWE...   <- ヘッダ
   "repository": "tamaco489/aozora-park",
   "repository_owner": "tamaco489",
   "ref": "refs/heads/main",
-  "workflow": "cd-backend-stg",
+  "workflow": "cd-api-stg",
   "run_id": "37199909169",
   "iat": 1760000000,
   "exp": 1760000300

@@ -21,14 +21,14 @@
   <text x="145" y="143" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a4f8b">stg の起点</text>
   <text x="145" y="172" font-size="14" text-anchor="middle" fill="#333">main への push (backend/**)</text>
   <text x="145" y="197" font-size="14" text-anchor="middle" fill="#333">workflow_dispatch</text>
-  <text x="145" y="222" font-size="14" text-anchor="middle" fill="#333">手元の just deploy-stg</text>
+  <text x="145" y="222" font-size="12" text-anchor="middle" fill="#333">手元の just deploy-&lt;サービス名&gt;-stg</text>
 
   <!-- 起動する側 -->
   <rect x="300" y="105" width="250" height="150" rx="8" fill="#fff" stroke="#555" stroke-width="1.5"/>
   <text x="425" y="135" font-size="17" font-weight="bold" text-anchor="middle" fill="#222">起動する側</text>
   <line x1="320" y1="150" x2="530" y2="150" stroke="#ddd" stroke-width="1"/>
   <text x="425" y="175" font-size="14" text-anchor="middle" fill="#333">GitHub Actions</text>
-  <text x="425" y="198" font-size="14" font-weight="bold" text-anchor="middle" fill="#222">cd-backend-stg</text>
+  <text x="425" y="198" font-size="14" font-weight="bold" text-anchor="middle" fill="#222">cd-&lt;サービス名&gt;-stg</text>
   <text x="425" y="221" font-size="13" text-anchor="middle" fill="#555">WIF で sa-cd-backend を借りる</text>
   <text x="425" y="244" font-size="13" text-anchor="middle" fill="#555">手元のときはユーザーの gcloud</text>
 
@@ -110,7 +110,7 @@
 
   <!-- 注記 -->
   <line x1="30" y1="745" x2="1570" y2="745" stroke="#ccc" stroke-width="1"/>
-  <text x="30" y="777" font-size="15" fill="#333">・stg は main への push で cd-backend-stg が起動する。workflow_dispatch と手元の just deploy-stg でも同じコマンドを投げるため、経路は 1 本しかない</text>
+  <text x="30" y="777" font-size="15" fill="#333">・stg は main への push でサービスごとの cd-&lt;サービス名&gt;-stg が起動する。workflow_dispatch と手元の just deploy-&lt;サービス名&gt;-stg でも同じコマンドを投げる</text>
   <text x="30" y="805" font-size="15" fill="#333">・GitHub Actions が行うのは Cloud Build の起動だけ。build → push → deploy は sa-deployer が GCP の中で実行し、デプロイの権限を GitHub 側に出さない</text>
   <text x="30" y="833" font-size="15" fill="#333">・認証は Workload Identity Federation。GitHub Secrets に長期クレデンシャルを置かない。sa-cd-backend が持つのはビルドの起動とログの参照だけ</text>
   <text x="30" y="861" font-size="15" fill="#333">・どちらも同じ backend/cloudbuild.yaml を使う。イメージのタグはコミットの SHA。Cloud Run の image 以外は Terraform が管理する (ignore_changes)</text>
