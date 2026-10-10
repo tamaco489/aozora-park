@@ -93,9 +93,10 @@ docker-stop:
 # ==========================================================================================
 # stg へデプロイする (例: just deploy-stg release/main-issue-54/api-deploy)
 #
-# 指定した ref のコミットを Cloud Build がビルドし、Cloud Run の api を差し替える
+# 指定した ref のコミットを Cloud Build がビルドし、Cloud Run の api と priority-pass-issuer を差し替える
+# サービスごとに別のビルドを投げ、片方が落ちてももう片方は投げる (1 つでも落ちれば終了コードは 1)
 # ソースは GitHub から Developer Connect 経由で取得するため、手元の変更は反映されない
 # イメージのタグにはコミットの SHA を使う
-[doc("stg へデプロイする (既定の ref は main)")]
+[doc("stg の全サービスへデプロイする (既定の ref は main)")]
 deploy-stg ref="main":
     ./scripts/deploy-stg.sh {{ ref }}
