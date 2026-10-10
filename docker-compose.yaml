@@ -21,3 +21,38 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+
+  # Pub/Sub エミュレータ、イメージのタグは firestoretest の emulatorImage と同じ値にする
+  # 片方を変更したらもう片方も修正する
+  pubsub-emulator:
+    image: gcr.io/google.com/cloudsdktool/cloud-sdk:584.0.0-emulators
+    command:
+      - gcloud
+      - beta
+      - emulators
+      - pubsub
+      - start
+      - --host-port=0.0.0.0:8085
+      - --project=demo-aozora-park
+    ports:
+      - "18085:8085"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8085/"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # エミュレータは publish 先を自動で作らないため、トピックを 1 度だけ作成する
+  # justfile にシェルを書かない取り決めのため、compose の 1 回限りのサービスで行う
+  pubsub-init:
+    image: gcr.io/google.com/cloudsdktool/cloud-sdk:584.0.0-emulators
+    depends_on:
+      pubsub-emulator:
+        condition: service_healthy
+    # トピック名は infra/modules/pubsub/main.tf の google_pubsub_topic.prioritypass_requested と同じ値にする
+    command:
+      - curl
+      - -sS
+      - -X
+      - PUT
+      - http://pubsub-emulator:8085/v1/projects/demo-aozora-park/topics/prioritypass.requested
