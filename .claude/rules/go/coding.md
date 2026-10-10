@@ -65,7 +65,7 @@ backend/
 │       ├── serving/                  # リクエストを受ける側の下回り
 │       │   ├── httpx/                # サーバ起動・graceful shutdown・App
 │       │   ├── interceptor/          # 認証・ログ・エラー変換
-│       │   ├── pubsubpush/           # Pub/Sub push の封筒のパース (connect を通さない入口)
+│       │   ├── pubsubpush/           # Pub/Sub push のエンベロープのパース (connect を通さない入口)
 │       │   └── apperr/               # エラーの型・Kind・connect.Code への変換
 │       └── observability/            # 起きたことを外に出すもの
 │           ├── logging/
@@ -386,13 +386,13 @@ var ErrSoldOut = apperr.New(apperr.KindConflict, "PURCHASE_SOLD_OUT", "在庫が
 
 ### Pub/Sub push の受け口
 
-**push は connect に載せず、素の HTTP のハンドラで受ける。** 受け口は機能パッケージの `handler/subscriber.go` に置き、封筒のパースは `platform/serving/pubsubpush` が持つ。
+**push は connect に載せず、素の HTTP のハンドラで受ける。** 受け口は機能パッケージの `handler/subscriber.go` に置き、エンベロープのパースは `platform/serving/pubsubpush` が持つ。
 
-- **proto に Pub/Sub の仕様を持ち込まない。** connect の RPC にすると封筒の形が proto に入り、frontend にも生成される
+- **proto に Pub/Sub の仕様を持ち込まない。** connect の RPC にするとエンベロープの形が proto に入り、frontend にも生成される
 - push は HTTP/1.1 の POST で固定されるため、connect の gRPC と gRPC-Web の経路は使えない。使えない経路のために connect を挟む理由がない
-- 封筒は `{"message":{"data":<base64>,"messageId":...,"attributes":{}},"subscription":...}` の形で、DLQ を経由したものには `deliveryAttempt` が付く
+- エンベロープは `{"message":{"data":<base64>,"messageId":...,"attributes":{}},"subscription":...}` の形で、DLQ を経由したものには `deliveryAttempt` が付く
 - Webhook の受信も素の HTTP のため、同じ下回りを共有する
-- `pubsubpush` が見るのは封筒まで。`data` を復号したあとの本文は、機能側が自分たちの型に翻訳する
+- `pubsubpush` が見るのはエンベロープまで。`data` を復号したあとの本文は、機能側が自分たちの型に翻訳する
 - 認証は Cloud Run の IAM と push の OIDC トークンで行う。ハンドラの中で検証を書き直さない
 - 受け口のパスは `/pubsub/push` にする。`infra/modules/pubsub` の `push_endpoint` と同じ値にし、片方を変更したらもう片方も直す
 
