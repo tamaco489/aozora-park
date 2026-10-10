@@ -7,69 +7,98 @@
 <defs><marker id="ay" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b45309"/></marker></defs>
 <text x="60" y="38" font-size="28" font-weight="bold">backend のパッケージ依存</text>
 <text x="60" y="66" font-size="18" fill="#757575">矢印は import の向き (go list の出力そのまま)</text>
-<rect x="40" y="330" width="190" height="70" rx="12" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2"/>
-<text x="135.0" y="371" font-size="22" text-anchor="middle">cmd/api</text>
-<rect x="290" y="330" width="210" height="70" rx="12" fill="#b2f2bb" stroke="#15803d" stroke-width="2"/>
-<text x="395.0" y="357" font-size="20" text-anchor="middle">internal/park</text>
-<text x="395.0" y="384" font-size="20" text-anchor="middle">(組み立て)</text>
-<rect x="560" y="60" width="260" height="60" rx="12" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2"/>
-<text x="690.0" y="96" font-size="20" text-anchor="middle">gen/.../parkv1connect</text>
-<rect x="560" y="160" width="260" height="60" rx="12" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2"/>
-<text x="690.0" y="196" font-size="20" text-anchor="middle">gen/aozorapark/park/v1</text>
-<rect x="560" y="270" width="240" height="70" rx="12" fill="#b2f2bb" stroke="#15803d" stroke-width="2"/>
-<text x="680.0" y="311" font-size="22" text-anchor="middle">park/handler</text>
-<rect x="560" y="460" width="240" height="80" rx="12" fill="#b2f2bb" stroke="#15803d" stroke-width="2"/>
-<text x="680.0" y="492" font-size="20" text-anchor="middle">park/infrastructure</text>
-<text x="680.0" y="519" font-size="20" text-anchor="middle">firestore</text>
-<rect x="860" y="270" width="210" height="70" rx="12" fill="#ffc9c9" stroke="#b91c1c" stroke-width="2"/>
-<text x="965.0" y="311" font-size="22" text-anchor="middle">park/usecase</text>
-<rect x="860" y="460" width="210" height="80" rx="12" fill="#ffc9c9" stroke="#b91c1c" stroke-width="2"/>
-<text x="965.0" y="492" font-size="20" text-anchor="middle">park/domain</text>
-<text x="965.0" y="519" font-size="20" text-anchor="middle">repository</text>
-<rect x="1130" y="360" width="210" height="70" rx="12" fill="#fff3bf" stroke="#b45309" stroke-width="2"/>
-<text x="1235.0" y="400" font-size="20" text-anchor="middle">park/domain/model</text>
-<rect x="1130" y="560" width="210" height="70" rx="12" fill="#fff3bf" stroke="#b45309" stroke-width="2"/>
-<text x="1235.0" y="587" font-size="20" text-anchor="middle">platform/serving</text>
-<text x="1235.0" y="614" font-size="20" text-anchor="middle">apperr</text>
-<rect x="40" y="520" width="300" height="190" rx="12" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2"/>
-<text x="58" y="550" font-size="18" font-weight="bold">internal/platform</text>
-<text x="58" y="576" font-size="18">config</text>
-<text x="58" y="602" font-size="18">observability/logging</text>
-<text x="58" y="628" font-size="18">serving/httpx</text>
-<text x="58" y="654" font-size="18">serving/interceptor</text>
-<text x="58" y="680" font-size="18">client/firestore</text>
-<rect x="40" y="800" width="300" height="70" rx="12" fill="none" stroke="#4a9eed" stroke-width="2" stroke-dasharray="8 6"/>
-<text x="190.0" y="828" font-size="18" text-anchor="middle">client/firestore/firestoretest</text>
-<text x="190.0" y="852" font-size="18" text-anchor="middle">(テスト専用)</text>
-<path d="M230,365 L290,365" fill="none" stroke="#4a9eed" stroke-width="2" marker-end="url(#ab)"/>
-<path d="M90,330 L90,110 L560,110" fill="none" stroke="#4a9eed" stroke-width="2" marker-end="url(#ab)"/>
-<path d="M395,330 L395,90 L560,90" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
-<path d="M500,350 L560,305" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
-<path d="M680,270 L680,220" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
-<path d="M500,380 L560,500" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
-<path d="M500,365 L930,365 L930,340" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
-<path d="M800,305 L860,305" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
-<path d="M800,500 L860,500" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
-<path d="M780,270 L780,240 L1230,240 L1230,360" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
-<path d="M780,540 L780,555 L1180,555 L1180,430" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
-<path d="M965,340 L965,460" fill="none" stroke="#b91c1c" stroke-width="2" marker-end="url(#ar)"/>
-<path d="M1070,320 L1130,380" fill="none" stroke="#b91c1c" stroke-width="2" marker-end="url(#ar)"/>
-<path d="M1070,480 L1130,420" fill="none" stroke="#b91c1c" stroke-width="2" marker-end="url(#ar)"/>
-<path d="M1235,430 L1235,560" fill="none" stroke="#b45309" stroke-width="2" marker-end="url(#ay)"/>
-<path d="M135,400 L135,520" fill="none" stroke="#4a9eed" stroke-width="2" marker-end="url(#ab)"/>
-<path d="M190,800 L190,712" fill="none" stroke="#4a9eed" stroke-width="2" stroke-dasharray="8 6" marker-end="url(#ab)"/>
-<path d="M340,700 L1235,700 L1235,630" fill="none" stroke="#4a9eed" stroke-width="2" stroke-dasharray="8 6" marker-end="url(#ab)"/>
-<rect x="630" y="674" width="140" height="24" fill="#ffffff"/>
-<text x="700" y="690" font-size="16" text-anchor="middle" fill="#4a9eed">interceptor から</text>
-<rect x="1040" y="40" width="300" height="40" rx="10" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2"/>
-<text x="1190" y="66" font-size="18" text-anchor="middle">Frameworks & Drivers</text>
-<rect x="1040" y="88" width="300" height="40" rx="10" fill="#b2f2bb" stroke="#15803d" stroke-width="2"/>
-<text x="1190" y="114" font-size="18" text-anchor="middle">Interface Adapters</text>
-<rect x="1040" y="136" width="300" height="40" rx="10" fill="#ffc9c9" stroke="#b91c1c" stroke-width="2"/>
-<text x="1190" y="162" font-size="18" text-anchor="middle">Application Business Rules</text>
-<rect x="1040" y="184" width="300" height="40" rx="10" fill="#fff3bf" stroke="#b45309" stroke-width="2"/>
-<text x="1190" y="210" font-size="18" text-anchor="middle">Enterprise Business Rules</text>
-<text x="420" y="806" font-size="18" fill="#757575">infrastructure が repository を知り、usecase は実装を知らない</text>
-<text x="420" y="838" font-size="18" fill="#757575">3 層すべてを知るのは internal/park の組み立てだけ</text>
-<text x="420" y="870" font-size="18" fill="#757575">apperr は platform の下にあるが、model が使うので依存では中心</text>
+
+<rect x="40" y="240" width="240" height="160" rx="12" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2"/>
+<text x="58" y="272" font-size="18" font-weight="bold">cmd</text>
+<text x="58" y="302" font-size="18">api</text>
+<text x="58" y="330" font-size="18">job</text>
+<text x="58" y="358" font-size="18">priority-pass-issuer</text>
+<text x="58" y="382" font-size="15" fill="#757575">priority-pass-issuer は未実装</text>
+
+<rect x="320" y="320" width="220" height="80" rx="12" fill="#b2f2bb" stroke="#15803d" stroke-width="2"/>
+<text x="430.0" y="352" font-size="20" text-anchor="middle">internal/&lt;機能&gt;</text>
+<text x="430.0" y="379" font-size="20" text-anchor="middle">(組み立て)</text>
+
+<rect x="600" y="55" width="270" height="60" rx="12" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2"/>
+<text x="735.0" y="91" font-size="20" text-anchor="middle">gen/.../&lt;機能&gt;v1connect</text>
+<rect x="600" y="145" width="270" height="60" rx="12" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2"/>
+<text x="735.0" y="181" font-size="20" text-anchor="middle">gen/aozorapark/&lt;機能&gt;/v1</text>
+
+<rect x="600" y="245" width="250" height="70" rx="12" fill="#b2f2bb" stroke="#15803d" stroke-width="2"/>
+<text x="725.0" y="286" font-size="22" text-anchor="middle">&lt;機能&gt;/handler</text>
+<rect x="600" y="465" width="250" height="80" rx="12" fill="#b2f2bb" stroke="#15803d" stroke-width="2"/>
+<text x="725.0" y="497" font-size="20" text-anchor="middle">&lt;機能&gt;/infrastructure</text>
+<text x="725.0" y="524" font-size="20" text-anchor="middle">firestore</text>
+<rect x="600" y="575" width="250" height="80" rx="12" fill="#b2f2bb" stroke="#15803d" stroke-width="2"/>
+<text x="725.0" y="607" font-size="20" text-anchor="middle">&lt;機能&gt;/infrastructure</text>
+<text x="725.0" y="634" font-size="20" text-anchor="middle">pubsub</text>
+
+<rect x="900" y="245" width="220" height="70" rx="12" fill="#ffc9c9" stroke="#b91c1c" stroke-width="2"/>
+<text x="1010.0" y="286" font-size="22" text-anchor="middle">&lt;機能&gt;/usecase</text>
+<rect x="900" y="365" width="200" height="70" rx="12" fill="#ffc9c9" stroke="#b91c1c" stroke-width="2"/>
+<text x="1000.0" y="397" font-size="20" text-anchor="middle">&lt;機能&gt;/usecase</text>
+<text x="1000.0" y="424" font-size="20" text-anchor="middle">port</text>
+<rect x="900" y="485" width="220" height="80" rx="12" fill="#ffc9c9" stroke="#b91c1c" stroke-width="2"/>
+<text x="1010.0" y="517" font-size="20" text-anchor="middle">&lt;機能&gt;/domain</text>
+<text x="1010.0" y="544" font-size="20" text-anchor="middle">repository</text>
+
+<rect x="1170" y="355" width="210" height="70" rx="12" fill="#fff3bf" stroke="#b45309" stroke-width="2"/>
+<text x="1275.0" y="387" font-size="20" text-anchor="middle">&lt;機能&gt;/domain</text>
+<text x="1275.0" y="414" font-size="20" text-anchor="middle">model</text>
+<rect x="1170" y="555" width="210" height="70" rx="12" fill="#fff3bf" stroke="#b45309" stroke-width="2"/>
+<text x="1275.0" y="582" font-size="20" text-anchor="middle">platform/serving</text>
+<text x="1275.0" y="609" font-size="20" text-anchor="middle">apperr</text>
+
+<rect x="40" y="460" width="280" height="230" rx="12" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2"/>
+<text x="58" y="490" font-size="18" font-weight="bold">internal/platform</text>
+<text x="58" y="516" font-size="18">config</text>
+<text x="58" y="542" font-size="18">observability/logging</text>
+<text x="58" y="568" font-size="18">serving/httpx</text>
+<text x="58" y="594" font-size="18">serving/interceptor</text>
+<text x="58" y="620" font-size="18">client/firestore</text>
+<text x="58" y="646" font-size="18">client/pubsub</text>
+
+<rect x="40" y="760" width="280" height="70" rx="12" fill="none" stroke="#4a9eed" stroke-width="2" stroke-dasharray="8 6"/>
+<text x="180.0" y="788" font-size="17" text-anchor="middle">client/firestore/firestoretest</text>
+<text x="180.0" y="812" font-size="17" text-anchor="middle">(テスト専用)</text>
+
+<path d="M280,340 L320,350" fill="none" stroke="#4a9eed" stroke-width="2" marker-end="url(#ab)"/>
+<path d="M160,240 L160,105 L600,105" fill="none" stroke="#4a9eed" stroke-width="2" marker-end="url(#ab)"/>
+<path d="M180,400 L180,460" fill="none" stroke="#4a9eed" stroke-width="2" marker-end="url(#ab)"/>
+<path d="M430,320 L430,70 L600,70" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M540,335 L600,280" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M540,352 L985,352 L985,315" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M540,380 L600,495" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M470,400 L470,615 L600,615" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M725,245 L725,205" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M850,280 L900,280" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M840,245 L840,235 L1275,235 L1275,355" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M850,515 L900,515" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M850,455 L1130,455 L1130,395 L1170,395" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M850,645 L1145,645 L1145,410 L1170,410" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#ag)"/>
+<path d="M960,315 L960,365" fill="none" stroke="#b91c1c" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1110,315 L1110,485" fill="none" stroke="#b91c1c" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1120,290 L1170,370" fill="none" stroke="#b91c1c" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1100,390 L1170,380" fill="none" stroke="#b91c1c" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1120,500 L1170,425" fill="none" stroke="#b91c1c" stroke-width="2" marker-end="url(#ar)"/>
+<path d="M1275,425 L1275,555" fill="none" stroke="#b45309" stroke-width="2" marker-end="url(#ay)"/>
+<path d="M180,760 L180,692" fill="none" stroke="#4a9eed" stroke-width="2" stroke-dasharray="8 6" marker-end="url(#ab)"/>
+<path d="M320,690 L1275,690 L1275,627" fill="none" stroke="#4a9eed" stroke-width="2" stroke-dasharray="8 6" marker-end="url(#ab)"/>
+<rect x="900" y="676" width="150" height="26" fill="#ffffff"/>
+<text x="975" y="694" font-size="16" text-anchor="middle" fill="#4a9eed">interceptor から</text>
+
+<rect x="1060" y="40" width="320" height="40" rx="10" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2"/>
+<text x="1220" y="66" font-size="18" text-anchor="middle">Frameworks &amp; Drivers</text>
+<rect x="1060" y="88" width="320" height="40" rx="10" fill="#b2f2bb" stroke="#15803d" stroke-width="2"/>
+<text x="1220" y="114" font-size="18" text-anchor="middle">Interface Adapters</text>
+<rect x="1060" y="136" width="320" height="40" rx="10" fill="#ffc9c9" stroke="#b91c1c" stroke-width="2"/>
+<text x="1220" y="162" font-size="18" text-anchor="middle">Application Business Rules</text>
+<rect x="1060" y="184" width="320" height="40" rx="10" fill="#fff3bf" stroke="#b45309" stroke-width="2"/>
+<text x="1220" y="210" font-size="18" text-anchor="middle">Enterprise Business Rules</text>
+
+<text x="400" y="770" font-size="18" fill="#757575">機能パッケージは park ・ inventory ・ prioritypass の 3 つで、どれも同じ形をとる</text>
+<text x="400" y="800" font-size="18" fill="#757575">infrastructure/pubsub と usecase/port を持つのは prioritypass だけ</text>
+<text x="400" y="830" font-size="18" fill="#757575">infrastructure が repository を知り、usecase は実装を知らない</text>
+<text x="400" y="860" font-size="18" fill="#757575">3 層すべてを知るのは internal/&lt;機能&gt; の組み立てだけ</text>
+<text x="400" y="890" font-size="18" fill="#757575">apperr は platform の下にあるが、model が使うので依存では中心</text>
 </svg>

@@ -1,7 +1,7 @@
-# run-api はコンテナの firestore-emulator に向ける、demo- で始まる ID は本物の GCP への接続を拒む
-emulator_env := "FIRESTORE_EMULATOR_HOST=localhost:18080 GOOGLE_CLOUD_PROJECT=demo-aozora-park"
+# run-api はコンテナのエミュレータに向ける、demo- で始まる ID は本物の GCP への接続を拒む
+emulator_env := "FIRESTORE_EMULATOR_HOST=localhost:18080 PUBSUB_EMULATOR_HOST=localhost:18085 GOOGLE_CLOUD_PROJECT=demo-aozora-park"
 
-# run-api-stg は stg の Firestore に ADC で繋ぐ、課金先は ADC の quota project に左右されないよう stg に固定する
+# run-api-stg は stg の Firestore と Pub/Sub に ADC で繋ぐ、課金先は ADC の quota project に左右されないよう stg に固定する
 stg_env := "GOOGLE_CLOUD_PROJECT=stg-aozora-park GOOGLE_CLOUD_QUOTA_PROJECT=stg-aozora-park"
 
 default:
@@ -59,9 +59,9 @@ fmt-check:
 run-api:
     {{ emulator_env }} go run ./cmd/api
 
-# api を stg の Firestore に向けて起動する (ADC が必要)、シェルに残ったエミュレータの設定は外す
+# api を stg に向けて起動する (ADC が必要)、シェルに残ったエミュレータの設定は外す
 run-api-stg:
-    env -u FIRESTORE_EMULATOR_HOST {{ stg_env }} go run ./cmd/api
+    env -u FIRESTORE_EMULATOR_HOST -u PUBSUB_EMULATOR_HOST {{ stg_env }} go run ./cmd/api
 
 # ヘルスチェックを呼ぶ、api を起動した状態で実行する
 health port="8080":
@@ -79,6 +79,7 @@ docker-build:
 docker-run: docker-build
     docker run --rm --detach --name aozora-park-api -p 8080:8080 \
         -e FIRESTORE_EMULATOR_HOST=host.docker.internal:18080 \
+        -e PUBSUB_EMULATOR_HOST=host.docker.internal:18085 \
         -e GOOGLE_CLOUD_PROJECT=demo-aozora-park \
         aozora-park/api:local
 
@@ -90,11 +91,29 @@ docker-stop:
 # ==========================================================================================
 # deploy: stg への手動デプロイ
 # ==========================================================================================
-# stg へデプロイする (例: just deploy-stg release/main-issue-54/api-deploy)
+# stg の Firestore に枠を作成する
+#
+# 今日から inventoryDays 日分の dateInventories と timeSlots を作る。既にあるものは作らない
+# priorityPassConfig.enabled が true のアトラクションだけが対象になる
+# 定期実行の仕組み (Cloud Run jobs と Scheduler) がまだ無いため、当面は手で実行する
+[doc("stg の Firestore に枠を作成する")]
+generate-inventory-stg:
+    env -u FIRESTORE_EMULATOR_HOST -u PUBSUB_EMULATOR_HOST {{ stg_env }} go run ./cmd/job generate
+
+# stg の api へデプロイする (例: just deploy-api-stg main)
 #
 # 指定した ref のコミットを Cloud Build がビルドし、Cloud Run の api を差し替える
+# ref は省略できない、どのコミットが stg に出るかを取り違えないため
 # ソースは GitHub から Developer Connect 経由で取得するため、手元の変更は反映されない
 # イメージのタグにはコミットの SHA を使う
-[doc("stg へデプロイする (既定の ref は main)")]
-deploy-stg ref="main":
-    ./scripts/deploy-stg.sh {{ ref }}
+[doc("stg の api へデプロイする (ref は必須)")]
+deploy-api-stg ref:
+    ./scripts/deploy-api-stg.sh {{ ref }}
+
+# stg の priority-pass-issuer へデプロイする (例: just deploy-priority-pass-issuer-stg main)
+#
+# デプロイしたいサービスだけを指定する、まとめて出すレシピは置かない
+# main へのマージでは CD がサービスごとのワークフローで両方を配信する
+[doc("stg の priority-pass-issuer へデプロイする (ref は必須)")]
+deploy-priority-pass-issuer-stg ref:
+    ./scripts/deploy-priority-pass-issuer-stg.sh {{ ref }}

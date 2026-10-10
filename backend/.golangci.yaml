@@ -43,6 +43,8 @@ linters:
               desc: connect のコードは interceptor が apperr から変換する
             - pkg: cloud.google.com/go/firestore
               desc: 永続化の相手を知るのは infrastructure だけ
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: 送り先を知るのは infrastructure だけ
 
         park-usecase:
           list-mode: lax
@@ -61,6 +63,8 @@ linters:
               desc: connect のコードは interceptor が apperr から変換する
             - pkg: cloud.google.com/go/firestore
               desc: トランザクションは infrastructure の内側に閉じる
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: SDK のメッセージ型を持ち込まない、翻訳するのは infrastructure だけ
 
         park-infrastructure:
           list-mode: lax
@@ -90,6 +94,8 @@ linters:
               desc: handler は infrastructure を直接呼ばず usecase を通す
             - pkg: cloud.google.com/go/firestore
               desc: 永続化の相手を知るのは infrastructure だけ
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: 送り先を知るのは infrastructure だけ
 
         # 機能パッケージのルートだけが自分の4層を結線する
         park-root:
@@ -119,6 +125,8 @@ linters:
               desc: connect のコードは interceptor が apperr から変換する
             - pkg: cloud.google.com/go/firestore
               desc: 永続化の相手を知るのは infrastructure だけ
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: 送り先を知るのは infrastructure だけ
 
         inventory-usecase:
           list-mode: lax
@@ -137,6 +145,8 @@ linters:
               desc: connect のコードは interceptor が apperr から変換する
             - pkg: cloud.google.com/go/firestore
               desc: トランザクションは infrastructure の内側に閉じる
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: SDK のメッセージ型を持ち込まない、翻訳するのは infrastructure だけ
 
         inventory-infrastructure:
           list-mode: lax
@@ -166,6 +176,8 @@ linters:
               desc: handler は infrastructure を直接呼ばず usecase を通す
             - pkg: cloud.google.com/go/firestore
               desc: 永続化の相手を知るのは infrastructure だけ
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: 送り先を知るのは infrastructure だけ
 
         # 機能パッケージのルートだけが自分の4層を結線する
         inventory-root:
@@ -174,6 +186,88 @@ linters:
             - "**/internal/inventory/*.go"
           allow:
             - github.com/tamaco489/aozora-park/backend/internal/inventory
+            - github.com/tamaco489/aozora-park/backend/internal/platform
+          deny:
+            - pkg: github.com/tamaco489/aozora-park/backend/internal
+              desc: 機能パッケージ同士は import しない
+
+        prioritypass-domain:
+          list-mode: lax
+          files:
+            - "**/internal/prioritypass/domain/**"
+          allow:
+            - github.com/tamaco489/aozora-park/backend/internal/prioritypass/domain
+            - github.com/tamaco489/aozora-park/backend/internal/platform
+          deny:
+            - pkg: github.com/tamaco489/aozora-park/backend/internal
+              desc: domain は usecase と infrastructure と他の機能を知らない
+            - pkg: github.com/tamaco489/aozora-park/backend/gen
+              desc: 入出力の変換は handler の仕事
+            - pkg: connectrpc.com/connect
+              desc: connect のコードは interceptor が apperr から変換する
+            - pkg: cloud.google.com/go/firestore
+              desc: 永続化の相手を知るのは infrastructure だけ
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: 送り先を知るのは infrastructure だけ
+
+        prioritypass-usecase:
+          list-mode: lax
+          files:
+            - "**/internal/prioritypass/usecase/**"
+          allow:
+            - github.com/tamaco489/aozora-park/backend/internal/prioritypass/domain
+            - github.com/tamaco489/aozora-park/backend/internal/prioritypass/usecase
+            - github.com/tamaco489/aozora-park/backend/internal/platform
+          deny:
+            - pkg: github.com/tamaco489/aozora-park/backend/internal
+              desc: usecase は infrastructure と handler と他の機能を知らない
+            - pkg: github.com/tamaco489/aozora-park/backend/gen
+              desc: 入出力の変換は handler の仕事
+            - pkg: connectrpc.com/connect
+              desc: connect のコードは interceptor が apperr から変換する
+            - pkg: cloud.google.com/go/firestore
+              desc: トランザクションは infrastructure の内側に閉じる
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: SDK のメッセージ型を持ち込まない、翻訳するのは infrastructure だけ
+
+        prioritypass-infrastructure:
+          list-mode: lax
+          files:
+            - "**/internal/prioritypass/infrastructure/**"
+          allow:
+            - github.com/tamaco489/aozora-park/backend/internal/prioritypass/domain
+            - github.com/tamaco489/aozora-park/backend/internal/platform
+          deny:
+            - pkg: github.com/tamaco489/aozora-park/backend/internal
+              desc: 実装するインタフェースは domain/repository にある
+            - pkg: github.com/tamaco489/aozora-park/backend/gen
+              desc: 入出力の変換は handler の仕事
+            - pkg: connectrpc.com/connect
+              desc: SDK のエラーは domain のセンチネルに翻訳する
+
+        prioritypass-handler:
+          list-mode: lax
+          files:
+            - "**/internal/prioritypass/handler/**"
+          allow:
+            - github.com/tamaco489/aozora-park/backend/internal/prioritypass/domain
+            - github.com/tamaco489/aozora-park/backend/internal/prioritypass/usecase
+            - github.com/tamaco489/aozora-park/backend/internal/platform
+          deny:
+            - pkg: github.com/tamaco489/aozora-park/backend/internal
+              desc: handler は infrastructure を直接呼ばず usecase を通す
+            - pkg: cloud.google.com/go/firestore
+              desc: 永続化の相手を知るのは infrastructure だけ
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: 送り先を知るのは infrastructure だけ
+
+        # 機能パッケージのルートだけが自分の4層を結線する
+        prioritypass-root:
+          list-mode: lax
+          files:
+            - "**/internal/prioritypass/*.go"
+          allow:
+            - github.com/tamaco489/aozora-park/backend/internal/prioritypass
             - github.com/tamaco489/aozora-park/backend/internal/platform
           deny:
             - pkg: github.com/tamaco489/aozora-park/backend/internal

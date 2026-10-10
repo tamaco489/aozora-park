@@ -12,12 +12,20 @@ The outer split is by business feature, and each feature is split into layers. O
 
 ![Layers and the direction of dependencies](./images/layers.png)
 
-| Ring                       | Packages                                                                                                     |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Enterprise Business Rules  | `park/domain/model`, `inventory/domain/model`, `platform/serving/apperr`                                     |
-| Application Business Rules | `park/usecase`, `park/domain/repository`, `inventory/usecase`, `inventory/domain/repository`                 |
-| Interface Adapters         | `<feature>/handler`, `<feature>/infrastructure/firestore`, `internal/park` and `internal/inventory` (wiring) |
-| Frameworks & Drivers       | `cmd/api`, `internal/platform/**`, `gen/**`                                                                  |
+| Ring                       | Packages                                                                                                                    |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Enterprise Business Rules  | `<feature>/domain/model`, `platform/serving/apperr`                                                                         |
+| Application Business Rules | `<feature>/usecase`, `<feature>/usecase/port`, `<feature>/domain/repository`                                                |
+| Interface Adapters         | `<feature>/handler`, `<feature>/infrastructure/firestore`, `<feature>/infrastructure/pubsub`, `internal/<feature>` (wiring) |
+| Frameworks & Drivers       | `cmd/api`, `cmd/job`, `internal/platform/**`, `gen/**`                                                                      |
+
+The feature packages are `park`, `inventory` and `prioritypass`, and all three have the same shape.
+Only `prioritypass` has a `usecase/port` and an `infrastructure/pubsub`.
+
+`cmd/job` is one binary whose subcommand selects the work. The only one so far is the slot pre-generation (`generate`).
+
+`cmd/priority-pass-issuer`, which receives the priority pass allocation, and `platform/serving/pubsubpush`, which unwraps the Pub/Sub push envelope, are not there yet.
+Only where they go is decided, in `.claude/rules/go/coding.md`.
 
 ## Dependencies between packages
 
@@ -52,6 +60,16 @@ Its only outward-facing knowledge is the method that maps a `Kind` to a `connect
 **`inventory` turns its identifiers and its date into value objects.** `ParkID`, `AttractionID`, `TimeSlotID` and `Date` are passed side by side as strings into the repository methods, where swapping two of them would still compile. The start time, the capacity and the remaining count never leave `DateInventory` or `TimeSlot` on their own, so they stay primitive.
 
 **`inventory` never creates a slot.** `domain/model` only offers `RestoreDateInventory` and `RestoreTimeSlot`. Slots are created ahead of time by a job, so adding a `New` here would give creation two entry points.
+
+**Only `prioritypass` has a `usecase/port`.** Persistence belongs to `domain/repository`, but publishing is not persistence. The port lists only the methods the caller needs, and `infrastructure/pubsub` implements it. `park` and `inventory` touch nothing but Firestore, so they have no such layer.
+
+**A failed publish does not roll the request back.** Recreating an already created request would mean a duplicate, so a failed send is logged instead of returned as an error. A successful send is recorded in `publishedAt`, which leaves the ones that were never sent to be picked up later.
+
+**The publish is detached from the caller's ctx and given a deadline.** While the destination is unreachable the SDK keeps retrying, so without a deadline the request takes that much longer to answer. Measured, an RPC that took 60.3 seconds without one came down to 3.02 seconds with `context.WithoutCancel` and a 3 second `context.WithTimeout`.
+
+**Feature packages do not import each other; they read each other's documents through their own structs.** `inventory` reads the master data `park` wrote, and `prioritypass` reads the time slots `inventory` wrote. Neither uses the other's `domain/model`: each keeps a struct of just the fields it needs. `DataTo` drops fields the struct does not declare, so adding a field on the writing side breaks nothing.
+
+The cost is that a collection path and a field name now live in two places. Changing only one of them goes unnoticed when the implementation and the test helper read the same constant, so a test compares the assembled path against a literal (`TestRepositoryTimeSlotDocPath`). Once a third reader appears, this arrangement is worth revisiting.
 
 ## Regenerating the diagrams
 

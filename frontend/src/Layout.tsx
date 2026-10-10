@@ -13,6 +13,7 @@ export function Layout() {
         <NavLink to="/attractions">アトラクション</NavLink>
         <NavLink to="/ticket-types">券種</NavLink>
         <NavLink to="/inventory">枠</NavLink>
+        <NavLink to="/priority-passes">優先パス</NavLink>
       </nav>
 
       <Outlet />

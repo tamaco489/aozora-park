@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1010" viewBox="0 0 1600 1010" font-family="'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#a0461b"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="1010" fill="#ffffff"/>
+
+  <!-- タイトル -->
+  <text x="30" y="48" font-size="26" font-weight="bold" fill="#222">優先パスの申込から割当までの経路 (api が publish し、push で priority-pass-issuer が受ける)</text>
+
+  <!-- GCP プロジェクト -->
+  <rect x="250" y="90" width="1320" height="580" rx="12" fill="#f7f9ff" stroke="#4285f4" stroke-width="2" stroke-dasharray="8 5"/>
+  <text x="268" y="118" font-size="17" font-weight="bold" fill="#4285f4">GCP: stg-aozora-park</text>
+
+  <!-- 来園者 -->
+  <rect x="30" y="175" width="190" height="110" rx="8" fill="#eaf2fb" stroke="#1a4f8b" stroke-width="1.5"/>
+  <text x="125" y="208" font-size="17" font-weight="bold" text-anchor="middle" fill="#1a4f8b">来園者</text>
+  <text x="125" y="236" font-size="14" text-anchor="middle" fill="#333">frontend の画面</text>
+  <text x="125" y="262" font-size="13" text-anchor="middle" fill="#555">RequestPriorityPass</text>
+
+  <!-- api -->
+  <rect x="290" y="155" width="230" height="150" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
+  <text x="405" y="188" font-size="18" font-weight="bold" text-anchor="middle" fill="#222">Cloud Run api</text>
+  <line x1="308" y1="202" x2="502" y2="202" stroke="#ddd" stroke-width="1"/>
+  <text x="405" y="226" font-size="14" text-anchor="middle" fill="#333">SA: sa-api</text>
+  <text x="405" y="250" font-size="13" text-anchor="middle" fill="#555">status=requested で保存</text>
+  <text x="405" y="272" font-size="13" text-anchor="middle" fill="#555">publish は 3 秒で打ち切る</text>
+  <text x="405" y="294" font-size="13" text-anchor="middle" fill="#555">成功したら publishedAt</text>
+
+  <!-- topic -->
+  <rect x="580" y="165" width="230" height="130" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
+  <text x="695" y="198" font-size="17" font-weight="bold" text-anchor="middle" fill="#222">Pub/Sub topic</text>
+  <line x1="598" y1="212" x2="792" y2="212" stroke="#ddd" stroke-width="1"/>
+  <text x="695" y="236" font-size="15" font-weight="bold" text-anchor="middle" fill="#222">prioritypass.requested</text>
+  <text x="695" y="262" font-size="13" text-anchor="middle" fill="#555">本文は {"passId": "..."} だけ</text>
+  <text x="695" y="284" font-size="13" text-anchor="middle" fill="#555">ordering key は使わない</text>
+
+  <!-- subscription -->
+  <rect x="870" y="150" width="270" height="165" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
+  <text x="1005" y="183" font-size="17" font-weight="bold" text-anchor="middle" fill="#222">subscription (push)</text>
+  <line x1="888" y1="197" x2="1122" y2="197" stroke="#ddd" stroke-width="1"/>
+  <text x="1005" y="221" font-size="14" font-weight="bold" text-anchor="middle" fill="#222">prioritypass.requested.allocate</text>
+  <text x="1005" y="245" font-size="13" text-anchor="middle" fill="#555">ack_deadline_seconds = 60</text>
+  <text x="1005" y="267" font-size="13" text-anchor="middle" fill="#555">retry 10s - 600s</text>
+  <text x="1005" y="289" font-size="13" text-anchor="middle" fill="#555">max_delivery_attempts = 5</text>
+  <text x="1005" y="309" font-size="13" text-anchor="middle" fill="#555">OIDC: sa-pubsub-push</text>
+
+  <!-- issuer -->
+  <rect x="1200" y="150" width="250" height="165" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
+  <text x="1325" y="181" font-size="16" font-weight="bold" text-anchor="middle" fill="#222">Cloud Run</text>
+  <text x="1325" y="203" font-size="16" font-weight="bold" text-anchor="middle" fill="#222">priority-pass-issuer</text>
+  <line x1="1218" y1="217" x2="1432" y2="217" stroke="#ddd" stroke-width="1"/>
+  <text x="1325" y="241" font-size="14" text-anchor="middle" fill="#333">POST /pubsub/push</text>
+  <text x="1325" y="263" font-size="13" text-anchor="middle" fill="#555">ingress: internal only</text>
+  <text x="1325" y="285" font-size="13" text-anchor="middle" fill="#555">min 0 / max 2</text>
+  <text x="1325" y="307" font-size="13" text-anchor="middle" fill="#555">SA: sa-priority-pass-issuer</text>
+
+  <!-- Firestore -->
+  <rect x="1200" y="430" width="250" height="150" rx="8" fill="#fff" stroke="#4285f4" stroke-width="2"/>
+  <text x="1325" y="463" font-size="18" font-weight="bold" text-anchor="middle" fill="#222">Firestore</text>
+  <line x1="1218" y1="477" x2="1432" y2="477" stroke="#ddd" stroke-width="1"/>
+  <text x="1325" y="501" font-size="14" text-anchor="middle" fill="#333">1 トランザクション</text>
+  <text x="1325" y="525" font-size="13" text-anchor="middle" fill="#555">priorityPasses の status</text>
+  <text x="1325" y="547" font-size="13" text-anchor="middle" fill="#555">timeSlots の remaining を減算</text>
+  <text x="1325" y="569" font-size="13" text-anchor="middle" fill="#555">events に 1 件追記</text>
+
+  <!-- DLQ -->
+  <rect x="580" y="430" width="270" height="130" rx="8" fill="#fcefe8" stroke="#a0461b" stroke-width="2"/>
+  <text x="715" y="463" font-size="16" font-weight="bold" text-anchor="middle" fill="#a0461b">DLQ topic</text>
+  <line x1="598" y1="477" x2="832" y2="477" stroke="#e3c4b2" stroke-width="1"/>
+  <text x="715" y="501" font-size="14" font-weight="bold" text-anchor="middle" fill="#222">prioritypass.requested.dlq</text>
+  <text x="715" y="527" font-size="13" text-anchor="middle" fill="#555">退避は Pub/Sub のサービス</text>
+  <text x="715" y="549" font-size="13" text-anchor="middle" fill="#555">エージェントが行う</text>
+
+  <rect x="890" y="430" width="250" height="130" rx="8" fill="#fcefe8" stroke="#a0461b" stroke-width="2"/>
+  <text x="1015" y="463" font-size="16" font-weight="bold" text-anchor="middle" fill="#a0461b">保持用 subscription</text>
+  <line x1="908" y1="477" x2="1122" y2="477" stroke="#e3c4b2" stroke-width="1"/>
+  <text x="1015" y="501" font-size="13" font-weight="bold" text-anchor="middle" fill="#222">prioritypass.requested.dlq.hold</text>
+  <text x="1015" y="527" font-size="13" text-anchor="middle" fill="#555">pull、7 日保持</text>
+  <text x="1015" y="549" font-size="13" text-anchor="middle" fill="#555">再投入は gcloud で手作業</text>
+
+  <!-- 矢印 -->
+  <g stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <line x1="220" y1="230" x2="286" y2="230"/>
+    <line x1="520" y1="230" x2="576" y2="230"/>
+    <line x1="810" y1="230" x2="866" y2="230"/>
+    <line x1="1140" y1="212" x2="1196" y2="212"/>
+    <line x1="1325" y1="315" x2="1325" y2="426"/>
+    <path d="M 405 309 C 405 500, 405 620, 560 620 L 1270 620 C 1316 620, 1325 612, 1325 586"/>
+  </g>
+
+  <!-- 2xx / 5xx の戻り -->
+  <g stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <path d="M 1196 290 C 1170 290, 1166 268, 1144 268"/>
+  </g>
+
+  <!-- DLQ への退避 -->
+  <g stroke="#a0461b" stroke-width="2" fill="none" marker-end="url(#arrow-red)">
+    <path d="M 950 315 C 950 370, 860 380, 790 426"/>
+    <line x1="850" y1="495" x2="886" y2="495"/>
+  </g>
+
+  <!-- 矢印のラベル -->
+  <text x="548" y="218" font-size="13" text-anchor="middle" fill="#333">publish</text>
+  <text x="838" y="218" font-size="13" text-anchor="middle" fill="#333">配送</text>
+  <text x="1168" y="200" font-size="13" text-anchor="middle" fill="#333">push</text>
+  <text x="1230" y="348" font-size="13" text-anchor="middle" fill="#333">204 で ack / 500 で再配信</text>
+  <text x="1343" y="378" font-size="13" fill="#333">読み書き</text>
+  <text x="900" y="608" font-size="13" text-anchor="middle" fill="#333">api も同じ Firestore に申込を作成する</text>
+  <text x="862" y="352" font-size="13" text-anchor="middle" fill="#a0461b">5 回失敗したら退避</text>
+
+  <!-- 業務の流れ -->
+  <line x1="30" y1="710" x2="1570" y2="710" stroke="#ccc" stroke-width="1"/>
+  <text x="30" y="742" font-size="17" font-weight="bold" fill="#222">状態の遷移</text>
+  <rect x="30" y="760" width="170" height="54" rx="8" fill="#eaf2fb" stroke="#1a4f8b" stroke-width="1.5"/>
+  <text x="115" y="794" font-size="16" font-weight="bold" text-anchor="middle" fill="#1a4f8b">requested</text>
+  <rect x="330" y="730" width="170" height="54" rx="8" fill="#e9f3ea" stroke="#1e6b32" stroke-width="1.5"/>
+  <text x="415" y="764" font-size="16" font-weight="bold" text-anchor="middle" fill="#1e6b32">issued</text>
+  <rect x="330" y="800" width="170" height="54" rx="8" fill="#f4f4f4" stroke="#555" stroke-width="1.5"/>
+  <text x="415" y="834" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">sold_out</text>
+  <g stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <path d="M 200 780 C 250 780, 270 757, 326 757"/>
+    <path d="M 200 794 C 250 794, 270 827, 326 827"/>
+  </g>
+  <text x="263" y="742" font-size="13" text-anchor="middle" fill="#333">remaining &gt; 0</text>
+  <text x="263" y="860" font-size="13" text-anchor="middle" fill="#333">remaining = 0</text>
+  <text x="540" y="757" font-size="14" fill="#555">どちらも終端。再配信で届いても requested でなければ何も書かず 204 を返す</text>
+  <text x="540" y="785" font-size="14" fill="#555">遷移と remaining の減算と events の追記は、同じトランザクションで書く</text>
+  <text x="540" y="813" font-size="14" fill="#555">却下を表す rejected は、券との突き合わせを行う tickets ができたときに足す</text>
+  <text x="540" y="841" font-size="14" fill="#555">冪等キーは passId。本文に識別子しか載せないため、再配信は同じ 1 件を指す</text>
+
+  <!-- 注記 -->
+  <line x1="30" y1="890" x2="1570" y2="890" stroke="#ccc" stroke-width="1"/>
+  <text x="30" y="920" font-size="15" fill="#333">・push を選んだのは、pull が購読を待つ常駐を要し、min_instances = 0 のゼロスケールと噛み合わないため。呼び出せるのは sa-pubsub-push だけ (ingress は internal)</text>
+  <text x="30" y="948" font-size="15" fill="#333">・再実行で直りうる失敗だけ 500 を返す。直らない失敗 (本文が壊れている、申込が無い) は 204 で ack し、ログに残す。判定は apperr.Retryable が行う</text>
+  <text x="30" y="976" font-size="15" fill="#333">・publish に失敗しても申込は巻き戻さない。publishedAt が null のまま残るので、後から送り直す対象として検出できる (検出の実装はまだ無い)</text>
+</svg>

@@ -70,8 +70,8 @@ func (u *CreateTicketType) Do(ctx context.Context, in CreateTicketTypeInput) (*p
 //
 // 同名が並ぶと購入者がどちらを選んだのか分からなくなる
 //
-// 読んでから書くため、同名の登録が同時に来ると両方が通る
-// 運営の内部操作で同時に起きる状況が考えにくいため、ここではトランザクションで束ねない
+//   - 読んでから書くため、同名の登録が同時に来ると両方が通る
+//   - 運営の内部操作で同時に起きる状況が考えにくいため、ここではトランザクションで束ねない
 func (u *CreateTicketType) ensureNameFree(
 	ctx context.Context,
 	parkID parkmodel.ParkID,

@@ -14,6 +14,15 @@
 
 - GCP の組織・フォルダ・プロジェクト、課金アカウントの紐付け、state バケット、予算アラートは手作業で作成する。手順は設計ドキュメントに置く
 - Terraform はプロジェクトの中のリソースだけを扱う
+- **Google 側が持つサービスエージェントは Terraform で作成しない。** 環境ごとに 1 度だけ手で作成し、Terraform はプロジェクト番号からメールアドレスを組み立てて IAM を付けるだけにする
+
+Pub/Sub のサービスエージェント (`service-<プロジェクト番号>@gcp-sa-pubsub.iam.gserviceaccount.com`) は API を有効にしただけでは実体ができない。存在しないまま IAM を付けると 400 で落ちるため、先に作成しておく。
+
+```sh
+gcloud beta services identity create --service=pubsub.googleapis.com --project=<プロジェクト ID>
+```
+
+`google_project_service_identity` で Terraform に持たせることもできるが、`google-beta` の provider が要る。provider を増やさず手作業に寄せる判断をしている。
 
 ## 環境ディレクトリのファイル構成
 
@@ -46,6 +55,8 @@
 
 - GCP プロジェクトを環境ごとに分けるため、リソース名に環境の接頭辞を付けない (`api`、`payment-executor`)。プロジェクト外で一意にする必要があるもの (GCS バケットなど) だけ、先頭にプロジェクト ID を付けて `${var.project_id}-<役割>` にする (`stg-aozora-park-tfstate`)
 - リソース名はモジュール内で組み立てる。環境ディレクトリは値 (`project_id` `region` `env`) を渡すだけで名前を組み立てない
+- **サービスアカウントの `account_id` は `sa-` で始める。** Cloud Run service の実行 SA は `sa-<サービス名>` にし (`sa-api`、`sa-priority-pass-issuer`)、それ以外は役割名にする (`sa-deployer`、`sa-pubsub-push`、`sa-cd-backend`)。実行 SA をサービス名と揃えるのは、どのサービスが名乗っているかをログの主体から辿れるようにするため
+- **非同期の処理を受ける worker の名前は `-er` 形にする。** 外から見て何をするものかが分かる語にし (`priority-pass-issuer`、`payment-executor`)、`<機能>-service` のように役割を表さない語を付けない。入口の `api` のように機能で分かれないものはそのままにする
 - `env` は `validation` で `stg` と `prd` に限る。`project_id` は `validation` で GCP のプロジェクト ID の形式を検査する
 - **API キー・シークレット・Webhook URL・メールアドレスをファイルに書かない。** 秘匿値は Secret Manager に置き、Terraform ではシークレットの入れ物と参照だけを定義する。値の投入はユーザーが手で行う
 - `terraform.tfvars` には `project_id` `region` `env` のような公開してよい値だけを置く

@@ -18,6 +18,7 @@
 - **ドメインの型はモックしない。** エンティティと値オブジェクトは実物を使う
 - 差し替えるのは `domain/repository` と `usecase/port` のインタフェース、それと `platform/client` だけ
 - `domain/model` と `usecase` のテストは Docker に依存させない。フェイクだけで完結させる
+- `infrastructure` でエミュレータを使うのは Firestore だけ。Pub/Sub は立てない (「Pub/Sub にエミュレータを使わない」を参照)
 
 ### カバレッジに目標値を決めない
 
@@ -183,7 +184,7 @@ Pub/Sub の購読、リトライ、graceful shutdown は goroutine を起こす�
 
 ### エミュレータを使うテスト
 
-**`infrastructure` のテストは testcontainers-go でエミュレータを起動する。** `github.com/testcontainers/testcontainers-go/modules/gcloud` に Firestore と Pub/Sub のコンテナがある。
+**Firestore を使う `infrastructure` のテストは testcontainers-go でエミュレータを起動する。** コンテナは `github.com/testcontainers/testcontainers-go/modules/gcloud` にある。Pub/Sub のコンテナも同じモジュールにあるが使わない (「Pub/Sub にエミュレータを使わない」を参照)。
 
 - Docker がない環境のために環境変数でゲートし、未設定なら `t.Skip("run with DOCKER_TESTS=1")` する。**CI では必ず設定して走らせる**
 - ビルドタグ (`//go:build integration`) では分けない。タグ付きファイルは gopls と golangci-lint の対象から外れ、気づかないうちに腐る
@@ -211,6 +212,31 @@ func TestRepositoryCreateAndGet(t *testing.T) {
 - イメージは `gcr.io/google.com/cloudsdktool/cloud-sdk:<バージョン>-emulators` をタグ付きで固定する。エミュレータの挙動がバージョンによって異なるため
 - プロジェクト ID は `firestoretest.ProjectID` を使う。`demo-` で始まる ID は SDK が本物の Google Cloud への接続を拒む
 - ドキュメントは作成した側が `t.Cleanup` で削除する。コレクションは共有するため、ID をテストごとに分ける
+
+### Pub/Sub にエミュレータを使わない
+
+**Pub/Sub だけはエミュレータを立てない。** 確かめたいものが 3 つに分かれ、どれもエミュレータを必要としないため、Docker を要する土台を増やす価値がない。
+
+| 何を確かめるか                         | どこで                     | 土台                     |
+| -------------------------------------- | -------------------------- | ------------------------ |
+| 送る本文と属性の形 (JSON の項目名まで) | 組み立ての関数を単体で     | なし                     |
+| publish の呼び出しと失敗時の振る舞い   | `usecase`                  | フェイク                 |
+| Firestore への書き込み                 | `infrastructure/firestore` | Firestore のエミュレータ |
+
+- **本文の組み立てを `Publish` の呼び出しから切り離した関数にする** (`newRequestedMessage`)。SDK のクライアントを用意せずに形を確かめられる
+- 形は JSON の項目名まで確かめる。崩れると購読側がメッセージを解釈できなくなり、送る側のテストだけでは気づけない
+- 送信が失敗しても手前の処理を巻き戻さない判断は `usecase` のフェイクで確かめる。エラーを返す publisher を渡し、作成が残ることと `publishedAt` が記録されないことを見る
+- `infrastructure/pubsub` は「層ごとの検証」の表の例外になる。エミュレータで確かめるのは Firestore の `infrastructure` だけ
+
+### push ハンドラの検証
+
+**push の受け口もフェイクだけで確かめる。** Pub/Sub のエミュレータは立てない。
+
+- エンベロープ (`{"message":{"data":...}}`) を JSON の文字列として組み立て、`httptest` 経由でハンドラに渡す
+- 冪等性を必ず確かめる。同じエンベロープを 2 回渡し、2 回目で状態が変化しないことを見る (「冪等性を必ず検証する」を参照)
+- リトライさせるかの判断を確かめる。再実行で直らない失敗が 2xx になり、直る失敗が 5xx になることを別のケースにする
+- `deliveryAttempt` が無いエンベロープと、DLQ を経由して付いているエンベロープの両方を渡す。片方しか無いと欠けた側の扱いが決まっていないことに気づけない
+- **エンベロープのパースは外部から任意の入力を受ける境界のため Fuzz の対象になる** (「Fuzz」を参照)。壊れた base64、`message` が無いもの、空の本文を落とさずに扱えることを見る
 
 ## 実行と資材
 

@@ -10,18 +10,18 @@ GCP への認証に使う仕組みは [Workload Identity Federation](./wif/READM
 
 ## 2 つの経路
 
-|                  | backend (api)                                                     | frontend                                                         |
-| ---------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------- |
-| 配信先           | Cloud Run                                                         | Firebase Hosting                                                 |
-| ワークフロー     | `cd-backend-stg.yaml`                                             | `cd-frontend-stg.yaml`                                           |
-| ビルドの実行場所 | **Cloud Build (GCP の中)**                                        | **GitHub Actions のランナー**。手元から起こしたときは手元        |
-| ソースの取得元   | GitHub (Developer Connect 経由)                                   | ワークフローの checkout。手元から起こしたときは作業ツリー        |
-| 未コミットの変更 | 反映されない                                                      | CI からは反映されない。手元からは**反映される**                  |
-| 自動の起点 (stg) | `main` への push (`backend/**`)                                   | `main` への push (`frontend/**`、`firebase.json`、`.firebaserc`) |
-| 手で起こす (stg) | `workflow_dispatch`、または `cd backend && just deploy-stg <ref>` | `workflow_dispatch`、または `cd frontend && just deploy-stg`     |
-| ロールバック     | `gcloud run services update-traffic`                              | Firebase コンソールでリリースを選ぶ                              |
-| prd              | `api/v1.2.3` の形のタグの push。承認が必須                        | 未定。`spa/v1.2.3` の形のタグを想定している                      |
-| 現在の状態       | stg は稼働中。prd は GCP のプロジェクトが未作成                   | stg は稼働中。prd は GCP のプロジェクトが未作成                  |
+|                  | backend (Cloud Run のサービスごと)                                             | frontend                                                         |
+| ---------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| 配信先           | Cloud Run                                                                      | Firebase Hosting                                                 |
+| ワークフロー     | `cd-<サービス名>-stg.yaml` (サービスごとに 1 本)                               | `cd-frontend-stg.yaml`                                           |
+| ビルドの実行場所 | **Cloud Build (GCP の中)**                                                     | **GitHub Actions のランナー**。手元から起こしたときは手元        |
+| ソースの取得元   | GitHub (Developer Connect 経由)                                                | ワークフローの checkout。手元から起こしたときは作業ツリー        |
+| 未コミットの変更 | 反映されない                                                                   | CI からは反映されない。手元からは**反映される**                  |
+| 自動の起点 (stg) | `main` への push (`backend/**`)                                                | `main` への push (`frontend/**`、`firebase.json`、`.firebaserc`) |
+| 手で起こす (stg) | `workflow_dispatch`、または `cd backend && just deploy-<サービス名>-stg <ref>` | `workflow_dispatch`、または `cd frontend && just deploy-stg`     |
+| ロールバック     | `gcloud run services update-traffic`                                           | Firebase コンソールでリリースを選ぶ                              |
+| prd              | `<サービス名>/v1.2.3` の形のタグの push。承認が必須                            | 未定。`spa/v1.2.3` の形のタグを想定している                      |
+| 現在の状態       | stg は稼働中。prd は GCP のプロジェクトが未作成                                | stg は稼働中。prd は GCP のプロジェクトが未作成                  |
 
 **backend は「GCP がソースを取りに行ってビルドする」、frontend は「ビルドした成果物を外から置く」**という違いです。
 GitHub Actions が backend に対して行うのは Cloud Build の起動だけで、ビルドもデプロイも GCP の中で完結します。
@@ -31,10 +31,10 @@ frontend は静的ファイルを作るだけで数秒で終わるため、ラ�
 
 ## 共通する方針
 
-- **stg は `main` への push で自動的に配信されます。** backend は `cd-backend-stg`、frontend は `cd-frontend-stg` が起動します
+- **stg は `main` への push で自動的に配信されます。** backend はサービスごとの `cd-<サービス名>-stg`、frontend は `cd-frontend-stg` が起動します
 - **長期のクレデンシャルをリポジトリと GitHub Secrets に置きません。** GCP への認証は Workload Identity Federation を使い、ワークフローは `id-token: write` で得た OIDC トークンから短命のアクセストークンを受け取ります
-- **手元からも同じものを起こせます。** どちらも `just deploy-stg` という同じ名前のレシピで、CI が止まっていても配信できます
-- **`workflow_dispatch` で任意のブランチから配信できます。** 作業中の内容を stg で確かめるためで、手元の `just deploy-stg` と同じ用途です
+- **手元からも同じものを起こせます。** backend はサービスごとのレシピ、frontend は `just deploy-stg` で、CI が止まっていても配信できます
+- **`workflow_dispatch` で任意のブランチから配信できます。** 作業中の内容を stg で確かめるためで、手元のレシピと同じ用途です
 - **frontend から api への通信は Firebase Hosting の `rewrites` が Cloud Run へ転送します。** 同一オリジンになるため CORS を設定していません。Cloud Run は `allUsers` に公開したままです (Hosting からの転送は内部トラフィック扱いにならないため)。詳細は [frontend のデプロイの構成](./frontend/README.ja.md)にあります
 - prd は GCP のプロジェクトが未作成のため、構成の定義だけを持ちます
 

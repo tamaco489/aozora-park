@@ -4,16 +4,17 @@
 
 このディレクトリにはプロジェクトのドキュメントが含まれています。
 
-| ドキュメント                                                 | 内容                                                       |
-| ------------------------------------------------------------ | ---------------------------------------------------------- |
-| [backend のパッケージ構成](./backend/packages/README.ja.md)  | 層と依存の向き、判断の記録                                 |
-| [Firestore エミュレータ](./backend/firestore/emulator.ja.md) | ローカルでの起動と接続                                     |
-| [stg の Firestore への接続](./backend/firestore/stg.ja.md)   | ローカルの api を stg の Firestore に向ける                |
-| [API 仕様 (OpenAPI)](./api/openapi.yaml)                     | proto から生成した仕様、手で編集しない                     |
-| [API 仕様 (Redoc)](./api/redoc.html)                         | 上の仕様の HTML 形式、手元のブラウザで開いて見る           |
-| [デプロイの構成](./cd/README.ja.md)                          | backend と frontend の 2 つの経路の俯瞰と対比              |
-| [Workload Identity Federation](./cd/wif/README.ja.md)        | 鍵を置かずに GitHub Actions から Google Cloud へ入る仕組み |
-| [backend のデプロイの構成](./cd/backend/README.ja.md)        | Cloud Build と Developer Connect、Terraform との分担       |
-| [backend の stg へのデプロイ](./cd/backend/stg.ja.md)        | 手元から stg の api を更新する、疎通確認とロールバック     |
-| [frontend のデプロイの構成](./cd/frontend/README.ja.md)      | rewrites による同一オリジン化とキャッシュ、採らなかった案  |
-| [frontend の stg へのデプロイ](./cd/frontend/stg.ja.md)      | 手元から stg の画面を更新する、疎通確認とロールバック      |
+| ドキュメント                                                     | 内容                                                       |
+| ---------------------------------------------------------------- | ---------------------------------------------------------- |
+| [backend のパッケージ構成](./backend/packages/README.ja.md)      | 層と依存の向き、判断の記録                                 |
+| [優先パスの Pub/Sub の経路](./backend/prioritypass/README.ja.md) | 申込から割当までの経路と、失敗したときの挙動               |
+| [Firestore エミュレータ](./backend/firestore/emulator.ja.md)     | ローカルでの起動と接続                                     |
+| [stg の Firestore への接続](./backend/firestore/stg.ja.md)       | ローカルの api を stg の Firestore に向ける                |
+| [API 仕様 (OpenAPI)](./api/openapi.yaml)                         | proto から生成した仕様、手で編集しない                     |
+| [API 仕様 (Redoc)](./api/redoc.html)                             | 上の仕様の HTML 形式、手元のブラウザで開いて見る           |
+| [デプロイの構成](./cd/README.ja.md)                              | backend と frontend の 2 つの経路の俯瞰と対比              |
+| [Workload Identity Federation](./cd/wif/README.ja.md)            | 鍵を置かずに GitHub Actions から Google Cloud へ入る仕組み |
+| [backend のデプロイの構成](./cd/backend/README.ja.md)            | Cloud Build と Developer Connect、Terraform との分担       |
+| [backend の stg へのデプロイ](./cd/backend/stg.ja.md)            | 手元から stg の api を更新する、疎通確認とロールバック     |
+| [frontend のデプロイの構成](./cd/frontend/README.ja.md)          | rewrites による同一オリジン化とキャッシュ、採らなかった案  |
+| [frontend の stg へのデプロイ](./cd/frontend/stg.ja.md)          | 手元から stg の画面を更新する、疎通確認とロールバック      |
