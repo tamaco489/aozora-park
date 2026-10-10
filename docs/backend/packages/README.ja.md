@@ -24,7 +24,7 @@
 
 `cmd/job` は 1 つのバイナリをサブコマンドで切り替えます。今あるのは枠の先行生成 (`generate`) だけです。
 
-優先パスの割当を受ける `cmd/priority-pass-issuer` と、Pub/Sub push の封筒を解く `platform/serving/pubsubpush` はまだ置いていません。
+優先パスの割当を受ける `cmd/priority-pass-issuer` と、Pub/Sub push のエンベロープを解く `platform/serving/pubsubpush` はまだ置いていません。
 置き場所だけを `.claude/rules/go/coding.md` で決めています。
 
 ## パッケージ間の依存

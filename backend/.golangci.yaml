@@ -43,6 +43,8 @@ linters:
               desc: connect のコードは interceptor が apperr から変換する
             - pkg: cloud.google.com/go/firestore
               desc: 永続化の相手を知るのは infrastructure だけ
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: 送り先を知るのは infrastructure だけ
 
         park-usecase:
           list-mode: lax
@@ -61,6 +63,8 @@ linters:
               desc: connect のコードは interceptor が apperr から変換する
             - pkg: cloud.google.com/go/firestore
               desc: トランザクションは infrastructure の内側に閉じる
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: SDK のメッセージ型を持ち込まない、翻訳するのは infrastructure だけ
 
         park-infrastructure:
           list-mode: lax
@@ -90,6 +94,8 @@ linters:
               desc: handler は infrastructure を直接呼ばず usecase を通す
             - pkg: cloud.google.com/go/firestore
               desc: 永続化の相手を知るのは infrastructure だけ
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: 送り先を知るのは infrastructure だけ
 
         # 機能パッケージのルートだけが自分の4層を結線する
         park-root:
@@ -119,6 +125,8 @@ linters:
               desc: connect のコードは interceptor が apperr から変換する
             - pkg: cloud.google.com/go/firestore
               desc: 永続化の相手を知るのは infrastructure だけ
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: 送り先を知るのは infrastructure だけ
 
         inventory-usecase:
           list-mode: lax
@@ -137,6 +145,8 @@ linters:
               desc: connect のコードは interceptor が apperr から変換する
             - pkg: cloud.google.com/go/firestore
               desc: トランザクションは infrastructure の内側に閉じる
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: SDK のメッセージ型を持ち込まない、翻訳するのは infrastructure だけ
 
         inventory-infrastructure:
           list-mode: lax
@@ -166,6 +176,8 @@ linters:
               desc: handler は infrastructure を直接呼ばず usecase を通す
             - pkg: cloud.google.com/go/firestore
               desc: 永続化の相手を知るのは infrastructure だけ
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: 送り先を知るのは infrastructure だけ
 
         # 機能パッケージのルートだけが自分の4層を結線する
         inventory-root:
@@ -195,6 +207,8 @@ linters:
               desc: connect のコードは interceptor が apperr から変換する
             - pkg: cloud.google.com/go/firestore
               desc: 永続化の相手を知るのは infrastructure だけ
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: 送り先を知るのは infrastructure だけ
 
         prioritypass-usecase:
           list-mode: lax
@@ -213,6 +227,8 @@ linters:
               desc: connect のコードは interceptor が apperr から変換する
             - pkg: cloud.google.com/go/firestore
               desc: トランザクションは infrastructure の内側に閉じる
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: SDK のメッセージ型を持ち込まない、翻訳するのは infrastructure だけ
 
         prioritypass-infrastructure:
           list-mode: lax
@@ -242,6 +258,8 @@ linters:
               desc: handler は infrastructure を直接呼ばず usecase を通す
             - pkg: cloud.google.com/go/firestore
               desc: 永続化の相手を知るのは infrastructure だけ
+            - pkg: cloud.google.com/go/pubsub/v2
+              desc: 送り先を知るのは infrastructure だけ
 
         # 機能パッケージのルートだけが自分の4層を結線する
         prioritypass-root:
