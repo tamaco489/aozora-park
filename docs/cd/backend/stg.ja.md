@@ -4,8 +4,11 @@
 
 [ドキュメント一覧](../../README.ja.md)に戻る。
 
-`main` へマージした後に、手元から 1 コマンドで stg の api を更新します。構成の全体像は[backend のデプロイの構成](./README.ja.md)にあります。
+`main` へマージした後に、手元から 1 コマンドで stg の Cloud Run を更新します。構成の全体像は[backend のデプロイの構成](./README.ja.md)にあります。
 ビルドとデプロイは Cloud Build が GCP の中で実行し、ソースは GitHub から Developer Connect 経由で取得します。
+
+対象は `api` と `priority-pass-issuer` で、**常に両方をビルドします。**
+変更の内容から対象を絞らないのは、`internal/platform` や `go.mod` を触ると結局どちらも対象になるためです。
 
 ## 前提
 
@@ -33,17 +36,20 @@ just deploy-stg <ref>        # ブランチ・タグ・SHA を指定する
 `<ref>` はまず `origin/<ref>` として解決し、無ければ `<ref>` をそのまま `git rev-parse` に渡します。ローカルのタグやブランチ名も指定できます。
 解決した SHA をイメージのタグに使うため、どのコミットが動いているかをイメージから追えます。
 
-処理の流れは次のとおりです。
+処理の流れは次のとおりです。2 から 4 はサービスごとに 1 ビルドずつ、順番に実行されます。
 
-| 順  | 実行するもの | 内容                                                                        |
-| --- | ------------ | --------------------------------------------------------------------------- |
-| 1   | 手元         | ref をコミットの SHA に解決し、`gcloud beta builds submit` でビルドを投げる |
-| 2   | Cloud Build  | Developer Connect のリンクから、その SHA のソースを取得する                 |
-| 3   | Cloud Build  | `backend/Dockerfile` でイメージを組み立て、Artifact Registry に push する   |
-| 4   | Cloud Build  | push したイメージをダイジェストで指定し、Cloud Run の `api` にデプロイする  |
+| 順  | 実行するもの | 内容                                                                                       |
+| --- | ------------ | ------------------------------------------------------------------------------------------ |
+| 1   | 手元         | ref をコミットの SHA に解決し、サービスごとに `gcloud beta builds submit` でビルドを投げる |
+| 2   | Cloud Build  | Developer Connect のリンクから、その SHA のソースを取得する                                |
+| 3   | Cloud Build  | `backend/Dockerfile` でイメージを組み立て、Artifact Registry に push する                  |
+| 4   | Cloud Build  | push したイメージをダイジェストで指定し、そのサービスの Cloud Run にデプロイする           |
 
 ビルドは `sa-deployer` で走ります。ログはコマンドの出力に流れます。
 履歴は [Cloud Build の一覧](https://console.cloud.google.com/cloud-build/builds?project=stg-aozora-park)で見られます。リージョンは `asia-northeast1` を選びます。
+
+**片方のビルドが落ちても、もう片方は投げます。** 落ちたサービス名を最後に出力し、1 つでも落ちていれば終了コードは 1 になります。
+サービスごとにビルドを分けるのは、1 回のビルドで 2 サービスを作ると `cloudbuild.yaml` がダイジェストを書く `/workspace` のパスが衝突するためです。
 
 > [!NOTE]
 > ビルド定義 (`backend/cloudbuild.yaml`) は手元のファイルを読みます。
@@ -82,21 +88,25 @@ buf curl -d '{"parkId":"<作成した park_id>"}' \
   <api_uri>/aozorapark.park.v1.ParkService/GetPark
 ```
 
-動いているリビジョンとイメージは、次で確かめます。
+動いているリビジョンとイメージは、次で確かめます。`<サービス名>` は `api` と `priority-pass-issuer` のそれぞれで実行します。
 
 ```sh
-gcloud run services describe api --region=asia-northeast1 --project=stg-aozora-park \
+gcloud run services describe <サービス名> --region=asia-northeast1 --project=stg-aozora-park \
   --format='value(status.latestReadyRevisionName,spec.template.spec.containers[0].image)'
 ```
+
+`priority-pass-issuer` は `ingress` を内部に閉じているため、手元から HTTP では叩けません。
+動作は申込の RPC を呼び、Pub/Sub の push で割当が進むことで確かめます。
 
 ## ロールバック
 
 前のリビジョンに戻します。Cloud Run はリビジョンを残すため、イメージを作り直す必要はありません。
+サービスごとに独立しているため、戻すのは落ちているサービスだけでよいです。
 
 ```sh
-gcloud run revisions list --service=api --region=asia-northeast1 --project=stg-aozora-park
+gcloud run revisions list --service=<サービス名> --region=asia-northeast1 --project=stg-aozora-park
 
-gcloud run services update-traffic api \
+gcloud run services update-traffic <サービス名> \
   --region=asia-northeast1 --project=stg-aozora-park \
   --to-revisions=<戻す先のリビジョン>=100
 ```
@@ -104,19 +114,20 @@ gcloud run services update-traffic api \
 戻した後は、次のコマンドで最新のリビジョンに戻せます。もう一度デプロイしても同じ状態になります。
 
 ```sh
-gcloud run services update-traffic api \
+gcloud run services update-traffic <サービス名> \
   --region=asia-northeast1 --project=stg-aozora-park --to-latest
 ```
 
 ## 仕組みと、prd との違い
 
-| 項目                 | stg                                                                  | prd                                |
-| -------------------- | -------------------------------------------------------------------- | ---------------------------------- |
-| 自動の起点           | `main` への push。`cd-backend-stg` が起動する                        | `api/v1.2.3` の形のタグの push     |
-| 手で起こす           | `workflow_dispatch`、または `just deploy-stg <ref>`                  | 無し                               |
-| Cloud Build のトリガ | 作らない。Developer Connect のリポジトリは手動のトリガを作れないため | 作る (Terraform で定義)            |
-| 承認                 | 無し                                                                 | 必須。タグの push だけでは走らない |
-| イメージのタグ       | コミットの SHA                                                       | コミットの SHA                     |
+| 項目                 | stg                                                                  | prd                                     |
+| -------------------- | -------------------------------------------------------------------- | --------------------------------------- |
+| 自動の起点           | `main` への push。`cd-backend-stg` が起動する                        | `<サービス名>/v1.2.3` の形のタグの push |
+| 手で起こす           | `workflow_dispatch`、または `just deploy-stg <ref>`                  | 無し                                    |
+| デプロイ対象         | 常に全サービス                                                       | タグの接頭辞が指すサービスだけ          |
+| Cloud Build のトリガ | 作らない。Developer Connect のリポジトリは手動のトリガを作れないため | サービスごとに作る (Terraform で定義)   |
+| 承認                 | 無し                                                                 | 必須。タグの push だけでは走らない      |
+| イメージのタグ       | コミットの SHA                                                       | コミットの SHA                          |
 
 - Terraform は Cloud Run の `image` を `ignore_changes` で無視します。デプロイでの差し替えを drift にしないためです。
 - GitHub Actions が行うのは Cloud Build の起動だけです。ビルドとデプロイは `sa-deployer` が GCP の中で行うため、デプロイの権限を GitHub 側に出していません。

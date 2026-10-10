@@ -4,7 +4,7 @@
 
 Back to the [documentation index](../../README.md).
 
-This page describes how the api reaches Cloud Run. The procedure itself is in [Deploying the backend to stg](./stg.md).
+This page describes how the backend services reach Cloud Run. The procedure itself is in [Deploying the backend to stg](./stg.md).
 For an overview that also covers the frontend, see [Deployment architecture](../README.md).
 The rules live in `.claude/rules/cd/coding.md`; this page records the current shape and why it was chosen.
 
@@ -21,9 +21,10 @@ the build and the deployment are still carried out by `sa-deployer` inside GCP. 
 
 | Item               | stg                                                                    | prd                                                  |
 | ------------------ | ---------------------------------------------------------------------- | ---------------------------------------------------- |
-| Automatic trigger  | A push to `main` under `backend/**`                                    | Pushing a tag shaped like `api/v1.2.3`               |
+| Automatic trigger  | A push to `main` under `backend/**`                                    | Pushing a tag shaped like `<service>/v1.2.3`         |
 | Manual trigger     | `workflow_dispatch`, or `just deploy-stg <ref>`                        | None                                                 |
 | Who starts it      | `sa-cd-backend` from `cd-backend-stg`, or you                          | A Cloud Build trigger                                |
+| What gets deployed | Always every service, one build each                                   | Only the service the tag prefix names                |
 | Who runs the build | `sa-deployer`                                                          | `sa-deployer`                                        |
 | Approval           | Not required                                                           | Required                                             |
 | Ref                | `github.sha`, or the argument to `just deploy-stg` (`main` by default) | The commit the tag points at                         |
@@ -33,32 +34,50 @@ the build and the deployment are still carried out by `sa-deployer` inside GCP. 
 stg has no Cloud Build trigger because Developer Connect repositories do not support manual triggers.
 Builds are submitted directly with `gcloud builds submit` instead, and GitHub Actions uses the same command.
 
-**The arguments to `gcloud beta builds submit` therefore exist in two places:** `.github/workflows/cd-backend-stg.yaml` and `backend/scripts/deploy-stg.sh`.
+**The arguments to `gcloud beta builds submit`, and the list of services to deploy, therefore exist in two places:** `.github/workflows/cd-backend-stg.yaml` and `backend/scripts/deploy-stg.sh`.
 Changing one means changing the other, and both files carry a comment saying so.
 
-Tags are shaped like `api/v1.2.3` so that triggers can be split per service as more services appear.
+Tags are shaped like `<service>/v1.2.3` so that triggers are split per service.
 A tag name contains a slash and cannot be used as an image tag, so images are tagged with the commit SHA.
+
+## stg always builds every service
+
+Each service gets its own build with a different `_SERVICE`. Two services are not built in one build because
+`cloudbuild.yaml` writes the digest to the fixed path `/workspace/image_digest.txt`, which would collide within a single build.
+
+The set of targets is not derived from what changed. Touching `internal/platform` or `go.mod` ends up covering both services anyway,
+so such a check would mostly add a way for one service to be silently left behind on an older image.
+
+**If one build fails, the result of the other is still visible.**
+
+| How it is started | How that works                                                                        |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| `cd-backend-stg`  | The services are a `strategy.matrix`, with `fail-fast: false` so neither is cancelled |
+| `just deploy-stg` | The script submits them in turn, reports every failed service and exits with 1        |
+
+The `concurrency` of the workflow serializes runs against each other; jobs within the same run are not held by it.
 
 ## The resources involved
 
-| Resource                        | Role                                                                       |
-| ------------------------------- | -------------------------------------------------------------------------- |
-| Developer Connect connection    | The connection to GitHub. The OAuth token is stored in Secret Manager      |
-| Git repository link             | Points at one repository under the connection; Cloud Build fetches from it |
-| Cloud Build                     | Runs build → push → deploy as defined in `backend/cloudbuild.yaml`         |
-| `sa-deployer`                   | The service account the build and the deployment run as                    |
-| Artifact Registry `aozora-park` | Stores the images and keeps the five most recent versions                  |
-| Cloud Run `api`                 | Runs the api as `sa-api`                                                   |
+| Resource                         | Role                                                                       |
+| -------------------------------- | -------------------------------------------------------------------------- |
+| Developer Connect connection     | The connection to GitHub. The OAuth token is stored in Secret Manager      |
+| Git repository link              | Points at one repository under the connection; Cloud Build fetches from it |
+| Cloud Build                      | Runs build → push → deploy as defined in `backend/cloudbuild.yaml`         |
+| `sa-deployer`                    | The service account the build and the deployment run as                    |
+| Artifact Registry `aozora-park`  | Stores the images and keeps the five most recent versions                  |
+| Cloud Run `api`                  | Runs the api as `sa-api`                                                   |
+| Cloud Run `priority-pass-issuer` | Runs the priority pass allocation as `sa-priority-pass-issuer`             |
 
 The roles of `sa-deployer` are kept to what the deployment needs.
 
-| Role                                       | Granted on                   |
-| ------------------------------------------ | ---------------------------- |
-| `roles/artifactregistry.writer`            | The `aozora-park` repository |
-| `roles/run.developer`                      | The Cloud Run service `api`  |
-| `roles/iam.serviceAccountUser`             | `sa-api`                     |
-| `roles/developerconnect.readTokenAccessor` | The project                  |
-| `roles/logging.logWriter`                  | The project                  |
+| Role                                       | Granted on                          |
+| ------------------------------------------ | ----------------------------------- |
+| `roles/artifactregistry.writer`            | The `aozora-park` repository        |
+| `roles/run.developer`                      | The Cloud Run services deployed to  |
+| `roles/iam.serviceAccountUser`             | The runtime service account of each |
+| `roles/developerconnect.readTokenAccessor` | The project                         |
+| `roles/logging.logWriter`                  | The project                         |
 
 The last two are granted on the project because Developer Connect connections and links have no resource-level IAM, and log writing cannot be granted below the project.
 
