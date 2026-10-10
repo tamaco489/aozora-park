@@ -7,8 +7,11 @@ Back to the [documentation index](../../README.md).
 After merging into `main`, update the Cloud Run services on stg with a single command from your machine. The overall architecture is described in [Backend deployment architecture](./README.md).
 Cloud Build runs the build and the deployment inside GCP, and fetches the source from GitHub through Developer Connect.
 
-The targets are `api` and `priority-pass-issuer`, and **both are always built.**
+The targets are `api` and `priority-pass-issuer`. **A push to `main` always builds both.**
 The targets are not narrowed down from what changed, because touching `internal/platform` or `go.mod` ends up covering both anyway.
+
+They can only be narrowed when a person starts the deployment: list the service names locally, or pass a JSON array in `services` for `workflow_dispatch`.
+An unknown service name is rejected by the script, because `gcloud run deploy` creates a new Cloud Run service when it is given a name it does not know.
 
 ## Prerequisites
 
@@ -29,11 +32,12 @@ gcloud auth login
 
 ```sh
 cd backend
-just deploy-stg              # deploys main
-just deploy-stg <ref>        # deploys a branch, a tag or a SHA
+just deploy-stg <ref>                   # deploys every service
+just deploy-stg <ref> <service>...      # deploys only the services listed
 ```
 
-`<ref>` is resolved as `origin/<ref>` first, and used as given when that does not exist.
+**`<ref>` cannot be omitted**, so that nobody mistakes which commit goes to stg; deploying `main` is written as `just deploy-stg main`.
+It is resolved as `origin/<ref>` first, and used as given when that does not exist.
 The resolved SHA becomes the image tag, so the image tells you which commit is running.
 
 Steps 2 to 4 run once per service, one build after another.
@@ -123,7 +127,7 @@ gcloud run services update-traffic <service> \
 | Item                | stg                                                              | prd                                                      |
 | ------------------- | ---------------------------------------------------------------- | -------------------------------------------------------- |
 | Automatic trigger   | A push to `main`, which starts `cd-backend-stg`                  | Pushing a tag shaped like `<service>/v1.2.3`             |
-| Manual trigger      | `workflow_dispatch`, or `just deploy-stg <ref>`                  | None                                                     |
+| Manual trigger      | `workflow_dispatch`, or `just deploy-stg <ref> [service...]`     | None                                                     |
 | What gets deployed  | Always every service                                             | Only the service the tag prefix names                    |
 | Cloud Build trigger | None. Developer Connect repositories cannot have manual triggers | Yes, one per service, defined in Terraform               |
 | Approval            | Not required                                                     | Required. Pushing the tag alone does not start the build |

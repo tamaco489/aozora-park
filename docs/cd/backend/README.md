@@ -19,17 +19,17 @@ the build and the deployment are still carried out by `sa-deployer` inside GCP. 
 
 ## stg and prd
 
-| Item               | stg                                                                    | prd                                                  |
-| ------------------ | ---------------------------------------------------------------------- | ---------------------------------------------------- |
-| Automatic trigger  | A push to `main` under `backend/**`                                    | Pushing a tag shaped like `<service>/v1.2.3`         |
-| Manual trigger     | `workflow_dispatch`, or `just deploy-stg <ref>`                        | None                                                 |
-| Who starts it      | `sa-cd-backend` from `cd-backend-stg`, or you                          | A Cloud Build trigger                                |
-| What gets deployed | Always every service, one build each                                   | Only the service the tag prefix names                |
-| Who runs the build | `sa-deployer`                                                          | `sa-deployer`                                        |
-| Approval           | Not required                                                           | Required                                             |
-| Ref                | `github.sha`, or the argument to `just deploy-stg` (`main` by default) | The commit the tag points at                         |
-| Image tag          | The commit SHA                                                         | The commit SHA                                       |
-| Current state      | Running                                                                | The GCP project does not exist yet; definitions only |
+| Item               | stg                                                                 | prd                                                  |
+| ------------------ | ------------------------------------------------------------------- | ---------------------------------------------------- |
+| Automatic trigger  | A push to `main` under `backend/**`                                 | Pushing a tag shaped like `<service>/v1.2.3`         |
+| Manual trigger     | `workflow_dispatch`, or `just deploy-stg <ref> [service...]`        | None                                                 |
+| Who starts it      | `sa-cd-backend` from `cd-backend-stg`, or you                       | A Cloud Build trigger                                |
+| What gets deployed | Always every service, one build each                                | Only the service the tag prefix names                |
+| Who runs the build | `sa-deployer`                                                       | `sa-deployer`                                        |
+| Approval           | Not required                                                        | Required                                             |
+| Ref                | `github.sha`, or the first argument to `just deploy-stg` (required) | The commit the tag points at                         |
+| Image tag          | The commit SHA                                                      | The commit SHA                                       |
+| Current state      | Running                                                             | The GCP project does not exist yet; definitions only |
 
 stg has no Cloud Build trigger because Developer Connect repositories do not support manual triggers.
 Builds are submitted directly with `gcloud builds submit` instead, and GitHub Actions uses the same command.
@@ -40,13 +40,21 @@ Changing one means changing the other, and both files carry a comment saying so.
 Tags are shaped like `<service>/v1.2.3` so that triggers are split per service.
 A tag name contains a slash and cannot be used as an image tag, so images are tagged with the commit SHA.
 
-## stg always builds every service
+## stg builds every service by default
 
 Each service gets its own build with a different `_SERVICE`. Two services are not built in one build because
 `cloudbuild.yaml` writes the digest to the fixed path `/workspace/image_digest.txt`, which would collide within a single build.
 
 The set of targets is not derived from what changed. Touching `internal/platform` or `go.mod` ends up covering both services anyway,
 so such a check would mostly add a way for one service to be silently left behind on an older image.
+
+**Only a deployment started by a person can narrow the targets.** A push to `main` always covers every service.
+
+| How it is started   | How the targets are chosen                                       |
+| ------------------- | ---------------------------------------------------------------- |
+| Push to `main`      | Not selectable; always every service                             |
+| `workflow_dispatch` | A JSON array in `services`; every service when it is left empty  |
+| `just deploy-stg`   | Service names after the ref; every service when they are omitted |
 
 **If one build fails, the result of the other is still visible.**
 
@@ -108,4 +116,4 @@ Each concern has since been addressed.
 | The original concern                      | Why it no longer applies                                                                                                                                                                                                                         |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | It hands deployment permissions to GitHub | **It does not.** `sa-cd-backend` only holds `cloudbuild.builds.editor` and log viewing; `sa-deployer` still performs the build and the deployment inside GCP. The credential is a short-lived WIF token, and nothing is stored in GitHub Secrets |
-| We want to decide what runs on stg        | **We still can.** `just deploy-stg <ref>` and `workflow_dispatch` both remain, so something other than `main` can be placed on stg. What changed is the default, which is now "the same as `main`"                                               |
+| We want to decide what runs on stg        | **We still can.** `just deploy-stg <ref> [service...]` and `workflow_dispatch` both remain, so something other than `main`, for a chosen set of services, can be placed on stg. What changed is the default, which is now "the same as `main`"   |

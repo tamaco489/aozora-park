@@ -7,8 +7,11 @@
 `main` へマージした後に、手元から 1 コマンドで stg の Cloud Run を更新します。構成の全体像は[backend のデプロイの構成](./README.ja.md)にあります。
 ビルドとデプロイは Cloud Build が GCP の中で実行し、ソースは GitHub から Developer Connect 経由で取得します。
 
-対象は `api` と `priority-pass-issuer` で、**常に両方をビルドします。**
+対象は `api` と `priority-pass-issuer` です。**`main` への push では常に両方をビルドします。**
 変更の内容から対象を絞らないのは、`internal/platform` や `go.mod` を触ると結局どちらも対象になるためです。
+
+絞れるのは人が意図して起こすときだけで、手元からはサービス名を並べ、`workflow_dispatch` では `services` に JSON の配列を渡します。
+知らないサービス名はスクリプトが弾きます。`gcloud run deploy` は知らない名前を渡されると新しい Cloud Run サービスを作成するためです。
 
 ## 前提
 
@@ -29,11 +32,12 @@ gcloud auth login
 
 ```sh
 cd backend
-just deploy-stg              # main をデプロイする
-just deploy-stg <ref>        # ブランチ・タグ・SHA を指定する
+just deploy-stg <ref>                       # 全サービスをデプロイする
+just deploy-stg <ref> <サービス名>...       # 指定したサービスだけをデプロイする
 ```
 
-`<ref>` はまず `origin/<ref>` として解決し、無ければ `<ref>` をそのまま `git rev-parse` に渡します。ローカルのタグやブランチ名も指定できます。
+**`<ref>` は省略できません。** どのコミットが stg に出るかを取り違えないためで、`main` を出すときも `just deploy-stg main` と書きます。
+まず `origin/<ref>` として解決し、無ければ `<ref>` をそのまま `git rev-parse` に渡します。ローカルのタグやブランチ名も指定できます。
 解決した SHA をイメージのタグに使うため、どのコミットが動いているかをイメージから追えます。
 
 処理の流れは次のとおりです。2 から 4 はサービスごとに 1 ビルドずつ、順番に実行されます。
@@ -123,7 +127,7 @@ gcloud run services update-traffic <サービス名> \
 | 項目                 | stg                                                                  | prd                                     |
 | -------------------- | -------------------------------------------------------------------- | --------------------------------------- |
 | 自動の起点           | `main` への push。`cd-backend-stg` が起動する                        | `<サービス名>/v1.2.3` の形のタグの push |
-| 手で起こす           | `workflow_dispatch`、または `just deploy-stg <ref>`                  | 無し                                    |
+| 手で起こす           | `workflow_dispatch`、または `just deploy-stg <ref> [サービス名...]`  | 無し                                    |
 | デプロイ対象         | 常に全サービス                                                       | タグの接頭辞が指すサービスだけ          |
 | Cloud Build のトリガ | 作らない。Developer Connect のリポジトリは手動のトリガを作れないため | サービスごとに作る (Terraform で定義)   |
 | 承認                 | 無し                                                                 | 必須。タグの push だけでは走らない      |

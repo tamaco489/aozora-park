@@ -9,6 +9,13 @@ on:
   # stg は作業中のブランチからも配信したいことがあるため、任意のブランチから手で起こせるようにする
   # 手元の just deploy-stg と同じ用途で、実行したブランチの内容がそのまま stg に入る
   workflow_dispatch:
+    inputs:
+      services:
+        # main への push では絞らない、変更の内容から対象を判定すると片方が古いまま残る
+        # 対象を選べるのは、人が意図して起こすこちらだけにする
+        description: 'デプロイするサービスの JSON の配列 (空なら全サービス)。例: ["api"]'
+        type: string
+        required: false
 
 permissions:
   contents: read
@@ -40,9 +47,8 @@ jobs:
       # 片方のビルドが落ちてももう片方の結果を知りたいため、既定の打ち切りを外す
       fail-fast: false
       matrix:
-        service:
-          - api
-          - priority-pass-issuer
+        # 既定の一覧はここが唯一の定義、backend/scripts/deploy-stg.sh の ALL_SERVICES と同じにする
+        service: ${{ fromJSON(inputs.services || '["api", "priority-pass-issuer"]') }}
     steps:
       # cloudbuild.yaml は手元から渡すため、ソースの取得とは別にチェックアウトが要る
       - uses: actions/checkout@v7
