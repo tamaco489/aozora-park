@@ -75,8 +75,8 @@ func (u *UpdateTicketType) Do(ctx context.Context, in UpdateTicketTypeInput) (*p
 
 // ensureNameFree は同じパークに同じ表示名の券種が無いことを確かめる
 //
-// 自分自身は除く、表示名を変えない更新を弾かないため
-// 競合の扱いは CreateTicketType.ensureNameFree と同じ
+//   - 自分自身は除く、表示名を変えない更新を弾かないため
+//   - 競合の扱いは CreateTicketType.ensureNameFree と同じ
 func (u *UpdateTicketType) ensureNameFree(
 	ctx context.Context,
 	parkID parkmodel.ParkID,

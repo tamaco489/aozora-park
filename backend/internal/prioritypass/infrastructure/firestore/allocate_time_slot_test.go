@@ -586,8 +586,8 @@ func eventCountHelper(
 
 // TestAllocationEventValues は events に残す値を固定する
 //
-// 他のテストは定数どうしを比べるため、値そのものを変更したことに気づけるようにする
-// 運用がログと突き合わせる値のため、変更すると過去の記録と意味が揃わなくなる
+//   - 他のテストは定数どうしを比べるため、値そのものを変更したことに気づけるようにする
+//   - 運用がログと突き合わせる値のため、変更すると過去の記録と意味が揃わなくなる
 func TestAllocationEventValues(t *testing.T) {
 	tests := map[string]struct {
 		got  string
@@ -625,8 +625,8 @@ func TestAllocationEventValues(t *testing.T) {
 
 // TestRepositoryTimeSlotDocPath は時間帯枠のパスをリテラルで固定する
 //
-// 同じパスを inventory も持つため、定数を書き換えても他のテストは追従してしまう
-// 書き換えに気づけるよう、ここだけは組み立てた結果をリテラルと突き合わせる
+//   - 同じパスを inventory も持つため、定数を書き換えても他のテストは追従してしまう
+//   - 書き換えに気づけるよう、ここだけは組み立てた結果をリテラルと突き合わせる
 func TestRepositoryTimeSlotDocPath(t *testing.T) {
 	repo, _ := newRepositoryHelper(t)
 

@@ -10,8 +10,8 @@ import (
 
 // New は Firestore のクライアントを生成する
 //
-// FIRESTORE_EMULATOR_HOST が設定されていれば SDK がエミュレータへ繋ぐ
-// 呼び出し側は終了処理を App に登録する
+//   - FIRESTORE_EMULATOR_HOST が設定されていれば SDK がエミュレータへ繋ぐ
+//   - 呼び出し側は終了処理を App に登録する
 func New(ctx context.Context, projectID string) (*gcpfirestore.Client, error) {
 	client, err := gcpfirestore.NewClient(ctx, projectID)
 	if err != nil {

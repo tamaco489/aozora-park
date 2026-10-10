@@ -9,8 +9,8 @@ import (
 
 // Kind はエラーの分類
 //
-// 値を増やせるのはこのパッケージだけにする
-// 機能パッケージが増やせるのは Code の文字列だけで、分類は共通の語彙に揃える
+//   - 値を増やせるのはこのパッケージだけにする
+//   - 機能パッケージが増やせるのは Code の文字列だけで、分類は共通の語彙に揃える
 type Kind string
 
 const (
@@ -58,8 +58,8 @@ func New(kind Kind, code, message string) *Error {
 
 // NewRetryable は再実行で直りうる失敗のセンチネルを生成する
 //
-// 時間をおけば先行する処理が追いつく場合に使う (枠の生成を待つなど)
-// Kind からは決められないため、センチネルを定義する側が選ぶ
+//   - 時間をおけば先行する処理が追いつく場合に使う (枠の生成を待つなど)
+//   - Kind からは決められないため、センチネルを定義する側が選ぶ
 func NewRetryable(kind Kind, code, message string) *Error {
 	return &Error{
 		Kind:    kind,
@@ -71,8 +71,8 @@ func NewRetryable(kind Kind, code, message string) *Error {
 
 // Retryable は再実行で直りうる失敗かを返す
 //
-// 分類していないエラーは true にする
-// SDK やネットワークの失敗がここに入り、握りつぶすより再配信させるほうが安全なため
+//   - 分類していないエラーは true にする
+//   - SDK やネットワークの失敗がここに入り、握りつぶすより再配信させるほうが安全なため
 func Retryable(err error) bool {
 	if err == nil {
 		return false

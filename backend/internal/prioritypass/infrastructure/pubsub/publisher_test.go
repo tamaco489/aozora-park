@@ -12,7 +12,7 @@ import (
 	prioritypassmodel "github.com/tamaco489/aozora-park/backend/internal/prioritypass/domain/model"
 )
 
-// TestNewRequestedMessage は送る本文と属性が購読側の読む形になっていることを確かめる
+// TestNewRequestedMessage は送る本文が購読側の読む形になっていることを確かめる
 //
 // 形が崩れると割当の worker がメッセージを解釈できなくなるため、項目名まで含めて確かめる
 func TestNewRequestedMessage(t *testing.T) {
@@ -62,25 +62,9 @@ func TestNewRequestedMessage(t *testing.T) {
 		)
 	}
 
-	want := requestedMessage{
-		PassID:       "01a09793-928d-7716-9725-5bb1173c6309",
-		ParkID:       "01a09793-928d-7716-9725-5bb1173c6310",
-		TicketID:     "01a09793-928d-7716-9725-5bb1173c6311",
-		AttractionID: "01a09793-928d-7716-9725-5bb1173c6312",
-		TimeSlotID:   "20260401_1030",
-		RequestedAt:  createdAt,
-	}
+	want := requestedMessage{PassID: "01a09793-928d-7716-9725-5bb1173c6309"}
 	if diff := cmp.Diff(want, decoded); diff != "" {
 		t.Errorf("newRequestedMessage(%q) の本文の差分 (-want +got):\n%s",
-			pass.ID(),
-			diff,
-		)
-	}
-
-	// 購読側が本文を読まずに対象を特定できるようにしているため、属性も確かめる
-	wantAttributes := map[string]string{"passId": "01a09793-928d-7716-9725-5bb1173c6309"}
-	if diff := cmp.Diff(wantAttributes, got.Attributes); diff != "" {
-		t.Errorf("newRequestedMessage(%q) の属性の差分 (-want +got):\n%s",
 			pass.ID(),
 			diff,
 		)
@@ -96,19 +80,22 @@ func TestNewRequestedMessage(t *testing.T) {
 		)
 	}
 
-	wantKeys := []string{
-		"attractionId",
-		"parkId",
-		"passId",
-		"requestedAt",
-		"ticketId",
-		"timeSlotId",
-	}
+	// 申込の中身は載せない、受け取る側が識別子からドキュメントを読み直すため
+	wantKeys := []string{"passId"}
 	gotKeys := slices.Sorted(maps.Keys(keys))
 	if diff := cmp.Diff(wantKeys, gotKeys); diff != "" {
 		t.Errorf("newRequestedMessage(%q) の項目名の差分 (-want +got):\n%s",
 			pass.ID(),
 			diff,
+		)
+	}
+
+	// 属性は持たない、同じ識別子が本文と 2 か所に並ばないようにするため
+	if len(got.Attributes) != 0 {
+		t.Errorf("newRequestedMessage(%q) の属性の件数 = %d, want %d",
+			pass.ID(),
+			len(got.Attributes),
+			0,
 		)
 	}
 }

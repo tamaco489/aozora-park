@@ -87,8 +87,8 @@ func (u *RequestPriorityPass) Do(ctx context.Context, in RequestPriorityPassInpu
 
 // publish は申込を送り、送れたことを publishedAt に残す
 //
-// 失敗しても申込は巻き戻さずエラーも返さない、作成済みのものを呼び出し側が作り直すと二重の申込になるため
-// publishedAt が null のまま残ったものは reconciliation が検出して送り直す
+//   - 失敗しても申込は巻き戻さずエラーも返さない、作成済みのものを呼び出し側が作り直すと二重の申込になるため
+//   - publishedAt が null のまま残ったものは reconciliation が検出して送り直す
 func (u *RequestPriorityPass) publish(ctx context.Context, pass *prioritypassmodel.PriorityPass) {
 	// 申込は作成済みのため、呼び出し元が切断しても送り切る
 	// 宛先に届かない間 SDK がリトライを繰り返すため、呼び出し元を待たせる上限をこちらで決める

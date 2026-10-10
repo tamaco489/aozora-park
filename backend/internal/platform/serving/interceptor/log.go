@@ -11,9 +11,9 @@ import (
 
 // Log は RPC の呼び出しを 1 件 1 行で記録する
 //
-// next は 1 つ内側の処理で、いちばん内側はハンドラそのもの
-// next の前後に処理を挟んだ関数を返すことで、何段でも重ねられる
-// UnaryInterceptorFunc は unary だけを包む型で、ストリーミングは素通しする
+//   - next は 1 つ内側の処理で、いちばん内側はハンドラそのもの
+//   - next の前後に処理を挟んだ関数を返すことで、何段でも重ねられる
+//   - UnaryInterceptorFunc は unary だけを包む型で、ストリーミングは素通しする
 func Log(logger *slog.Logger) connect.UnaryInterceptorFunc {
 	return func(next connect.UnaryFunc) connect.UnaryFunc {
 		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {

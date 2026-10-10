@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	gcppubsub "cloud.google.com/go/pubsub/v2"
 
@@ -17,19 +16,12 @@ import (
 // infra/modules/pubsub/main.tf の google_pubsub_topic.prioritypass_requested と同じ値にする
 const requestedTopicID = "prioritypass.requested"
 
-// attributePassID は購読側が本文を読まずに対象を特定できるようにする属性
-const attributePassID = "passId"
-
 // requestedMessage は prioritypass.requested に流す本文
 //
-// 自分たちで定義した形のため、SDK との間に翻訳の層を挟まず JSON にして送る
+//   - 申込の内容は Firestore を正とし、ここには識別子だけを載せる
+//   - 項目を足すと購読側が読まなくても契約が増えるため、必要になってから足す
 type requestedMessage struct {
-	PassID       string    `json:"passId"`
-	ParkID       string    `json:"parkId"`
-	TicketID     string    `json:"ticketId"`
-	AttractionID string    `json:"attractionId"`
-	TimeSlotID   string    `json:"timeSlotId"`
-	RequestedAt  time.Time `json:"requestedAt"`
+	PassID string `json:"passId"`
 }
 
 // Publisher は申込を prioritypass.requested へ送る
@@ -65,18 +57,11 @@ func (p *Publisher) PublishRequested(ctx context.Context, pass *prioritypassmode
 	return nil
 }
 
-// newRequestedMessage は送る本文と属性を組み立てる
+// newRequestedMessage は送る本文を組み立てる
 //
-// 購読側 (#116) が読む形そのものなので、Publish から切り離して単体で確かめられるようにしている
+// 購読側が読む形そのものなので、Publish から切り離して単体で確かめられるようにしている
 func newRequestedMessage(pass *prioritypassmodel.PriorityPass) (*gcppubsub.Message, error) {
-	data, err := json.Marshal(requestedMessage{
-		PassID:       pass.ID().String(),
-		ParkID:       pass.ParkID().String(),
-		TicketID:     pass.TicketID().String(),
-		AttractionID: pass.AttractionID().String(),
-		TimeSlotID:   pass.TimeSlotID().String(),
-		RequestedAt:  pass.CreatedAt(),
-	})
+	data, err := json.Marshal(requestedMessage{PassID: pass.ID().String()})
 	if err != nil {
 		return nil, fmt.Errorf("encode priority pass %q: %w",
 			pass.ID(),
@@ -84,10 +69,7 @@ func newRequestedMessage(pass *prioritypassmodel.PriorityPass) (*gcppubsub.Messa
 		)
 	}
 
-	return &gcppubsub.Message{
-		Data:       data,
-		Attributes: map[string]string{attributePassID: pass.ID().String()},
-	}, nil
+	return &gcppubsub.Message{Data: data}, nil
 }
 
 // Stop は送り残しを送り切ってから publish の goroutine を止める
