@@ -58,7 +58,9 @@ var ErrNotRequested = apperr.New(
 	"優先パスが申込中でない",
 )
 
-var ErrTimeSlotNotFound = apperr.New(
+// 枠の生成が追いついていないだけの場合があるため、再実行で直りうる扱いにする
+// 売り切れに畳むと、枠が空いているのに戻せない終端で止まる
+var ErrTimeSlotNotFound = apperr.NewRetryable(
 	apperr.KindNotFound,
 	"PRIORITY_PASS_TIME_SLOT_NOT_FOUND",
 	"申込が指す時間帯枠が見つからない",

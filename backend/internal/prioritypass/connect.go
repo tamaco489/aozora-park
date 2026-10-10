@@ -1,4 +1,3 @@
-// Package prioritypass は優先パスを扱う
 package prioritypass
 
 import (
@@ -16,8 +15,8 @@ import (
 
 // NewConnectHandler は connect の入口までを組み立てる
 //
-// usecase と infrastructure と handler の結線はここに閉じる
-// 2 つ目の戻り値は publish の goroutine を止める処理で、呼び出し側が App に登録する
+//   - usecase と infrastructure と handler の結線はここに閉じる
+//   - 2 つ目の戻り値は publish の goroutine を止める処理で、呼び出し側が App に登録する
 func NewConnectHandler(
 	firestoreClient *gcpfirestore.Client,
 	pubsubClient *gcppubsub.Client,
