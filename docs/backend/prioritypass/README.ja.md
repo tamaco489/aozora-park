@@ -195,6 +195,37 @@ curl -i -X POST http://localhost:8081/pubsub/push \
 
 自動テストは Pub/Sub のエミュレータを立てません。送る本文の形は組み立ての関数を単体で、受け口は `httptest` にエンベロープを渡して確かめます。
 
+## stg での確かめ方
+
+ローカルでは再現できないもの (ingress を内部に閉じていること、OIDC の検証、DLQ への退避) は stg で確かめます。
+配信の手順は [backend の stg へのデプロイ](../../cd/backend/stg.ja.md)にあります。
+
+1. `main` へマージし、`cd-api-stg` と `cd-priority-pass-issuer-stg` と `cd-frontend-stg` が通ったことを確かめる
+2. 画面からパークを作成し、`parkId` を控える
+3. 画面からアトラクションを作成し、`attractionId` を控える。**`enabled` を true にする**
+4. 枠を作成する (下のコマンド)
+5. 画面から申し込み、返ってきた `passId` で状況を確認する
+
+```sh
+cd backend
+just generate-inventory-stg
+```
+
+> [!IMPORTANT]
+> **枠を作らずに申し込むと、壊れ方が分かりにくくなります。** 申込そのものは成功して `requested` が返りますが、
+> 割当が `PRIORITY_PASS_TIME_SLOT_NOT_FOUND` で失敗し、再配信を 5 回繰り返した後に DLQ へ落ちます。
+> 画面上は `requested` のまま変わらないため、DLQ を見るまで原因が分かりません。
+
+枠を作れるのは `priorityPassConfig.enabled` が true のアトラクションだけで、作られるのは今日から `inventoryDays` 日分です。
+パークやアトラクションを作成しただけでは枠はできません。作成するのは `cmd/job` の `generate` だけです。
+
+> [!NOTE]
+> この枠の作成を定期実行する仕組み (Cloud Run jobs と Cloud Scheduler) はまだありません。
+> 当面は上のコマンドを手で実行します。CD に載せるのは #135 で扱います。
+
+申し込む `timeSlotId` は `YYYYMMDD_HHMM` の形です。時間帯枠の画面は開始時刻を表示しますが識別子は出さないため、日付と時刻から組み立てます。
+`ticketId` は券との突き合わせを行わないため、任意の文字列で構いません。
+
 ## 命名
 
 | 対象                           | 形                              | 例                                          |

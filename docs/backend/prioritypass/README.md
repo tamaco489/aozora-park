@@ -195,6 +195,37 @@ The allocation needs `timeSlots`, so generate the inventory first with `go run .
 
 The automated tests never start a Pub/Sub emulator. The shape of the body is checked against the function that builds it, and the endpoint is checked by passing an envelope through `httptest`.
 
+## Checking it on stg
+
+What cannot be reproduced locally — the internal-only ingress, the OIDC check, the move to the DLQ — is checked on stg.
+The deployment procedure is in [Deploying the backend to stg](../../cd/backend/stg.md).
+
+1. Merge into `main` and confirm that `cd-api-stg`, `cd-priority-pass-issuer-stg` and `cd-frontend-stg` all pass
+2. Create a park from the UI and note its `parkId`
+3. Create an attraction from the UI and note its `attractionId`. **Set `enabled` to true**
+4. Generate the inventory with the command below
+5. Request a pass from the UI, then check its state with the `passId` that comes back
+
+```sh
+cd backend
+just generate-inventory-stg
+```
+
+> [!IMPORTANT]
+> **Requesting a pass without generating the inventory fails in a way that is hard to read.** The request itself succeeds and returns `requested`,
+> but the allocation fails with `PRIORITY_PASS_TIME_SLOT_NOT_FOUND`, is redelivered five times and ends up in the DLQ.
+> The UI keeps showing `requested`, so nothing points at the cause until you look at the DLQ.
+
+Slots are only generated for attractions whose `priorityPassConfig.enabled` is true, and only for `inventoryDays` days from today.
+Creating a park or an attraction does not create any slots; `generate` in `cmd/job` is the only thing that does.
+
+> [!NOTE]
+> Nothing runs that generation on a schedule yet (no Cloud Run job, no Cloud Scheduler).
+> For now the command above is run by hand. Putting it on CD is tracked in #135.
+
+A `timeSlotId` is shaped `YYYYMMDD_HHMM`. The time slot screen shows the start time but not the identifier, so it is assembled from the date and the time.
+A `ticketId` is never matched against a ticket, so any string will do.
+
 ## Naming
 
 | Thing                      | Shape                             | Example                                     |
