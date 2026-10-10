@@ -71,7 +71,7 @@ permissions:
 - stg は `cd-backend-stg.yaml` が `gcloud beta builds submit` を実行する。ビルドする ref は `github.sha` を使う
 - 手元からは `just deploy-stg <ref>` で同じことができる。Developer Connect のリポジトリは手動のトリガを作れないため、どちらも `gcloud builds submit` を使う
 - **`gcloud beta builds submit` の引数はワークフローとスクリプトの 2 か所にある。片方を変更したらもう片方も直す** (両方にコメントを残している)
-- prd は `api/v1.2.3` の形のタグの push で起動するトリガから実行する。トリガは承認を必須にする
+- prd は `<サービス名>/v1.2.3` の形のタグの push で起動するトリガから実行する。トリガはサービスごとに作成し、承認を必須にする
 - ビルド定義は対象のディレクトリに置く (`backend/cloudbuild.yaml`)。イメージのタグにはコミットの SHA を使う
 - ビルドは `sa-deployer` で走らせる。ユーザー指定の SA ではログの保存先を選べないため `logging: CLOUD_LOGGING_ONLY` を指定する
 
