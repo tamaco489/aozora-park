@@ -25,6 +25,8 @@ services:
   # Pub/Sub エミュレータ、イメージのタグは firestoretest の emulatorImage と同じ値にする
   # 片方を変更したらもう片方も修正する
   pubsub-emulator:
+    # emulators のタグは amd64 しか無く arm64 では Rosetta で動く、明示して警告を出さない
+    platform: linux/amd64
     image: gcr.io/google.com/cloudsdktool/cloud-sdk:584.0.0-emulators
     command:
       - gcloud
@@ -45,6 +47,7 @@ services:
   # エミュレータは publish 先を自動で作らないため、トピックを 1 度だけ作成する
   # justfile にシェルを書かない取り決めのため、compose の 1 回限りのサービスで行う
   pubsub-init:
+    platform: linux/amd64
     image: gcr.io/google.com/cloudsdktool/cloud-sdk:584.0.0-emulators
     depends_on:
       pubsub-emulator:
