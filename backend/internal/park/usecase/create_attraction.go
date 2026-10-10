@@ -81,8 +81,8 @@ func (u *CreateAttraction) Do(ctx context.Context, in CreateAttractionInput) (*p
 //
 // 同名が並ぶと来園者が見分けられず、どちらの枠を申し込んだのかも分からなくなる
 //
-// 読んでから書くため、同名の登録が同時に来ると両方が通る
-// 運営の内部操作で同時に起きる状況が考えにくいため、ここではトランザクションで束ねない
+//   - 読んでから書くため、同名の登録が同時に来ると両方が通る
+//   - 運営の内部操作で同時に起きる状況が考えにくいため、ここではトランザクションで束ねない
 func (u *CreateAttraction) ensureNameFree(
 	ctx context.Context,
 	parkID parkmodel.ParkID,

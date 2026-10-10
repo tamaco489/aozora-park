@@ -82,8 +82,8 @@ func (u *UpdateAttraction) Do(ctx context.Context, in UpdateAttractionInput) (*p
 
 // ensureNameFree は同じパークに同じ表示名のアトラクションが無いことを確かめる
 //
-// 自分自身は除く、表示名を変えない更新を弾かないため
-// 競合の扱いは CreateAttraction.ensureNameFree と同じ
+//   - 自分自身は除く、表示名を変えない更新を弾かないため
+//   - 競合の扱いは CreateAttraction.ensureNameFree と同じ
 func (u *UpdateAttraction) ensureNameFree(
 	ctx context.Context,
 	parkID parkmodel.ParkID,

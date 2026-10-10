@@ -9,8 +9,8 @@ import (
 
 // parkDocument は枠の生成に使うパークの設定を読む形
 //
-// park が保存したドキュメントを読む、機能パッケージ同士は import しないため形だけを inventory 側にも置く
-// 表示名のように生成に使わない項目は持たない、DataTo は構造体にない項目を捨てる
+//   - park が保存したドキュメントを読む、機能パッケージ同士は import しないため形だけを inventory 側にも置く
+//   - 表示名のように生成に使わない項目は持たない、DataTo は構造体にない項目を捨てる
 type parkDocument struct {
 	DefaultDailyCapacity int32 `firestore:"defaultDailyCapacity"`
 	InventoryDays        int32 `firestore:"inventoryDays"`

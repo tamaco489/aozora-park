@@ -1,7 +1,7 @@
 // Package pubsubpush は Pub/Sub push と機能側のハンドラの間でエンベロープと応答を変換する
 //
-// Pub/Sub の決まりごと (POST 固定、data が base64、ack は 2xx、再配信は 5xx) をこの層に閉じる
-// 機能側が書くのは func(ctx, *Message) error だけで、HTTP のステータスコードを組み立てない
+//   - Pub/Sub の決まりごと (POST 固定、data が base64、ack は 2xx、再配信は 5xx) をこの層に閉じる
+//   - 機能側が書くのは func(ctx, *Message) error だけで、HTTP のステータスコードを組み立てない
 package pubsubpush
 
 import (
@@ -26,8 +26,8 @@ const maxBodyBytes = 16 << 20
 
 // Message はエンベロープから取り出した 1 件のメッセージ
 //
-// 再配信は別のリクエストとして届き、前回の処理の記憶はプロセスに残らない
-// 何回目かを知る手がかりは DeliveryAttempt だけになる
+//   - 再配信は別のリクエストとして届き、前回の処理の記憶はプロセスに残らない
+//   - 何回目かを知る手がかりは DeliveryAttempt だけになる
 //
 // 不変条件を持たない入れ物のためフィールドを公開する
 type Message struct {
@@ -41,8 +41,8 @@ type Message struct {
 
 // Handler は 1 件のメッセージを処理する
 //
-// 失敗は apperr のセンチネルで返す、ack と再配信のどちらになるかは apperr.Retryable が決める
-// 成否の判断に使わない情報 (件数など) は、ここでログに残してから nil を返す
+//   - 失敗は apperr のセンチネルで返す、ack と再配信のどちらになるかは apperr.Retryable が決める
+//   - 成否の判断に使わない情報 (件数など) は、ここでログに残してから nil を返す
 type Handler func(ctx context.Context, msg *Message) error
 
 // envelope は push が送ってくる JSON の形
@@ -69,8 +69,7 @@ type envelopeMessage struct {
 //   - 再実行で直りうる失敗: 5xx を返して再配信させ、max_delivery_attempts を超えたら DLQ へ送らせる
 //   - それ以外: ack してログに残す (再送しても直らないものを DLQ まで引きずらない)
 //
-// 再配信そのものは Pub/Sub が行い、1 回の配信が 1 回のリクエストになる
-// 間隔と回数はこのプロセスに無く、infra/modules/pubsub/main.tf の retry_policy と dead_letter_policy が決める
+// 再配信そのものは Pub/Sub が行い、間隔と回数は infra/modules/pubsub/main.tf の retry_policy と dead_letter_policy が決める
 //
 // 呼び出し元が Pub/Sub であることは Cloud Run の IAM と OIDC トークンが保証するため、ここでは検証しない
 func NewHandler(logger *slog.Logger, h Handler) http.Handler {

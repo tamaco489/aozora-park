@@ -131,8 +131,8 @@ func (r *Repository) CreatePriorityPass(ctx context.Context, pass *prioritypassm
 
 // MarkPriorityPassPublished は publish できたことを示す印を後から埋める
 //
-// ドメインの状態ではなく publish の記録のため、ステータスと updatedAt は動かさない
-// 値が null のまま残ったものは reconciliation が拾う
+//   - ドメインの状態ではなく publish の記録のため、ステータスと updatedAt は動かさない
+//   - 値が null のまま残ったものは reconciliation が拾う
 func (r *Repository) MarkPriorityPassPublished(
 	ctx context.Context,
 	id prioritypassmodel.PassID,

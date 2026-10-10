@@ -10,8 +10,8 @@ import (
 
 // 枠を置くコレクション、どちらもパークのサブコレクションに入れ子にする
 //
-// timeSlots のパスは prioritypass も優先パスの割当で残りを減らすために持つ
-// internal/prioritypass/infrastructure/firestore/repository.go と 2 か所にある、片方を変更したらもう片方も修正する
+//   - timeSlots のパスは prioritypass も優先パスの割当で残りを減らすために持つ
+//   - internal/prioritypass/infrastructure/firestore/repository.go と 2 か所にある、片方を変更したらもう片方も修正する
 const (
 	parkCollection          = "parks"
 	dateInventoryCollection = "dateInventories"

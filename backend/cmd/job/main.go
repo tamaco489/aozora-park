@@ -18,9 +18,9 @@ const generateSubcommand = "generate"
 
 // jobTimeout はジョブ全体の締め切り
 //
-// Firestore のクライアントは到達できない相手に対して再試行を続けるため、期限が無いと失敗せずに走り続ける
-// 障害時に Cloud Run jobs のタスクのタイムアウトまで失敗が検知されず、再試行の開始もその分だけ遅れる
-// 枠の生成は 150 件の dateInventories と 780 件の timeSlots を 2 秒で書き終えたため、桁違いの余裕を見てこの値にする
+//   - Firestore のクライアントは到達できない相手に対して再試行を続けるため、期限が無いと失敗せずに走り続ける
+//   - 障害時に Cloud Run jobs のタスクのタイムアウトまで失敗が検知されず、再試行の開始もその分だけ遅れる
+//   - 枠の生成は 150 件の dateInventories と 780 件の timeSlots を 2 秒で書き終えたため、桁違いの余裕を見てこの値にする
 const jobTimeout = 5 * time.Minute
 
 func main() {

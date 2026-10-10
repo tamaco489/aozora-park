@@ -1,4 +1,6 @@
-// Package port は優先パスの永続化以外の外部サービスのインタフェースを持つ
+// Package port は usecase が外へ出ていく相手のインタフェースを持つ
+//
+// 永続化は domain/repository に置く、ここに入るのは publish や決済のように読み返せないもの
 package port
 
 import (

@@ -19,8 +19,8 @@ type PriorityPass struct {
 
 // NewPriorityPass は申込を受け付けた優先パスを新しく生成する
 //
-// 識別子は UUID v7 で採番する、生成順に並ぶので一覧の並びが安定する
-// 枠を確保するのは割当の処理のため、ここでは requested で作る
+//   - 識別子は UUID v7 で採番する、生成順に並ぶので一覧の並びが安定する
+//   - 枠を確保するのは割当の処理のため、ここでは requested で作る
 func NewPriorityPass(
 	parkID ParkID,
 	ticketID TicketID,

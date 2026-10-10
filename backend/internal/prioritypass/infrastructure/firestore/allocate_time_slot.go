@@ -37,8 +37,8 @@ const (
 
 // AllocateTimeSlot は時間帯枠の残りを 1 つ減らして申込を issued にする
 //
-// 枠の減算と状態の遷移が片方だけ残ると枠を二重に配ることになるため、集約をまたいで 1 つのトランザクションで書く
-// 残りが無いときは減算せずに sold_out へ遷移させる
+//   - 枠の減算と状態の遷移が片方だけ残ると枠を二重に配ることになるため、集約をまたいで 1 つのトランザクションで書く
+//   - 残りが無いときは減算せずに sold_out へ遷移させる
 func (r *Repository) AllocateTimeSlot(
 	ctx context.Context,
 	id prioritypassmodel.PassID,

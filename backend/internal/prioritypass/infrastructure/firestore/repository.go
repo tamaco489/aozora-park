@@ -18,8 +18,8 @@ const (
 
 // 時間帯枠を置くコレクション、パークとアトラクションのサブコレクションに入れ子になっている
 //
-// inventory が作成したドキュメントの残りを減らす、機能パッケージ同士は import しないためパスを prioritypass 側にも置く
-// internal/inventory/infrastructure/firestore/repository.go と 2 か所にある、片方を変更したらもう片方も修正する
+//   - inventory が作成したドキュメントの残りを減らす、機能パッケージ同士は import しないためパスを prioritypass 側にも置く
+//   - internal/inventory/infrastructure/firestore/repository.go と 2 か所にある、片方を変更したらもう片方も修正する
 const (
 	parkCollection       = "parks"
 	attractionCollection = "attractions"
