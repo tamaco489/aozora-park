@@ -1,13 +1,14 @@
-name: cd-backend-stg
+name: cd-priority-pass-issuer-stg
 
 on:
   push:
     branches: [main]
     paths:
       - "backend/**"
-      - ".github/workflows/cd-backend-stg.yaml"
+      - ".github/workflows/cd-priority-pass-issuer-stg.yaml"
+      - ".github/workflows/scripts/deploy-priority-pass-issuer-stg.sh"
   # stg は作業中のブランチからも配信したいことがあるため、任意のブランチから手で起こせるようにする
-  # 手元の just deploy-stg と同じ用途で、実行したブランチの内容がそのまま stg に入る
+  # 手元の just deploy-priority-pass-issuer-stg と同じ用途で、実行したブランチの内容がそのまま stg に入る
   workflow_dispatch:
 
 permissions:
@@ -15,26 +16,21 @@ permissions:
   id-token: write
 
 # 検査と違い打ち切らずに直列化する、途中で止めても GCP 側のビルドは止まらず古いイメージが後から Cloud Run を更新しうる
+# サービスごとにワークフローを分けているため、priority-pass-issuer の配信が他のサービスの配信を待つことはない
 concurrency:
-  group: cd-backend-stg
+  group: cd-priority-pass-issuer-stg
   cancel-in-progress: false
 
 # infra/envs/stg の terraform output が出す値、秘匿値ではない
 env:
   WORKLOAD_IDENTITY_PROVIDER: projects/1098169918715/locations/global/workloadIdentityPools/github/providers/github
   SERVICE_ACCOUNT: sa-cd-backend@stg-aozora-park.iam.gserviceaccount.com
-  PROJECT_ID: stg-aozora-park
-  REGION: asia-northeast1
-
-defaults:
-  run:
-    working-directory: backend
 
 jobs:
-  backend-deploy-stg:
+  priority-pass-issuer-deploy-stg:
     runs-on: ubuntu-latest
     steps:
-      # cloudbuild.yaml は手元から渡すため、ソースの取得とは別にチェックアウトが要る
+      # cloudbuild.yaml とデプロイのスクリプトは手元から渡すため、ソースの取得とは別にチェックアウトが要る
       - uses: actions/checkout@v7
       - uses: google-github-actions/auth@v3
         with:
@@ -44,16 +40,7 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v3
         with:
           install_components: beta
-      # 引数は backend/scripts/deploy-stg.sh と同じ、片方を変更したらもう片方も直す
-      # ログを表示するため beta を使う (GA の submit は CLOUD_LOGGING_ONLY のログを出さない)
       - name: Submit build
         env:
           SHA: ${{ github.sha }}
-        run: |
-          gcloud beta builds submit "projects/${PROJECT_ID}/locations/${REGION}/connections/github/gitRepositoryLinks/aozora-park" \
-            --project="${PROJECT_ID}" \
-            --region="${REGION}" \
-            --revision="${SHA}" \
-            --config=cloudbuild.yaml \
-            --service-account="projects/${PROJECT_ID}/serviceAccounts/sa-deployer@${PROJECT_ID}.iam.gserviceaccount.com" \
-            --substitutions="_TAG=${SHA}"
+        run: .github/workflows/scripts/deploy-priority-pass-issuer-stg.sh "${SHA}"

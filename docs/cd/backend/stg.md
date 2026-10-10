@@ -4,8 +4,11 @@
 
 Back to the [documentation index](../../README.md).
 
-After merging into `main`, update the api on stg with a single command from your machine. The overall architecture is described in [Backend deployment architecture](./README.md).
+After merging into `main`, update the Cloud Run services on stg with a single command from your machine. The overall architecture is described in [Backend deployment architecture](./README.md).
 Cloud Build runs the build and the deployment inside GCP, and fetches the source from GitHub through Developer Connect.
+
+**There is one recipe per service.** You name the service you want to ship; there is no recipe that ships all of them at once.
+A merge into `main` starts every service's workflow anyway, so shipping both by hand is rarely needed.
 
 ## Prerequisites
 
@@ -26,22 +29,28 @@ gcloud auth login
 
 ```sh
 cd backend
-just deploy-stg              # deploys main
-just deploy-stg <ref>        # deploys a branch, a tag or a SHA
+just deploy-api-stg <ref>                      # deploys api
+just deploy-priority-pass-issuer-stg <ref>     # deploys priority-pass-issuer
 ```
 
-`<ref>` is resolved as `origin/<ref>` first, and used as given when that does not exist.
+**`<ref>` cannot be omitted**, so that nobody mistakes which commit goes to stg; deploying `main` is written as `just deploy-api-stg main`.
+It is resolved as `origin/<ref>` first, and used as given when that does not exist.
 The resolved SHA becomes the image tag, so the image tells you which commit is running.
 
-| Step | Runs on      | What happens                                                                            |
-| ---- | ------------ | --------------------------------------------------------------------------------------- |
-| 1    | Your machine | Resolves the ref to a commit SHA and submits the build with `gcloud beta builds submit` |
-| 2    | Cloud Build  | Fetches the source at that SHA through the Developer Connect repository link            |
-| 3    | Cloud Build  | Builds the image with `backend/Dockerfile` and pushes it to Artifact Registry           |
-| 4    | Cloud Build  | Deploys the pushed image by digest to the Cloud Run service `api`                       |
+A single run ships a single service.
+
+| Step | Runs on      | What happens                                                                                        |
+| ---- | ------------ | --------------------------------------------------------------------------------------------------- |
+| 1    | Your machine | Resolves the ref to a commit SHA and submits one build per service with `gcloud beta builds submit` |
+| 2    | Cloud Build  | Fetches the source at that SHA through the Developer Connect repository link                        |
+| 3    | Cloud Build  | Builds the image with `backend/Dockerfile` and pushes it to Artifact Registry                       |
+| 4    | Cloud Build  | Deploys the pushed image by digest to the Cloud Run service it was built for                        |
 
 The build runs as `sa-deployer`. Logs are streamed to the command output.
 The history is in the [Cloud Build list](https://console.cloud.google.com/cloud-build/builds?project=stg-aozora-park); select the `asia-northeast1` region.
+
+**If one build fails, the other is still submitted.** The names of the failed services are printed at the end, and the exit code is 1 when at least one of them failed.
+The builds are split per service because building two services in one build would make `cloudbuild.yaml` collide on the `/workspace` path it writes the digest to.
 
 > [!NOTE]
 > The build config (`backend/cloudbuild.yaml`) is read from your working tree.
@@ -80,21 +89,25 @@ buf curl -d '{"parkId":"<the park_id you created>"}' \
   <api_uri>/aozorapark.park.v1.ParkService/GetPark
 ```
 
-Check which revision and image are serving.
+Check which revision and image are serving. Run it for `api` and for `priority-pass-issuer` in turn.
 
 ```sh
-gcloud run services describe api --region=asia-northeast1 --project=stg-aozora-park \
+gcloud run services describe <service> --region=asia-northeast1 --project=stg-aozora-park \
   --format='value(status.latestReadyRevisionName,spec.template.spec.containers[0].image)'
 ```
+
+`priority-pass-issuer` has internal-only ingress, so it cannot be called over HTTP from your machine.
+Verify it by calling the request RPC and watching the allocation proceed through the Pub/Sub push instead.
 
 ## Rolling back
 
 Send the traffic back to the previous revision. Cloud Run keeps revisions, so there is no image to rebuild.
+The services are independent, so only the broken one has to be rolled back.
 
 ```sh
-gcloud run revisions list --service=api --region=asia-northeast1 --project=stg-aozora-park
+gcloud run revisions list --service=<service> --region=asia-northeast1 --project=stg-aozora-park
 
-gcloud run services update-traffic api \
+gcloud run services update-traffic <service> \
   --region=asia-northeast1 --project=stg-aozora-park \
   --to-revisions=<the revision to roll back to>=100
 ```
@@ -102,21 +115,22 @@ gcloud run services update-traffic api \
 After rolling back, move the traffic to the newest revision again with the following command, or by deploying again.
 
 ```sh
-gcloud run services update-traffic api \
+gcloud run services update-traffic <service> \
   --region=asia-northeast1 --project=stg-aozora-park --to-latest
 ```
 
 ## How it works, and how prd differs
 
-| Item                | stg                                                              | prd                                                      |
-| ------------------- | ---------------------------------------------------------------- | -------------------------------------------------------- |
-| Automatic trigger   | A push to `main`, which starts `cd-backend-stg`                  | Pushing a tag shaped like `api/v1.2.3`                   |
-| Manual trigger      | `workflow_dispatch`, or `just deploy-stg <ref>`                  | None                                                     |
-| Cloud Build trigger | None. Developer Connect repositories cannot have manual triggers | Yes, defined in Terraform                                |
-| Approval            | Not required                                                     | Required. Pushing the tag alone does not start the build |
-| Image tag           | The commit SHA                                                   | The commit SHA                                           |
+| Item                | stg                                                                     | prd                                                      |
+| ------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------- |
+| Automatic trigger   | A push to `main`, which starts `cd-<service>-stg`                       | Pushing a tag shaped like `<service>/v1.2.3`             |
+| Manual trigger      | A per-service `workflow_dispatch`, or `just deploy-<service>-stg <ref>` | None                                                     |
+| What gets deployed  | One service per workflow                                                | Only the service the tag prefix names                    |
+| Cloud Build trigger | None. Developer Connect repositories cannot have manual triggers        | Yes, one per service, defined in Terraform               |
+| Approval            | Not required                                                            | Required. Pushing the tag alone does not start the build |
+| Image tag           | The commit SHA                                                          | The commit SHA                                           |
 
 - Terraform ignores the `image` of the Cloud Run service with `ignore_changes`, so a deployment is not reported as drift.
 - All GitHub Actions does is start the Cloud Build. `sa-deployer` still performs the build and the deployment inside GCP, so no deployment permission is handed to GitHub.
-- The steps on this page are for starting a deployment by hand. Anything merged into `main` is deployed by `cd-backend-stg`, so running them is normally unnecessary.
+- The steps on this page are for starting a deployment by hand. Anything merged into `main` is deployed by `cd-<service>-stg`, so running them is normally unnecessary.
 - The steps for creating the Developer Connect connection live in the design notes, in the section titled "5. Developer Connect の接続" (Setting up the Developer Connect connection).
