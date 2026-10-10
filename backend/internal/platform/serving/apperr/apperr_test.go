@@ -1,6 +1,8 @@
 package apperr
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 
 	"connectrpc.com/connect"
@@ -60,5 +62,58 @@ func TestErrorError(t *testing.T) {
 			got,
 			want,
 		)
+	}
+}
+
+func TestRetryable(t *testing.T) {
+	tests := map[string]struct {
+		err  error
+		want bool
+	}{
+		"正常系_nilの場合_falseになること": {
+			err:  nil,
+			want: false,
+		},
+		"正常系_Newで作った場合_falseになること": {
+			err: New(
+				KindConflict,
+				"PARK_ALREADY_EXISTS",
+				"同じパークが既にある",
+			),
+			want: false,
+		},
+		"正常系_NewRetryableで作った場合_trueになること": {
+			err: NewRetryable(
+				KindNotFound,
+				"PRIORITY_PASS_TIME_SLOT_NOT_FOUND",
+				"枠がまだ無い",
+			),
+			want: true,
+		},
+		"正常系_包んだセンチネルの場合_中身の判定に従うこと": {
+			err: fmt.Errorf("get time slot: %w", NewRetryable(
+				KindNotFound,
+				"PRIORITY_PASS_TIME_SLOT_NOT_FOUND",
+				"枠がまだ無い",
+			)),
+			want: true,
+		},
+		"正常系_分類していないエラーの場合_trueになること": {
+			err:  errors.New("firestore unavailable"),
+			want: true,
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := Retryable(tt.err)
+			if got != tt.want {
+				t.Errorf("Retryable(%v) = %t, want %t",
+					tt.err,
+					got,
+					tt.want,
+				)
+			}
+		})
 	}
 }

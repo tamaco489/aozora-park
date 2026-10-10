@@ -1,7 +1,7 @@
-# run-api はコンテナの firestore-emulator に向ける、demo- で始まる ID は本物の GCP への接続を拒む
-emulator_env := "FIRESTORE_EMULATOR_HOST=localhost:18080 GOOGLE_CLOUD_PROJECT=demo-aozora-park"
+# run-api はコンテナのエミュレータに向ける、demo- で始まる ID は本物の GCP への接続を拒む
+emulator_env := "FIRESTORE_EMULATOR_HOST=localhost:18080 PUBSUB_EMULATOR_HOST=localhost:18085 GOOGLE_CLOUD_PROJECT=demo-aozora-park"
 
-# run-api-stg は stg の Firestore に ADC で繋ぐ、課金先は ADC の quota project に左右されないよう stg に固定する
+# run-api-stg は stg の Firestore と Pub/Sub に ADC で繋ぐ、課金先は ADC の quota project に左右されないよう stg に固定する
 stg_env := "GOOGLE_CLOUD_PROJECT=stg-aozora-park GOOGLE_CLOUD_QUOTA_PROJECT=stg-aozora-park"
 
 default:
@@ -59,9 +59,9 @@ fmt-check:
 run-api:
     {{ emulator_env }} go run ./cmd/api
 
-# api を stg の Firestore に向けて起動する (ADC が必要)、シェルに残ったエミュレータの設定は外す
+# api を stg に向けて起動する (ADC が必要)、シェルに残ったエミュレータの設定は外す
 run-api-stg:
-    env -u FIRESTORE_EMULATOR_HOST {{ stg_env }} go run ./cmd/api
+    env -u FIRESTORE_EMULATOR_HOST -u PUBSUB_EMULATOR_HOST {{ stg_env }} go run ./cmd/api
 
 # ヘルスチェックを呼ぶ、api を起動した状態で実行する
 health port="8080":
@@ -79,6 +79,7 @@ docker-build:
 docker-run: docker-build
     docker run --rm --detach --name aozora-park-api -p 8080:8080 \
         -e FIRESTORE_EMULATOR_HOST=host.docker.internal:18080 \
+        -e PUBSUB_EMULATOR_HOST=host.docker.internal:18085 \
         -e GOOGLE_CLOUD_PROJECT=demo-aozora-park \
         aozora-park/api:local
 
